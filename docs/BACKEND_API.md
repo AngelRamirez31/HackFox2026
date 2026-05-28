@@ -186,3 +186,66 @@ Respuesta esperada:
 ```
 
 La respuesta de Gemini funciona como sugerencia. El frontend debe permitir que el usuario confirme o edite el tipo, severidad y descripción antes de guardar el reporte.
+
+## Firebase / Firestore
+
+Esta iteración ya incluye un repositorio para guardar reportes en Firebase Cloud Firestore desde el backend. Por seguridad, el proyecto sigue arrancando con memoria local si no se configura Firebase.
+
+```http
+GET /api/firebase/status
+```
+
+Sirve para revisar qué almacenamiento está activo:
+
+```json
+{
+  "provider": "InMemory",
+  "database": "InMemory",
+  "firestoreEnabled": false,
+  "projectConfigured": false,
+  "reportsCollection": "reports"
+}
+```
+
+Para activar Firestore localmente desde la carpeta `backend/`:
+
+```bash
+dotnet user-secrets set "Persistence:Provider" "Firestore"
+dotnet user-secrets set "Firebase:ProjectId" "ID_DEL_PROYECTO_FIREBASE"
+dotnet user-secrets set "Firebase:ReportsCollection" "reports"
+```
+
+Autenticación local recomendada con Google Cloud CLI:
+
+```bash
+gcloud auth application-default login
+```
+
+Alternativa con archivo de credenciales local, sin subirlo al repo:
+
+```bash
+dotnet user-secrets set "Firebase:CredentialsPath" "C:\\ruta\\segura\\firebase-service-account.json"
+```
+
+El backend no guarda credenciales en `appsettings.json`. Para despliegue en Cloud Run, lo ideal es usar la service account del servicio y variables de entorno:
+
+```text
+Persistence__Provider=Firestore
+Firebase__ProjectId=ID_DEL_PROYECTO_FIREBASE
+Firebase__ReportsCollection=reports
+Gemini__ApiKey=TU_API_KEY_DE_GEMINI
+```
+
+Colección usada en Firestore:
+
+```text
+reports
+```
+
+Documento auxiliar usado para IDs numéricos compatibles con el frontend:
+
+```text
+_metadata/counters
+```
+
+Los endpoints públicos no cambian. El frontend puede seguir usando `GET /api/reports`, `POST /api/reports`, `POST /api/routes/score` y `GET /api/stats`; el cambio de memoria a Firestore ocurre solamente en backend.

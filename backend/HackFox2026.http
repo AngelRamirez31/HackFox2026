@@ -94,3 +94,8 @@ Content-Type: image/jpeg
 
 < ./docs/sample-barrera.jpg
 --HackFoxVisionBoundary--
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/firebase/status
+Accept: application/json

@@ -176,3 +176,8 @@ wwwroot/uploads/*
 !wwwroot/uploads/.gitkeep
 !wwwroot/uploads/reports/
 !wwwroot/uploads/reports/.gitkeep
+# More local Google/Firebase credentials
+*.p12
+*.pem
+*serviceAccount*.json
+*google-application-credentials*.json

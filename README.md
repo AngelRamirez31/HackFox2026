@@ -44,7 +44,8 @@ Crear una plataforma sencilla que permita:
 - Mapa: Google Maps Platform
 - Despliegue opcional: Docker y Google Cloud Run
 - IA opcional: Gemini Vision desde backend para sugerir tipo y severidad de barreras
-- Siguientes recursos posibles: Firebase, Cloud Storage y Cloud Run
+- Base de datos opcional: Firebase Cloud Firestore desde backend
+- Siguientes recursos posibles: Cloud Storage y Cloud Run
 
 ## Cómo abrirlo en Visual Studio 2022
 
@@ -72,6 +73,7 @@ La guía completa está en:
 
 ```text
 docs/VISUAL_STUDIO.md
+docs/FIREBASE.md
 ```
 
 ## Cómo ejecutar el backend
@@ -136,8 +138,39 @@ La clave de Gemini o credenciales de Google Cloud no deben ir en React.
 - `GET /api/vision/status`
 - `POST /api/vision/analyze-report-image`
 
-La primera iteración usa almacenamiento en memoria para avanzar rápido durante el hackathon. La siguiente mejora natural es cambiar `InMemoryReportRepository` por SQLite, Firestore o Cloud SQL.
+La primera iteración usaba almacenamiento en memoria. Esta versión ya incluye soporte opcional para Firebase Cloud Firestore desde backend, manteniendo memoria local como fallback seguro para desarrollo sin credenciales.
 
+
+## Firebase / Firestore en backend
+
+El backend puede guardar reportes en Firebase Cloud Firestore sin cambiar los endpoints que consume el frontend. Por seguridad, el proyecto arranca con memoria local hasta que se configure Firebase en User Secrets o variables de entorno.
+
+Desde la carpeta `backend/`:
+
+```bash
+dotnet user-secrets set "Persistence:Provider" "Firestore"
+dotnet user-secrets set "Firebase:ProjectId" "ID_DEL_PROYECTO_FIREBASE"
+dotnet user-secrets set "Firebase:ReportsCollection" "reports"
+```
+
+Para autenticación local con Google Cloud CLI:
+
+```bash
+gcloud auth application-default login
+```
+
+También se puede usar una credencial local sin subirla al repo:
+
+```bash
+dotnet user-secrets set "Firebase:CredentialsPath" "C:\\ruta\\segura\\firebase-service-account.json"
+```
+
+Verificación rápida:
+
+```text
+GET https://localhost:7271/api/firebase/status
+GET https://localhost:7271/api/health
+```
 
 ## Gemini API en backend
 
