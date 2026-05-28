@@ -5,7 +5,22 @@ Accept: application/json
 
 ###
 
+GET {{HackFox2026_HostAddress}}/api/firebase/status
+Accept: application/json
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/reports/options
+Accept: application/json
+
+###
+
 GET {{HackFox2026_HostAddress}}/api/reports
+Accept: application/json
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/reports?status=active&type=Banqueta%20rota
 Accept: application/json
 
 ###
@@ -19,26 +34,53 @@ POST {{HackFox2026_HostAddress}}/api/reports
 Content-Type: multipart/form-data; boundary=HackFoxBoundary
 
 --HackFoxBoundary
-Content-Disposition: form-data; name="type"
+Content-Disposition: form-data; name="tipo"
 
-blocked_ramp
+Banqueta rota
 --HackFoxBoundary
-Content-Disposition: form-data; name="description"
+Content-Disposition: form-data; name="descripcion"
 
-Rampa bloqueada por vehículo cerca del cruce peatonal.
+Banqueta rota cerca del cruce peatonal.
 --HackFoxBoundary
-Content-Disposition: form-data; name="latitude"
+Content-Disposition: form-data; name="latitud"
 
 32.514947
 --HackFoxBoundary
-Content-Disposition: form-data; name="longitude"
+Content-Disposition: form-data; name="longitud"
 
 -117.038247
 --HackFoxBoundary
+Content-Disposition: form-data; name="severidad"
+
+alta
+--HackFoxBoundary--
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/reports
+Content-Type: multipart/form-data; boundary=HackFoxEnglishBoundary
+
+--HackFoxEnglishBoundary
+Content-Disposition: form-data; name="type"
+
+blocked_ramp
+--HackFoxEnglishBoundary
+Content-Disposition: form-data; name="description"
+
+Rampa bloqueada por vehículo cerca del cruce peatonal.
+--HackFoxEnglishBoundary
+Content-Disposition: form-data; name="latitude"
+
+32.514947
+--HackFoxEnglishBoundary
+Content-Disposition: form-data; name="longitude"
+
+-117.038247
+--HackFoxEnglishBoundary
 Content-Disposition: form-data; name="severity"
 
 3
---HackFoxBoundary--
+--HackFoxEnglishBoundary--
 
 ###
 
@@ -97,5 +139,5 @@ Content-Type: image/jpeg
 
 ###
 
-GET {{HackFox2026_HostAddress}}/api/firebase/status
+POST {{HackFox2026_HostAddress}}/api/demo/seed-reports
 Accept: application/json

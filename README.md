@@ -126,6 +126,7 @@ La clave de Gemini o credenciales de Google Cloud no deben ir en React.
 ## Backend inicial implementado
 
 - `GET /api/health`
+- `GET /api/reports/options`
 - `GET /api/reports`
 - `GET /api/reports/{id}`
 - `GET /api/reports/nearby`
@@ -137,6 +138,8 @@ La clave de Gemini o credenciales de Google Cloud no deben ir en React.
 - `GET /api/stats`
 - `GET /api/vision/status`
 - `POST /api/vision/analyze-report-image`
+- `GET /api/firebase/status`
+- `POST /api/demo/seed-reports`
 
 La primera iteración usaba almacenamiento en memoria. Esta versión ya incluye soporte opcional para Firebase Cloud Firestore desde backend, manteniendo memoria local como fallback seguro para desarrollo sin credenciales.
 
@@ -193,3 +196,16 @@ Si responde `configured: true`, el endpoint de análisis de imágenes ya puede u
 Abre `HackFox2026.sln` desde la raiz del repositorio. La solucion carga solamente el proyecto `backend/HackFox2026.csproj` para evitar que Visual Studio marque `frontend` o `docs` como proyectos no soportados.
 
 El frontend sigue estando separado en `frontend/` y se corre por terminal con `npm install` y `npm run dev`.
+
+
+## Iteración actual del backend
+
+Esta versión agrega compatibilidad directa con el frontend actual: el backend acepta campos de formulario tanto en español como en inglés (`tipo/type`, `descripcion/description`, `latitud/latitude`, `longitud/longitude`, `severidad/severity`, `foto/image`). También normaliza tipos visibles como `Banqueta rota` o `Rampa bloqueada` al formato interno usado por la API.
+
+Para demos con Firebase o memoria local, se agregó:
+
+```text
+POST /api/demo/seed-reports
+```
+
+Este endpoint agrega reportes demo de Tijuana sin borrar datos existentes y solo está habilitado en ambiente de desarrollo o cuando `Demo__EnableSeedEndpoint=true`.

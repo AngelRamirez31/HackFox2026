@@ -36,6 +36,7 @@ else
 
 builder.Services.AddScoped<LocalFileStorageService>();
 builder.Services.AddScoped<AccessibilityScoringService>();
+builder.Services.AddScoped<DemoReportSeeder>();
 builder.Services.AddHttpClient<GeminiVisionService>();
 
 builder.Services.Configure<FormOptions>(options =>

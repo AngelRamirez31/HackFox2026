@@ -37,7 +37,7 @@ public class ReportsController : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(type))
         {
-            var normalizedType = ReportRules.Normalize(type);
+            var normalizedType = ReportRules.NormalizeType(type);
             if (!ReportRules.IsValidType(normalizedType))
             {
                 return BadRequest(new { message = "Tipo de barrera inválido." });
@@ -47,6 +47,51 @@ public class ReportsController : ControllerBase
         }
 
         return Ok(filtered.Select(ReportMapper.ToResponse));
+    }
+
+    [HttpGet("options")]
+    public IActionResult GetReportOptions()
+    {
+        return Ok(new
+        {
+            types = ReportRules.TypeLabels.Select(pair => new
+            {
+                value = pair.Key,
+                label = pair.Value
+            }),
+            severities = new[]
+            {
+                new { value = 1, label = "Baja" },
+                new { value = 2, label = "Media" },
+                new { value = 3, label = "Alta" }
+            },
+            severityAliases = new[]
+            {
+                new { value = "baja", numericValue = 1 },
+                new { value = "media", numericValue = 2 },
+                new { value = "alta", numericValue = 3 }
+            },
+            statuses = ReportRules.Statuses.Select(status => new
+            {
+                value = status,
+                label = status switch
+                {
+                    "active" => "Activo",
+                    "resolved" => "Resuelto",
+                    "rejected" => "Rechazado",
+                    _ => status
+                }
+            }),
+            acceptedCreateFields = new
+            {
+                type = new[] { "type", "tipo" },
+                description = new[] { "description", "descripcion" },
+                latitude = new[] { "latitude", "latitud", "lat" },
+                longitude = new[] { "longitude", "longitud", "lng" },
+                severity = new[] { "severity", "severidad" },
+                image = new[] { "image", "foto" }
+            }
+        });
     }
 
     [HttpGet("nearby")]
@@ -90,26 +135,55 @@ public class ReportsController : ControllerBase
     [RequestSizeLimit(LocalFileStorageService.MaxImageSizeBytes + 1024 * 1024)]
     public async Task<ActionResult<ReportResponse>> CreateReport([FromForm] CreateReportRequest request)
     {
-        var type = ReportRules.Normalize(request.Type);
+        var typeValue = request.GetTypeValue();
+        if (string.IsNullOrWhiteSpace(typeValue))
+        {
+            return BadRequest(new { message = "Debes indicar el tipo de barrera." });
+        }
+
+        var type = ReportRules.NormalizeType(typeValue);
         if (!ReportRules.IsValidType(type))
         {
             return BadRequest(new { message = "Tipo de barrera inválido." });
         }
 
-        var imageResult = await _fileStorage.SaveReportImageAsync(request.Image);
+        if (!ReportRules.TryParseSeverity(request.GetSeverityValue(), out var severity))
+        {
+            return BadRequest(new { message = "Severidad inválida. Usa 1, 2, 3 o baja, media, alta." });
+        }
+
+        var latitude = request.GetLatitudeValue();
+        var longitude = request.GetLongitudeValue();
+
+        if (!latitude.HasValue || !longitude.HasValue)
+        {
+            return BadRequest(new { message = "Debes enviar latitud y longitud del reporte." });
+        }
+
+        if (latitude.Value is < -90 or > 90 || longitude.Value is < -180 or > 180)
+        {
+            return BadRequest(new { message = "Coordenadas inválidas." });
+        }
+
+        var description = request.GetDescriptionValue();
+        if (description.Length > 500)
+        {
+            return BadRequest(new { message = "La descripción no puede superar 500 caracteres." });
+        }
+
+        var imageResult = await _fileStorage.SaveReportImageAsync(request.GetImageValue());
         if (!imageResult.Success)
         {
             return BadRequest(new { message = imageResult.Error });
         }
 
-        var description = request.Description?.Trim() ?? string.Empty;
         var report = new Report
         {
             Type = type,
             Description = description,
-            Latitude = request.Latitude,
-            Longitude = request.Longitude,
-            Severity = request.Severity,
+            Latitude = latitude.Value,
+            Longitude = longitude.Value,
+            Severity = severity,
             Status = "active",
             ImageUrl = imageResult.ImageUrl
         };

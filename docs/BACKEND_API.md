@@ -24,6 +24,12 @@ Sirve para verificar que el backend esté vivo y que el frontend pueda conectars
 ## Reportes
 
 ```http
+GET /api/reports/options
+```
+
+Devuelve los tipos, severidades, estatus y nombres de campos aceptados por el backend. Este endpoint ayuda al frontend a evitar valores inválidos.
+
+```http
 GET /api/reports
 ```
 
@@ -46,16 +52,18 @@ POST /api/reports
 Content-Type: multipart/form-data
 ```
 
-Campos:
+Campos aceptados:
 
 ```text
-type: sidewalk_damage | blocked_ramp | missing_ramp | stairs | unsafe_crossing | construction | obstacle | transport_issue | other
-description: texto corto opcional
-latitude: número entre -90 y 90
-longitude: número entre -180 y 180
-severity: 1 | 2 | 3
-image: archivo opcional .jpg, .jpeg, .png o .webp, máximo 5 MB
+type o tipo: sidewalk_damage | blocked_ramp | missing_ramp | stairs | unsafe_crossing | construction | obstacle | transport_issue | other
+description o descripcion: texto corto opcional, máximo 500 caracteres
+latitude, latitud o lat: número entre -90 y 90
+longitude, longitud o lng: número entre -180 y 180
+severity o severidad: 1 | 2 | 3 | baja | media | alta
+image o foto: archivo opcional .jpg, .jpeg, .png o .webp, máximo 5 MB
 ```
+
+Para facilitar la conexión con el frontend actual, el backend también acepta nombres visibles en español como `Banqueta rota`, `Rampa bloqueada`, `Sin banqueta`, `Obstáculo en el camino`, `Escalón sin rampa`, `Pendiente peligrosa` y `Cruce inseguro`, normalizándolos al tipo interno correcto.
 
 ```http
 PUT /api/reports/{id}/status
@@ -121,6 +129,20 @@ GET /api/stats
 ```
 
 Devuelve totales por estatus, tipo y reportes graves activos.
+
+## Datos demo
+
+```http
+POST /api/demo/seed-reports
+```
+
+Agrega reportes demo de Tijuana si todavía no existen. Está pensado para pruebas locales y demos rápidas con Firestore o memoria. Por seguridad, solo funciona cuando el backend corre en ambiente `Development` o cuando se activa explícitamente:
+
+```text
+Demo__EnableSeedEndpoint=true
+```
+
+El endpoint no borra datos existentes; solo agrega reportes que no encuentre cerca de los datos demo ya sembrados.
 
 ## Seguridad básica aplicada
 

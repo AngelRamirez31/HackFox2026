@@ -236,7 +236,7 @@ Criterios:
         var root = document.RootElement;
 
         var type = ReadString(root, "type", "other");
-        type = ReportRules.Normalize(type);
+        type = ReportRules.NormalizeType(type);
         if (!ReportRules.IsValidType(type))
         {
             type = "other";
