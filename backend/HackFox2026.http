@@ -20,6 +20,22 @@ Accept: application/json
 
 ###
 
+
+GET {{HackFox2026_HostAddress}}/api/reports/map
+Accept: application/json
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/reports/map?status=active&minSeverity=2&limit=50
+Accept: application/json
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/reports?search=rampa&minSeverity=2
+Accept: application/json
+
+###
+
 GET {{HackFox2026_HostAddress}}/api/reports?status=active&type=Banqueta%20rota
 Accept: application/json
 

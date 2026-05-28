@@ -7,8 +7,13 @@ public class StatsResponse
     public int ResolvedReports { get; set; }
     public int RejectedReports { get; set; }
     public int HighSeverityReports { get; set; }
+    public int MediumSeverityReports { get; set; }
+    public int LowSeverityReports { get; set; }
     public string MostCommonType { get; set; } = string.Empty;
     public string MostCommonTypeLabel { get; set; } = string.Empty;
     public Dictionary<string, int> ReportsByType { get; set; } = [];
+    public Dictionary<string, string> ReportTypeLabels { get; set; } = [];
     public Dictionary<string, int> ReportsByStatus { get; set; } = [];
+    public Dictionary<string, string> StatusLabels { get; set; } = [];
+    public DateTime GeneratedAt { get; set; }
 }

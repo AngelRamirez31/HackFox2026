@@ -271,3 +271,77 @@ _metadata/counters
 ```
 
 Los endpoints públicos no cambian. El frontend puede seguir usando `GET /api/reports`, `POST /api/reports`, `POST /api/routes/score` y `GET /api/stats`; el cambio de memoria a Firestore ocurre solamente en backend.
+
+## Iteración frontend-ready
+
+Esta iteración agrega campos y endpoints pensados para que el frontend consuma menos lógica y pueda pintar mapa, tarjetas y rutas directamente.
+
+### Reportes para marcadores
+
+```http
+GET /api/reports/map
+```
+
+Devuelve una lista ligera de reportes lista para Google Maps. Por defecto regresa reportes `active`.
+
+Filtros soportados:
+
+```http
+GET /api/reports/map?status=active&minSeverity=2&limit=50
+GET /api/reports/map?type=blocked_ramp
+GET /api/reports/map?search=rampa
+GET /api/reports/map?north=32.54&south=32.50&east=-117.02&west=-117.08
+```
+
+Cada elemento incluye:
+
+```text
+position.lat / position.lng
+markerColor
+markerIcon
+severityColor
+statusLabel
+requiresAttention
+createdAtDisplay
+```
+
+### Nuevos campos visuales en reportes
+
+`GET /api/reports`, `GET /api/reports/{id}`, `POST /api/reports`, confirmaciones y cambios de estado ahora incluyen campos extra para frontend:
+
+```text
+position
+statusLabel
+severityColor
+markerColor
+markerIcon
+requiresAttention
+createdAtDisplay
+```
+
+Esto no rompe los campos anteriores; solo agrega datos adicionales.
+
+### Score de ruta extendido
+
+`POST /api/routes/score` ahora devuelve:
+
+```text
+levelLabel
+message
+nearbyReportIds
+routeStyle.strokeColor
+routeStyle.strokeOpacity
+routeStyle.strokeWeight
+routeStyle.badgeLabel
+routeStyle.description
+```
+
+El frontend puede usar `routeStyle` directamente para pintar la polyline de Google Maps en verde, amarillo o rojo.
+
+### Documentación para frontend
+
+Ver también:
+
+```text
+docs/FRONTEND_BACKEND_CONTRACT.md
+```

@@ -10,6 +10,8 @@ public class AccessibilityScoringService
         var activeReports = reports.Where(report => report.Status == "active").ToList();
         var nearbyReports = activeReports
             .Where(report => GeoUtils.IsNearAnyPoint(report, request.Points, request.RadiusMeters))
+            .OrderByDescending(report => report.Severity)
+            .ThenByDescending(report => report.Confirmations)
             .ToList();
 
         var totalPenalty = nearbyReports.Sum(GetPenalty);
@@ -17,6 +19,7 @@ public class AccessibilityScoringService
         var groupedWarnings = nearbyReports
             .GroupBy(report => report.Type)
             .OrderByDescending(group => group.Count())
+            .ThenByDescending(group => group.Max(report => report.Severity))
             .Select(group => $"{group.Count()} {ReportRules.GetTypeLabel(group.Key).ToLowerInvariant()}")
             .ToList();
 
@@ -24,10 +27,14 @@ public class AccessibilityScoringService
         {
             Score = score,
             Level = GetLevel(score),
+            LevelLabel = VisualizationRules.GetRouteLevelLabel(score),
             Color = GetColor(score),
+            Message = VisualizationRules.GetRouteMessage(score, nearbyReports.Count),
             RadiusMeters = request.RadiusMeters,
             NearbyReports = nearbyReports.Count,
+            NearbyReportIds = nearbyReports.Select(report => report.Id).ToList(),
             Warnings = groupedWarnings,
+            RouteStyle = VisualizationRules.GetRouteStyle(score),
             Reports = nearbyReports.Select(ReportMapper.ToResponse).ToList()
         };
     }

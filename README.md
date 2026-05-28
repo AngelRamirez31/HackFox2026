@@ -209,3 +209,18 @@ POST /api/demo/seed-reports
 ```
 
 Este endpoint agrega reportes demo de Tijuana sin borrar datos existentes y solo está habilitado en ambiente de desarrollo o cuando `Demo__EnableSeedEndpoint=true`.
+
+## Iteración frontend-ready
+
+La API ahora incluye respuestas más cómodas para el frontend:
+
+- `GET /api/reports/map`: reportes listos para marcadores de Google Maps.
+- `GET /api/reports`: filtros extra por búsqueda, severidad y límite.
+- `POST /api/routes/score`: respuesta extendida con `routeStyle` para pintar la ruta.
+- `GET /api/reports/options`: leyenda visual para tipos, severidades y estados.
+
+Guía rápida para conectar frontend y backend:
+
+```text
+docs/FRONTEND_BACKEND_CONTRACT.md
+```

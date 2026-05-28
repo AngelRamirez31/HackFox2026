@@ -39,10 +39,15 @@ public class StatsController : ControllerBase
             ResolvedReports = reports.Count(report => report.Status == "resolved"),
             RejectedReports = reports.Count(report => report.Status == "rejected"),
             HighSeverityReports = reports.Count(report => report.Severity == 3 && report.Status == "active"),
+            MediumSeverityReports = reports.Count(report => report.Severity == 2 && report.Status == "active"),
+            LowSeverityReports = reports.Count(report => report.Severity == 1 && report.Status == "active"),
             MostCommonType = mostCommonType,
             MostCommonTypeLabel = mostCommonType == "none" ? "Sin reportes" : ReportRules.GetTypeLabel(mostCommonType),
             ReportsByType = reportsByType,
-            ReportsByStatus = reportsByStatus
+            ReportTypeLabels = ReportRules.TypeLabels.ToDictionary(pair => pair.Key, pair => pair.Value),
+            ReportsByStatus = reportsByStatus,
+            StatusLabels = ReportRules.Statuses.ToDictionary(status => status, VisualizationRules.GetStatusLabel),
+            GeneratedAt = DateTime.UtcNow
         });
     }
 }
