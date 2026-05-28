@@ -24,6 +24,12 @@ Sirve para verificar que el backend esté vivo y que el frontend pueda conectars
 ## Reportes
 
 ```http
+GET /api/reports/options
+```
+
+Devuelve los tipos, severidades, estatus y nombres de campos aceptados por el backend. Este endpoint ayuda al frontend a evitar valores inválidos.
+
+```http
 GET /api/reports
 ```
 
@@ -46,16 +52,18 @@ POST /api/reports
 Content-Type: multipart/form-data
 ```
 
-Campos:
+Campos aceptados:
 
 ```text
-type: sidewalk_damage | blocked_ramp | missing_ramp | stairs | unsafe_crossing | construction | obstacle | transport_issue | other
-description: texto corto opcional
-latitude: número entre -90 y 90
-longitude: número entre -180 y 180
-severity: 1 | 2 | 3
-image: archivo opcional .jpg, .jpeg, .png o .webp, máximo 5 MB
+type o tipo: sidewalk_damage | blocked_ramp | missing_ramp | stairs | unsafe_crossing | construction | obstacle | transport_issue | other
+description o descripcion: texto corto opcional, máximo 500 caracteres
+latitude, latitud o lat: número entre -90 y 90
+longitude, longitud o lng: número entre -180 y 180
+severity o severidad: 1 | 2 | 3 | baja | media | alta
+image o foto: archivo opcional .jpg, .jpeg, .png o .webp, máximo 5 MB
 ```
+
+Para facilitar la conexión con el frontend actual, el backend también acepta nombres visibles en español como `Banqueta rota`, `Rampa bloqueada`, `Sin banqueta`, `Obstáculo en el camino`, `Escalón sin rampa`, `Pendiente peligrosa` y `Cruce inseguro`, normalizándolos al tipo interno correcto.
 
 ```http
 PUT /api/reports/{id}/status
@@ -122,6 +130,20 @@ GET /api/stats
 
 Devuelve totales por estatus, tipo y reportes graves activos.
 
+## Datos demo
+
+```http
+POST /api/demo/seed-reports
+```
+
+Agrega reportes demo de Tijuana si todavía no existen. Está pensado para pruebas locales y demos rápidas con Firestore o memoria. Por seguridad, solo funciona cuando el backend corre en ambiente `Development` o cuando se activa explícitamente:
+
+```text
+Demo__EnableSeedEndpoint=true
+```
+
+El endpoint no borra datos existentes; solo agrega reportes que no encuentre cerca de los datos demo ya sembrados.
+
 ## Seguridad básica aplicada
 
 - CORS limitado a `localhost:5173`.
@@ -186,3 +208,66 @@ Respuesta esperada:
 ```
 
 La respuesta de Gemini funciona como sugerencia. El frontend debe permitir que el usuario confirme o edite el tipo, severidad y descripción antes de guardar el reporte.
+
+## Firebase / Firestore
+
+Esta iteración ya incluye un repositorio para guardar reportes en Firebase Cloud Firestore desde el backend. Por seguridad, el proyecto sigue arrancando con memoria local si no se configura Firebase.
+
+```http
+GET /api/firebase/status
+```
+
+Sirve para revisar qué almacenamiento está activo:
+
+```json
+{
+  "provider": "InMemory",
+  "database": "InMemory",
+  "firestoreEnabled": false,
+  "projectConfigured": false,
+  "reportsCollection": "reports"
+}
+```
+
+Para activar Firestore localmente desde la carpeta `backend/`:
+
+```bash
+dotnet user-secrets set "Persistence:Provider" "Firestore"
+dotnet user-secrets set "Firebase:ProjectId" "ID_DEL_PROYECTO_FIREBASE"
+dotnet user-secrets set "Firebase:ReportsCollection" "reports"
+```
+
+Autenticación local recomendada con Google Cloud CLI:
+
+```bash
+gcloud auth application-default login
+```
+
+Alternativa con archivo de credenciales local, sin subirlo al repo:
+
+```bash
+dotnet user-secrets set "Firebase:CredentialsPath" "C:\\ruta\\segura\\firebase-service-account.json"
+```
+
+El backend no guarda credenciales en `appsettings.json`. Para despliegue en Cloud Run, lo ideal es usar la service account del servicio y variables de entorno:
+
+```text
+Persistence__Provider=Firestore
+Firebase__ProjectId=ID_DEL_PROYECTO_FIREBASE
+Firebase__ReportsCollection=reports
+Gemini__ApiKey=TU_API_KEY_DE_GEMINI
+```
+
+Colección usada en Firestore:
+
+```text
+reports
+```
+
+Documento auxiliar usado para IDs numéricos compatibles con el frontend:
+
+```text
+_metadata/counters
+```
+
+Los endpoints públicos no cambian. El frontend puede seguir usando `GET /api/reports`, `POST /api/reports`, `POST /api/routes/score` y `GET /api/stats`; el cambio de memoria a Firestore ocurre solamente en backend.

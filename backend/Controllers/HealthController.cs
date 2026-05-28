@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace HackFox2026.Controllers;
 
@@ -18,21 +17,31 @@ public class HealthController : ControllerBase
     public IActionResult GetHealth()
     {
         var geminiConfigured = !string.IsNullOrWhiteSpace(_configuration["Gemini:ApiKey"]);
+        var provider = _configuration["Persistence:Provider"] ?? _configuration["Firebase:Provider"] ?? "InMemory";
+        var isFirestore = string.Equals(provider, "Firestore", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(provider, "Firebase", StringComparison.OrdinalIgnoreCase);
 
         return Ok(new
         {
             status = "ok",
             app = "HackFox2026",
             track = "Tijuana Sin Barreras",
-            storage = "in-memory",
+            storage = isFirestore ? "firebase-firestore" : "in-memory",
             resources = new
             {
                 maps = "Google Maps Platform desde frontend",
                 routes = "Puntos de ruta recibidos desde Maps/Routes/Directions",
                 gemini = geminiConfigured ? "configurado desde backend" : "pendiente de configurar en backend",
-                firebase = "opcional para tiempo real en siguiente iteración"
+                firebase = isFirestore ? "Cloud Firestore activo para reportes" : "preparado, pendiente de activar"
             },
             geminiConfigured,
+            firebase = new
+            {
+                provider,
+                firestoreEnabled = isFirestore,
+                projectConfigured = !string.IsNullOrWhiteSpace(_configuration["Firebase:ProjectId"]),
+                reportsCollection = _configuration["Firebase:ReportsCollection"] ?? "reports"
+            },
             timestamp = DateTime.UtcNow
         });
     }

@@ -31,7 +31,7 @@ public class VisionController : ControllerBase
     [RequestSizeLimit(LocalFileStorageService.MaxImageSizeBytes + 1024 * 1024)]
     public async Task<ActionResult<VisionAnalysisResponse>> AnalyzeReportImage([FromForm] AnalyzeImageRequest request, CancellationToken cancellationToken)
     {
-        var result = await _geminiVisionService.AnalyzeBarrierImageAsync(request.Image, cancellationToken);
+        var result = await _geminiVisionService.AnalyzeBarrierImageAsync(request.GetImageValue(), cancellationToken);
         if (!result.Success)
         {
             return StatusCode(result.StatusCode, new { message = result.Error });

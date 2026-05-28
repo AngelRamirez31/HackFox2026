@@ -1,25 +1,56 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
 namespace HackFox2026.DTOs;
 
 public class CreateReportRequest
 {
-    [Required]
-    [StringLength(40, MinimumLength = 2)]
-    public string Type { get; set; } = string.Empty;
+    public string? Type { get; set; }
+    public string? Tipo { get; set; }
 
-    [StringLength(500)]
     public string? Description { get; set; }
+    public string? Descripcion { get; set; }
 
-    [Range(-90, 90)]
-    public double Latitude { get; set; }
+    public double? Latitude { get; set; }
+    public double? Latitud { get; set; }
+    public double? Lat { get; set; }
 
-    [Range(-180, 180)]
-    public double Longitude { get; set; }
+    public double? Longitude { get; set; }
+    public double? Longitud { get; set; }
+    public double? Lng { get; set; }
 
-    [Range(1, 3)]
-    public int Severity { get; set; } = 2;
+    public string? Severity { get; set; }
+    public string? Severidad { get; set; }
 
     public IFormFile? Image { get; set; }
+    public IFormFile? Foto { get; set; }
+
+    public string? GetTypeValue()
+    {
+        return string.IsNullOrWhiteSpace(Type) ? Tipo : Type;
+    }
+
+    public string GetDescriptionValue()
+    {
+        return (string.IsNullOrWhiteSpace(Description) ? Descripcion : Description)?.Trim() ?? string.Empty;
+    }
+
+    public string? GetSeverityValue()
+    {
+        return string.IsNullOrWhiteSpace(Severity) ? Severidad : Severity;
+    }
+
+    public double? GetLatitudeValue()
+    {
+        return Latitude ?? Latitud ?? Lat;
+    }
+
+    public double? GetLongitudeValue()
+    {
+        return Longitude ?? Longitud ?? Lng;
+    }
+
+    public IFormFile? GetImageValue()
+    {
+        return Image ?? Foto;
+    }
 }

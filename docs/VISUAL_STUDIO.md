@@ -92,6 +92,7 @@ Endpoints incluidos:
 
 ```text
 GET    /api/health
+GET    /api/reports/options
 GET    /api/reports
 GET    /api/reports/nearby
 POST   /api/reports
@@ -102,8 +103,40 @@ POST   /api/routes/score
 GET    /api/stats
 GET    /api/vision/status
 POST   /api/vision/analyze-report-image
+GET    /api/firebase/status
+POST   /api/demo/seed-reports
 ```
 
+
+## Configurar Firebase Firestore en Visual Studio / backend
+
+Esta versión ya trae repositorio para Firebase Cloud Firestore. Para evitar errores cuando alguien del equipo no tenga credenciales, el proyecto arranca con almacenamiento en memoria local. Para activar Firebase, abre una terminal en `backend/` y configura User Secrets:
+
+```bat
+dotnet user-secrets set "Persistence:Provider" "Firestore"
+dotnet user-secrets set "Firebase:ProjectId" "ID_DEL_PROYECTO_FIREBASE"
+dotnet user-secrets set "Firebase:ReportsCollection" "reports"
+```
+
+Para autenticarte localmente con Google Cloud CLI:
+
+```bat
+gcloud auth application-default login
+```
+
+Alternativa con una credencial local que no se sube al repositorio:
+
+```bat
+dotnet user-secrets set "Firebase:CredentialsPath" "C:\\ruta\\segura\\firebase-service-account.json"
+```
+
+Verifica la configuración con:
+
+```text
+https://localhost:7271/api/firebase/status
+```
+
+Si `firestoreEnabled` aparece en `true` y `projectConfigured` aparece en `true`, el backend ya intentará guardar los reportes en Firestore.
 
 ## Configurar Gemini en Visual Studio / backend
 
@@ -168,7 +201,7 @@ backend/HackFox2026.csproj              Proyecto backend ASP.NET Core
 backend/Program.cs                      Configuración de servicios, CORS y static files
 backend/HackFox2026.http                Pruebas de API desde Visual Studio
 backend/Controllers/                    Endpoints del backend
-backend/Services/                       Lógica de reportes, archivos y score de accesibilidad
+backend/Services/                       Lógica de reportes, archivos, Firestore y score de accesibilidad
 backend/wwwroot/uploads/reports/        Carpeta local para fotos de reportes
 frontend/package.json                   Dependencias del frontend React/Vite
 ```
@@ -185,3 +218,18 @@ cd frontend
 npm install
 npm run dev
 ```
+
+
+## Sembrar reportes demo
+
+Para que el mapa no aparezca vacío durante pruebas con Firebase o memoria local, puedes usar:
+
+```text
+POST https://localhost:7271/api/demo/seed-reports
+```
+
+Este endpoint está habilitado en ambiente `Development`. No borra reportes existentes; solo agrega reportes demo si no detecta duplicados cercanos.
+
+## Compatibilidad con el frontend actual
+
+El backend ya acepta nombres de campos en español y en inglés. Esto permite que el frontend envíe formularios con `tipo`, `descripcion`, `latitud`, `longitud`, `severidad` y `foto`, o con `type`, `description`, `latitude`, `longitude`, `severity` e `image`.
