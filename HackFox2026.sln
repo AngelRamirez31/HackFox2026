@@ -1,0 +1,39 @@
+﻿﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36401.2
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackFox2026", "backend\HackFox2026.csproj", "{CFA6C71C-2965-4F90-B923-5F59F5DCAEF5}"
+EndProject
+Project("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}") = "Docs", "Docs", "{1BB8D91C-49D4-4A20-995B-8F3F37261761}"
+    ProjectSection(SolutionItems) = preProject
+        README.md = README.md
+        docs\BACKEND_API.md = docs\BACKEND_API.md
+        docs\VISUAL_STUDIO.md = docs\VISUAL_STUDIO.md
+    EndProjectSection
+EndProject
+Project("{66A26720-8FB5-11D2-AA7E-00C04F688DDE}") = "Frontend", "Frontend", "{4C6D0E8B-64C3-4B30-A956-C7C9A4D2D1C6}"
+    ProjectSection(SolutionItems) = preProject
+        frontend\package.json = frontend\package.json
+        frontend\vite.config.js = frontend\vite.config.js
+        frontend\index.html = frontend\index.html
+    EndProjectSection
+EndProject
+Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|Any CPU = Debug|Any CPU
+        Release|Any CPU = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+        {CFA6C71C-2965-4F90-B923-5F59F5DCAEF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {CFA6C71C-2965-4F90-B923-5F59F5DCAEF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {CFA6C71C-2965-4F90-B923-5F59F5DCAEF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {CFA6C71C-2965-4F90-B923-5F59F5DCAEF5}.Release|Any CPU.Build.0 = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(SolutionProperties) = preSolution
+        HideSolutionNode = FALSE
+    EndGlobalSection
+    GlobalSection(ExtensibilityGlobals) = postSolution
+        SolutionGuid = {1A9037D6-B6D3-4F1D-8C49-7179D0AAE780}
+    EndGlobalSection
+EndGlobal

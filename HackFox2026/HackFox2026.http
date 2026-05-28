@@ -1,6 +1,0 @@
-@HackFox2026_HostAddress = http://localhost:5208
-
-GET {{HackFox2026_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

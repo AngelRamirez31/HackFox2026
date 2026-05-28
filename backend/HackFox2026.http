@@ -1,0 +1,79 @@
+@HackFox2026_HostAddress = https://localhost:7271
+
+GET {{HackFox2026_HostAddress}}/api/health
+Accept: application/json
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/reports
+Accept: application/json
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/reports/nearby?lat=32.514947&lng=-117.038247&radiusMeters=800
+Accept: application/json
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/reports
+Content-Type: multipart/form-data; boundary=HackFoxBoundary
+
+--HackFoxBoundary
+Content-Disposition: form-data; name="type"
+
+blocked_ramp
+--HackFoxBoundary
+Content-Disposition: form-data; name="description"
+
+Rampa bloqueada por vehículo cerca del cruce peatonal.
+--HackFoxBoundary
+Content-Disposition: form-data; name="latitude"
+
+32.514947
+--HackFoxBoundary
+Content-Disposition: form-data; name="longitude"
+
+-117.038247
+--HackFoxBoundary
+Content-Disposition: form-data; name="severity"
+
+3
+--HackFoxBoundary--
+
+###
+
+PUT {{HackFox2026_HostAddress}}/api/reports/1/status
+Content-Type: application/json
+
+{
+  "status": "resolved"
+}
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/reports/1/confirm
+Accept: application/json
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/reports/1/reject
+Accept: application/json
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/routes/score
+Content-Type: application/json
+
+{
+  "points": [
+    { "lat": 32.514947, "lng": -117.038247 },
+    { "lat": 32.515980, "lng": -117.034608 },
+    { "lat": 32.510182, "lng": -117.036537 }
+  ],
+  "radiusMeters": 80
+}
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/stats
+Accept: application/json

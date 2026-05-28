@@ -171,3 +171,8 @@ publish/
 *.bak
 *.backup
 *.old
+# Uploaded report images
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+!wwwroot/uploads/reports/
+!wwwroot/uploads/reports/.gitkeep
