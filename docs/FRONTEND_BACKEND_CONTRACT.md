@@ -196,3 +196,69 @@ POST /api/vision/analyze-report-image
 ```
 
 Las llaves de Gemini y credenciales de Google Cloud no deben ir en React.
+
+## Crear reporte con foto y Gemini
+
+Para el flujo asistido por IA, el frontend puede llamar directamente:
+
+```http
+POST /api/reports/analyze-and-create
+Content-Type: multipart/form-data
+```
+
+Campos mínimos:
+
+```text
+image o foto
+latitude o latitud o lat
+longitude o longitud o lng
+```
+
+Campos opcionales que el usuario puede corregir antes de enviar:
+
+```text
+type o tipo
+description o descripcion
+severity o severidad
+```
+
+La respuesta trae el reporte guardado y la sugerencia de Gemini:
+
+```json
+{
+  "report": { "id": 8, "type": "blocked_ramp", "position": { "lat": 32.5201, "lng": -117.0412 } },
+  "geminiRequested": true,
+  "geminiSucceeded": true,
+  "geminiError": null,
+  "vision": {
+    "type": "blocked_ramp",
+    "typeLabel": "Rampa bloqueada",
+    "severity": 3,
+    "severityLabel": "Alta",
+    "confidence": 0.86,
+    "suggestedDescription": "Rampa bloqueada por un vehículo.",
+    "accessibilityImpact": "Puede impedir el paso de personas en silla de ruedas."
+  }
+}
+```
+
+Flujo recomendado en React:
+
+```text
+1. Usuario selecciona foto y ubicación.
+2. Frontend manda FormData a /api/reports/analyze-and-create.
+3. Backend analiza con Gemini, guarda imagen local y crea el documento en Firestore.
+4. Frontend refresca GET /api/reports/map para mostrar el nuevo marcador.
+```
+
+Si prefieren que el usuario revise la sugerencia antes de guardar, usen primero:
+
+```http
+POST /api/vision/analyze-report-image
+```
+
+y después creen el reporte con:
+
+```http
+POST /api/reports
+```

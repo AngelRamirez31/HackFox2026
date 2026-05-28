@@ -224,3 +224,21 @@ Guía rápida para conectar frontend y backend:
 ```text
 docs/FRONTEND_BACKEND_CONTRACT.md
 ```
+
+## Iteración Gemini-assisted reports
+
+Esta versión agrega el flujo backend para crear reportes asistidos por Gemini:
+
+```text
+POST /api/reports/analyze-and-create
+```
+
+El endpoint recibe una imagen, latitud y longitud. El backend analiza la foto con Gemini, sugiere tipo/severidad/descripción, guarda la imagen localmente en `wwwroot/uploads/reports/` y crea el reporte en Firestore o memoria según la configuración activa.
+
+También se puede usar el endpoint normal con el campo `useGemini=true`:
+
+```text
+POST /api/reports
+```
+
+La clave de Gemini sigue viviendo solamente en backend mediante User Secrets o variables de entorno.

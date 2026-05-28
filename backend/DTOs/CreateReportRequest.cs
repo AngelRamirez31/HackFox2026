@@ -21,6 +21,11 @@ public class CreateReportRequest
     public string? Severity { get; set; }
     public string? Severidad { get; set; }
 
+    public bool? UseGemini { get; set; }
+    public bool? UsarGemini { get; set; }
+    public bool? AnalyzeImage { get; set; }
+    public bool? AnalizarImagen { get; set; }
+
     public IFormFile? Image { get; set; }
     public IFormFile? Foto { get; set; }
 
@@ -47,6 +52,11 @@ public class CreateReportRequest
     public double? GetLongitudeValue()
     {
         return Longitude ?? Longitud ?? Lng;
+    }
+
+    public bool ShouldUseGemini()
+    {
+        return UseGemini == true || UsarGemini == true || AnalyzeImage == true || AnalizarImagen == true;
     }
 
     public IFormFile? GetImageValue()

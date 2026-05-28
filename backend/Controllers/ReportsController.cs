@@ -11,11 +11,16 @@ public class ReportsController : ControllerBase
 {
     private readonly IReportRepository _reports;
     private readonly LocalFileStorageService _fileStorage;
+    private readonly GeminiVisionService _geminiVisionService;
 
-    public ReportsController(IReportRepository reports, LocalFileStorageService fileStorage)
+    public ReportsController(
+        IReportRepository reports,
+        LocalFileStorageService fileStorage,
+        GeminiVisionService geminiVisionService)
     {
         _reports = reports;
         _fileStorage = fileStorage;
+        _geminiVisionService = geminiVisionService;
     }
 
     [HttpGet]
@@ -118,8 +123,10 @@ public class ReportsController : ControllerBase
                 latitude = new[] { "latitude", "latitud", "lat" },
                 longitude = new[] { "longitude", "longitud", "lng" },
                 severity = new[] { "severity", "severidad" },
-                image = new[] { "image", "foto" }
-            }
+                image = new[] { "image", "foto" },
+                useGemini = new[] { "useGemini", "usarGemini", "analyzeImage", "analizarImagen" }
+            },
+            geminiAssistedEndpoint = "/api/reports/analyze-and-create"
         });
     }
 
@@ -162,65 +169,29 @@ public class ReportsController : ControllerBase
     [HttpPost]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(LocalFileStorageService.MaxImageSizeBytes + 1024 * 1024)]
-    public async Task<ActionResult<ReportResponse>> CreateReport([FromForm] CreateReportRequest request)
+    public async Task<ActionResult<ReportResponse>> CreateReport([FromForm] CreateReportRequest request, CancellationToken cancellationToken)
     {
-        var typeValue = request.GetTypeValue();
-        if (string.IsNullOrWhiteSpace(typeValue))
+        var result = await CreateReportCoreAsync(request, request.ShouldUseGemini(), requireImageForGemini: request.ShouldUseGemini(), cancellationToken);
+        if (!result.Success)
         {
-            return BadRequest(new { message = "Debes indicar el tipo de barrera." });
+            return StatusCode(result.StatusCode, new { message = result.Error });
         }
 
-        var type = ReportRules.NormalizeType(typeValue);
-        if (!ReportRules.IsValidType(type))
+        return CreatedAtAction(nameof(GetReportById), new { id = result.Response!.Report.Id }, result.Response.Report);
+    }
+
+    [HttpPost("analyze-and-create")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(LocalFileStorageService.MaxImageSizeBytes + 1024 * 1024)]
+    public async Task<ActionResult<ReportCreationResponse>> AnalyzeAndCreateReport([FromForm] CreateReportRequest request, CancellationToken cancellationToken)
+    {
+        var result = await CreateReportCoreAsync(request, useGemini: true, requireImageForGemini: true, cancellationToken);
+        if (!result.Success)
         {
-            return BadRequest(new { message = "Tipo de barrera inválido." });
+            return StatusCode(result.StatusCode, new { message = result.Error });
         }
 
-        if (!ReportRules.TryParseSeverity(request.GetSeverityValue(), out var severity))
-        {
-            return BadRequest(new { message = "Severidad inválida. Usa 1, 2, 3 o baja, media, alta." });
-        }
-
-        var latitude = request.GetLatitudeValue();
-        var longitude = request.GetLongitudeValue();
-
-        if (!latitude.HasValue || !longitude.HasValue)
-        {
-            return BadRequest(new { message = "Debes enviar latitud y longitud del reporte." });
-        }
-
-        if (latitude.Value is < -90 or > 90 || longitude.Value is < -180 or > 180)
-        {
-            return BadRequest(new { message = "Coordenadas inválidas." });
-        }
-
-        var description = request.GetDescriptionValue();
-        if (description.Length > 500)
-        {
-            return BadRequest(new { message = "La descripción no puede superar 500 caracteres." });
-        }
-
-        var imageResult = await _fileStorage.SaveReportImageAsync(request.GetImageValue());
-        if (!imageResult.Success)
-        {
-            return BadRequest(new { message = imageResult.Error });
-        }
-
-        var report = new Report
-        {
-            Type = type,
-            Description = description,
-            Latitude = latitude.Value,
-            Longitude = longitude.Value,
-            Severity = severity,
-            Status = "active",
-            ImageUrl = imageResult.ImageUrl
-        };
-
-        var created = await _reports.AddAsync(report);
-        var response = ReportMapper.ToResponse(created);
-
-        return CreatedAtAction(nameof(GetReportById), new { id = created.Id }, response);
+        return CreatedAtAction(nameof(GetReportById), new { id = result.Response!.Report.Id }, result.Response);
     }
 
     [HttpPut("{id:int}/status")]
@@ -263,6 +234,140 @@ public class ReportsController : ControllerBase
         }
 
         return Ok(ReportMapper.ToResponse(report));
+    }
+
+    private async Task<CreateReportCoreResult> CreateReportCoreAsync(
+        CreateReportRequest request,
+        bool useGemini,
+        bool requireImageForGemini,
+        CancellationToken cancellationToken)
+    {
+        var image = request.GetImageValue();
+        VisionAnalysisResponse? analysis = null;
+        string? geminiError = null;
+        var geminiRequested = useGemini;
+
+        if (useGemini)
+        {
+            if (image is null || image.Length == 0)
+            {
+                if (requireImageForGemini)
+                {
+                    return CreateReportCoreResult.Fail("Debes enviar una imagen para crear un reporte asistido por Gemini.", 400);
+                }
+            }
+            else
+            {
+                var geminiResult = await _geminiVisionService.AnalyzeBarrierImageAsync(image, cancellationToken);
+                if (geminiResult.Success)
+                {
+                    analysis = geminiResult.Analysis;
+                }
+                else
+                {
+                    geminiError = geminiResult.Error;
+                    if (requireImageForGemini && string.IsNullOrWhiteSpace(request.GetTypeValue()) && string.IsNullOrWhiteSpace(request.GetSeverityValue()))
+                    {
+                        return CreateReportCoreResult.Fail(geminiResult.Error ?? "No se pudo analizar la imagen con Gemini.", geminiResult.StatusCode);
+                    }
+                }
+            }
+        }
+
+        var typeValue = request.GetTypeValue();
+        if (string.IsNullOrWhiteSpace(typeValue) && analysis is not null)
+        {
+            typeValue = analysis.Type;
+        }
+
+        if (string.IsNullOrWhiteSpace(typeValue))
+        {
+            return CreateReportCoreResult.Fail("Debes indicar el tipo de barrera o usar Gemini con una imagen.", 400);
+        }
+
+        var type = ReportRules.NormalizeType(typeValue);
+        if (!ReportRules.IsValidType(type))
+        {
+            return CreateReportCoreResult.Fail("Tipo de barrera inválido.", 400);
+        }
+
+        var severityValue = request.GetSeverityValue();
+        if (string.IsNullOrWhiteSpace(severityValue) && analysis is not null)
+        {
+            severityValue = analysis.Severity.ToString();
+        }
+
+        if (!ReportRules.TryParseSeverity(severityValue, out var severity))
+        {
+            return CreateReportCoreResult.Fail("Severidad inválida. Usa 1, 2, 3 o baja, media, alta.", 400);
+        }
+
+        var latitude = request.GetLatitudeValue();
+        var longitude = request.GetLongitudeValue();
+
+        if (!latitude.HasValue || !longitude.HasValue)
+        {
+            return CreateReportCoreResult.Fail("Debes enviar latitud y longitud del reporte.", 400);
+        }
+
+        if (latitude.Value is < -90 or > 90 || longitude.Value is < -180 or > 180)
+        {
+            return CreateReportCoreResult.Fail("Coordenadas inválidas.", 400);
+        }
+
+        var description = request.GetDescriptionValue();
+        if (string.IsNullOrWhiteSpace(description) && analysis is not null)
+        {
+            description = !string.IsNullOrWhiteSpace(analysis.SuggestedDescription)
+                ? analysis.SuggestedDescription
+                : analysis.Summary;
+        }
+
+        description = description.Trim();
+        if (description.Length > 500)
+        {
+            return CreateReportCoreResult.Fail("La descripción no puede superar 500 caracteres.", 400);
+        }
+
+        var imageResult = await _fileStorage.SaveReportImageAsync(image);
+        if (!imageResult.Success)
+        {
+            return CreateReportCoreResult.Fail(imageResult.Error ?? "No se pudo guardar la imagen.", 400);
+        }
+
+        var report = new Report
+        {
+            Type = type,
+            Description = description,
+            Latitude = latitude.Value,
+            Longitude = longitude.Value,
+            Severity = severity,
+            Status = "active",
+            ImageUrl = imageResult.ImageUrl
+        };
+
+        try
+        {
+            var created = await _reports.AddAsync(report);
+            var response = new ReportCreationResponse
+            {
+                Report = ReportMapper.ToResponse(created),
+                GeminiRequested = geminiRequested,
+                GeminiSucceeded = analysis is not null,
+                GeminiError = geminiError,
+                Vision = analysis,
+                Message = analysis is not null
+                    ? "Reporte creado con sugerencias de Gemini."
+                    : "Reporte creado correctamente."
+            };
+
+            return CreateReportCoreResult.Ok(response);
+        }
+        catch (Exception)
+        {
+            _fileStorage.DeleteLocalImage(imageResult.ImageUrl);
+            return CreateReportCoreResult.Fail("No se pudo guardar el reporte en la base de datos.", 500);
+        }
     }
 
     private ActionResult? ValidateListQuery(string? status, string? type, int? minSeverity, int? maxSeverity, int? limit)
@@ -403,5 +508,18 @@ public class ReportsController : ControllerBase
             report.Latitude >= south.Value &&
             report.Longitude <= east.Value &&
             report.Longitude >= west.Value);
+    }
+
+    private record CreateReportCoreResult(bool Success, ReportCreationResponse? Response, string? Error, int StatusCode)
+    {
+        public static CreateReportCoreResult Ok(ReportCreationResponse response)
+        {
+            return new CreateReportCoreResult(true, response, null, 200);
+        }
+
+        public static CreateReportCoreResult Fail(string error, int statusCode)
+        {
+            return new CreateReportCoreResult(false, null, error, statusCode);
+        }
     }
 }

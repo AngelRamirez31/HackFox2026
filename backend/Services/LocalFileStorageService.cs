@@ -62,6 +62,42 @@ public class LocalFileStorageService
 
         return FileStorageResult.Ok($"/uploads/reports/{fileName}");
     }
+
+    public void DeleteLocalImage(string? imageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(imageUrl) || !imageUrl.StartsWith("/uploads/reports/", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var fileName = Path.GetFileName(imageUrl);
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            return;
+        }
+
+        var webRoot = _environment.WebRootPath;
+        if (string.IsNullOrWhiteSpace(webRoot))
+        {
+            webRoot = Path.Combine(_environment.ContentRootPath, "wwwroot");
+        }
+
+        var fullPath = Path.Combine(webRoot, "uploads", "reports", fileName);
+        try
+        {
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
+        }
+        catch (IOException)
+        {
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
+    }
+
 }
 
 public record FileStorageResult(bool Success, string? ImageUrl, string? Error)

@@ -345,3 +345,64 @@ Ver también:
 ```text
 docs/FRONTEND_BACKEND_CONTRACT.md
 ```
+
+## Crear reporte con asistencia de Gemini
+
+Esta iteración agrega un flujo directo para foto → Gemini → reporte → Firestore:
+
+```http
+POST /api/reports/analyze-and-create
+Content-Type: multipart/form-data
+```
+
+Campos aceptados:
+
+```text
+image o foto: obligatorio para este endpoint
+latitude, latitud o lat: número entre -90 y 90
+longitude, longitud o lng: número entre -180 y 180
+type o tipo: opcional; si no viene, Gemini lo sugiere
+description o descripcion: opcional; si no viene, Gemini sugiere una descripción
+severity o severidad: opcional; si no viene, Gemini lo sugiere
+```
+
+Respuesta esperada:
+
+```json
+{
+  "report": {
+    "id": 8,
+    "type": "blocked_ramp",
+    "typeLabel": "Rampa bloqueada",
+    "description": "Rampa bloqueada por un vehículo.",
+    "position": { "lat": 32.5201, "lng": -117.0412 },
+    "severity": 3,
+    "severityLabel": "Alta",
+    "imageUrl": "/uploads/reports/archivo.jpg"
+  },
+  "geminiRequested": true,
+  "geminiSucceeded": true,
+  "geminiError": null,
+  "vision": {
+    "type": "blocked_ramp",
+    "typeLabel": "Rampa bloqueada",
+    "severity": 3,
+    "severityLabel": "Alta",
+    "confidence": 0.86,
+    "summary": "Se observa una rampa bloqueada.",
+    "suggestedDescription": "Rampa bloqueada por un vehículo.",
+    "accessibilityImpact": "Puede impedir el paso de personas en silla de ruedas.",
+    "model": "gemini-2.5-flash"
+  },
+  "message": "Reporte creado con sugerencias de Gemini."
+}
+```
+
+También se puede usar el endpoint normal con `useGemini=true`:
+
+```http
+POST /api/reports
+Content-Type: multipart/form-data
+```
+
+En ese caso, la respuesta se mantiene como `ReportResponse` para no romper al frontend actual, pero el backend puede usar Gemini para completar tipo, severidad o descripción cuando falten.

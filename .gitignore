@@ -192,3 +192,5 @@ backend/wwwroot/uploads/*
 *.pem
 *serviceAccount*.json
 *google-application-credentials*.json
+backend/wwwroot/uploads/reports/*
+!backend/wwwroot/uploads/reports/.gitkeep

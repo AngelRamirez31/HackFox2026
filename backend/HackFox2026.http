@@ -157,3 +157,47 @@ Content-Type: image/jpeg
 
 POST {{HackFox2026_HostAddress}}/api/demo/seed-reports
 Accept: application/json
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/reports/analyze-and-create
+Content-Type: multipart/form-data; boundary=HackFoxAnalyzeCreateBoundary
+
+--HackFoxAnalyzeCreateBoundary
+Content-Disposition: form-data; name="image"; filename="barrera.jpg"
+Content-Type: image/jpeg
+
+< ./docs/sample-barrera.jpg
+--HackFoxAnalyzeCreateBoundary
+Content-Disposition: form-data; name="latitude"
+
+32.5201
+--HackFoxAnalyzeCreateBoundary
+Content-Disposition: form-data; name="longitude"
+
+-117.0412
+--HackFoxAnalyzeCreateBoundary--
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/reports
+Content-Type: multipart/form-data; boundary=HackFoxCreateWithGeminiBoundary
+
+--HackFoxCreateWithGeminiBoundary
+Content-Disposition: form-data; name="image"; filename="barrera.jpg"
+Content-Type: image/jpeg
+
+< ./docs/sample-barrera.jpg
+--HackFoxCreateWithGeminiBoundary
+Content-Disposition: form-data; name="latitude"
+
+32.5201
+--HackFoxCreateWithGeminiBoundary
+Content-Disposition: form-data; name="longitude"
+
+-117.0412
+--HackFoxCreateWithGeminiBoundary
+Content-Disposition: form-data; name="useGemini"
+
+true
+--HackFoxCreateWithGeminiBoundary--
