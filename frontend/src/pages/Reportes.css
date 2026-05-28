@@ -7,7 +7,8 @@
 
 .reportsHero {
   max-width: 1180px;
-  margin: 0 auto 30px;
+  margin: 0 auto 42px;
+  text-align: center;
 }
 
 .reportsBadge {
@@ -17,24 +18,23 @@
   font-weight: 800;
   padding: 10px 16px;
   border-radius: 999px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .reportsHero h1 {
   font-size: clamp(2.1rem, 4vw, 4rem);
-  margin: 0 0 28px;
+  margin: 0 0 30px;
   letter-spacing: -1px;
   line-height: 1.1;
   color: #0f172a;
 }
+
 .reportsHero p {
   max-width: 850px;
   color: #475569;
   font-size: 1.1rem;
   line-height: 1.8;
-  margin: 0;
-  position: relative;
-  z-index: 1;
+  margin: 0 auto;
 }
 
 .statsGrid {
@@ -170,6 +170,7 @@
   margin: 0 0 6px;
   font-size: 1.55rem;
   color: #0f172a;
+  line-height: 1.2;
 }
 
 .reportLocation {
@@ -317,7 +318,23 @@
 
 @media (max-width: 600px) {
   .reportsPage {
-    padding: 24px 16px 50px;
+    padding: 24px 14px 50px;
+  }
+
+  .reportsHero {
+    margin-bottom: 34px;
+  }
+
+  .reportsHero h1 {
+    font-size: 2.35rem;
+    line-height: 1.1;
+    margin-bottom: 28px;
+    letter-spacing: -0.7px;
+  }
+
+  .reportsHero p {
+    font-size: 1rem;
+    line-height: 1.7;
   }
 
   .reportCard,
@@ -325,6 +342,14 @@
   .statCard,
   .emptyState {
     border-radius: 22px;
+  }
+
+  .reportsControls {
+    padding: 18px;
+  }
+
+  .reportCard {
+    padding: 16px;
   }
 
   .reportActions {

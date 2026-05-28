@@ -33,7 +33,7 @@
 
 .hero h1 {
   font-size: clamp(2.3rem, 5vw, 4.8rem);
-  line-height: 1.05;
+  line-height: 1.08;
   margin: 0;
   color: #0f172a;
   letter-spacing: -1.5px;
@@ -83,7 +83,7 @@
 }
 
 .heroCard {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid #dbeafe;
   border-radius: 30px;
   padding: 32px;
@@ -136,6 +136,7 @@
   font-size: clamp(1.8rem, 3vw, 2.6rem);
   color: #0f172a;
   margin-bottom: 24px;
+  line-height: 1.15;
 }
 
 .featureGrid {
@@ -229,11 +230,36 @@
 
 @media (max-width: 600px) {
   .home {
-    padding: 16px;
+    padding: 18px 14px 50px;
+  }
+
+  .hero {
+    gap: 28px;
+  }
+
+  .heroContent {
+    text-align: center;
+    align-items: center;
+  }
+
+  .badge {
+    font-size: 0.85rem;
+  }
+
+  .hero h1 {
+    font-size: 2.45rem;
+    line-height: 1.1;
+    letter-spacing: -0.8px;
+  }
+
+  .heroText {
+    font-size: 1rem;
+    line-height: 1.7;
   }
 
   .heroButtons {
     flex-direction: column;
+    width: 100%;
   }
 
   .primaryButton,
@@ -243,13 +269,27 @@
     text-align: center;
   }
 
-  .featureGrid {
-    grid-template-columns: 1fr;
-  }
-
   .heroCard,
   .mission {
     border-radius: 22px;
     padding: 24px;
+  }
+
+  .features {
+    margin-top: 42px;
+  }
+
+  .features h2,
+  .mission h2 {
+    text-align: center;
+    font-size: 2rem;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mission {
+    text-align: center;
   }
 }
