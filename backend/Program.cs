@@ -7,6 +7,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+var firebaseCredentialsPath = builder.Configuration["Firebase:CredentialsPath"];
+if (!string.IsNullOrWhiteSpace(firebaseCredentialsPath))
+{
+    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", firebaseCredentialsPath);
+}
+
 var persistenceProvider = builder.Configuration["Persistence:Provider"]
     ?? builder.Configuration["Firebase:Provider"]
     ?? "InMemory";

@@ -19,6 +19,9 @@ public class MapReportResponse
     public string MarkerIcon { get; set; } = string.Empty;
     public bool RequiresAttention { get; set; }
     public string? ImageUrl { get; set; }
+    public string? ImageStorageProvider { get; set; }
+    public string? ImageStoragePath { get; set; }
+    public string? ImageContentType { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedAtDisplay { get; set; } = string.Empty;
     public int Confirmations { get; set; }

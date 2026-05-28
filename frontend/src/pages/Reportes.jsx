@@ -1,109 +1,158 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import api, { getApiErrorMessage, getImageUrl } from "../services/api";
 import "./Reportes.css";
 
-const reportesIniciales = [
-  {
-    id: 1,
-    tipo: "Banqueta rota",
-    severidad: "alta",
-    estado: "Confirmado",
-    descripcion:
-      "La banqueta está destruida y obliga a las personas a bajar a la calle para poder pasar.",
-    ubicacion: "Zona Río, Tijuana",
-    latitud: 32.5149,
-    longitud: -117.0382,
-    fecha: "2026-05-28",
-    confirmaciones: 8,
-  },
-  {
-    id: 2,
-    tipo: "Rampa bloqueada",
-    severidad: "media",
-    estado: "Nuevo",
-    descripcion:
-      "La rampa de acceso está bloqueada por un vehículo estacionado frente al cruce peatonal.",
-    ubicacion: "Centro, Tijuana",
-    latitud: 32.5331,
-    longitud: -117.0431,
-    fecha: "2026-05-27",
-    confirmaciones: 3,
-  },
-  {
-    id: 3,
-    tipo: "Sin banqueta",
-    severidad: "alta",
-    estado: "En revisión",
-    descripcion:
-      "La calle no cuenta con banqueta segura para personas con silla de ruedas o adultos mayores.",
-    ubicacion: "Otay, Tijuana",
-    latitud: 32.5327,
-    longitud: -116.9646,
-    fecha: "2026-05-26",
-    confirmaciones: 5,
-  },
-];
+function getSeverityFilterValue(value) {
+  if (value === "alta") return 3;
+  if (value === "media") return 2;
+  if (value === "baja") return 1;
+  return undefined;
+}
+
+function getSeverityClass(severity) {
+  if (Number(severity) === 3 || severity === "alta") return "severityBadge high";
+  if (Number(severity) === 2 || severity === "media") return "severityBadge medium";
+  return "severityBadge low";
+}
+
+function getStatusClass(status) {
+  if (status === "active") return "statusBadge confirmed";
+  if (status === "resolved") return "statusBadge review";
+  return "statusBadge new";
+}
+
+function formatCoordinates(report) {
+  const lat = Number(report.latitude);
+  const lng = Number(report.longitude);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return "Sin coordenadas";
+  return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+}
 
 function Reportes() {
+  const [reportes, setReportes] = useState([]);
+  const [stats, setStats] = useState(null);
   const [busqueda, setBusqueda] = useState("");
   const [filtroSeveridad, setFiltroSeveridad] = useState("todas");
+  const [cargando, setCargando] = useState(true);
+  const [accionandoId, setAccionandoId] = useState(null);
+  const [mensaje, setMensaje] = useState("");
 
-  const reportesFiltrados = useMemo(() => {
-    return reportesIniciales.filter((reporte) => {
-      const texto = `${reporte.tipo} ${reporte.descripcion} ${reporte.ubicacion}`.toLowerCase();
+  const severidadParametro = useMemo(() => getSeverityFilterValue(filtroSeveridad), [filtroSeveridad]);
 
-      const coincideBusqueda = texto.includes(busqueda.toLowerCase());
+  const cargarDatos = useCallback(async () => {
+    setCargando(true);
+    setMensaje("");
 
-      const coincideSeveridad =
-        filtroSeveridad === "todas" || reporte.severidad === filtroSeveridad;
+    try {
+      const [reportsResponse, statsResponse] = await Promise.all([
+        api.get("/api/reports", {
+          params: {
+            search: busqueda || undefined,
+            minSeverity: severidadParametro,
+            maxSeverity: severidadParametro,
+            limit: 200,
+          },
+        }),
+        api.get("/api/stats"),
+      ]);
 
-      return coincideBusqueda && coincideSeveridad;
-    });
-  }, [busqueda, filtroSeveridad]);
+      setReportes(Array.isArray(reportsResponse.data) ? reportsResponse.data : []);
+      setStats(statsResponse.data);
+    } catch (err) {
+      setMensaje(getApiErrorMessage(err));
+    } finally {
+      setCargando(false);
+    }
+  }, [busqueda, severidadParametro]);
 
-  function claseSeveridad(severidad) {
-    if (severidad === "alta") return "severityBadge high";
-    if (severidad === "media") return "severityBadge medium";
-    return "severityBadge low";
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      cargarDatos();
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [cargarDatos]);
+
+  async function confirmarReporte(id) {
+    setAccionandoId(id);
+    setMensaje("");
+
+    try {
+      await api.post(`/api/reports/${id}/confirm`);
+      setMensaje("Reporte confirmado correctamente.");
+      await cargarDatos();
+    } catch (err) {
+      setMensaje(getApiErrorMessage(err));
+    } finally {
+      setAccionandoId(null);
+    }
   }
 
-  function claseEstado(estado) {
-    if (estado === "Confirmado") return "statusBadge confirmed";
-    if (estado === "En revisión") return "statusBadge review";
-    return "statusBadge new";
+  async function rechazarReporte(id) {
+    setAccionandoId(id);
+    setMensaje("");
+
+    try {
+      await api.post(`/api/reports/${id}/reject`);
+      setMensaje("Se registró que la barrera ya no sigue ahí.");
+      await cargarDatos();
+    } catch (err) {
+      setMensaje(getApiErrorMessage(err));
+    } finally {
+      setAccionandoId(null);
+    }
   }
+
+  async function marcarResuelto(id) {
+    setAccionandoId(id);
+    setMensaje("");
+
+    try {
+      await api.put(`/api/reports/${id}/status`, { status: "resolved" });
+      setMensaje("Reporte marcado como resuelto.");
+      await cargarDatos();
+    } catch (err) {
+      setMensaje(getApiErrorMessage(err));
+    } finally {
+      setAccionandoId(null);
+    }
+  }
+
+  const totalReportes = stats?.totalReports ?? reportes.length;
+  const reportesAltos = stats?.highSeverityReports ?? reportes.filter((reporte) => Number(reporte.severity) === 3).length;
+  const reportesActivos = stats?.activeReports ?? reportes.filter((reporte) => reporte.status === "active").length;
 
   return (
     <main className="reportsPage">
       <section className="reportsHero">
-        <span className="reportsBadge">Mapa vivo de accesibilidad</span>
-        <h1>Reportes globales</h1>
-        <p>
-          Consulta las barreras físicas reportadas por la comunidad. Estos datos
-          ayudan a identificar zonas de riesgo y planear trayectos más seguros.
-        </p>
+        <div>
+          <span className="reportsBadge">Mapa actual</span>
+          <h1>Reportes globales</h1>
+          <p>
+            Consulta las barreras físicas reportadas por la comunidad. Estos
+            datos vienen del backend y Firebase, y ayudan a identificar zonas de riesgo.
+          </p>
+        </div>
       </section>
 
       <section className="statsGrid">
         <article className="statCard">
           <span>Total</span>
-          <strong>{reportesIniciales.length}</strong>
+          <strong>{totalReportes}</strong>
           <p>reportes registrados</p>
         </article>
 
         <article className="statCard">
           <span>Prioridad alta</span>
-          <strong>
-            {reportesIniciales.filter((r) => r.severidad === "alta").length}
-          </strong>
-          <p>barreras críticas</p>
+          <strong>{reportesAltos}</strong>
+          <p>barreras críticas activas</p>
         </article>
 
         <article className="statCard">
-          <span>Validados</span>
-          <strong>
-            {reportesIniciales.filter((r) => r.estado === "Confirmado").length}
-          </strong>
-          <p>reportes confirmados</p>
+          <span>Activos</span>
+          <strong>{reportesActivos}</strong>
+          <p>reportes pendientes</p>
         </article>
       </section>
 
@@ -112,7 +161,7 @@ function Reportes() {
           <label>Buscar reporte</label>
           <input
             type="text"
-            placeholder="Buscar por tipo, descripción o zona..."
+            placeholder="Buscar por tipo o descripción..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
@@ -132,50 +181,73 @@ function Reportes() {
         </div>
       </section>
 
+      {mensaje && <div className={mensaje.toLowerCase().includes("error") || mensaje.toLowerCase().includes("no se") ? "reportsMessage reportsMessageError" : "reportsMessage"}>{mensaje}</div>}
+
       <section className="reportsList">
-        {reportesFiltrados.map((reporte) => (
-          <article className="reportCard" key={reporte.id}>
-            <div className="reportImage">
-              <span>{reporte.tipo.charAt(0)}</span>
-            </div>
+        {cargando ? (
+          <div className="emptyState">
+            <h2>Cargando reportes</h2>
+            <p>Consultando información del backend...</p>
+          </div>
+        ) : reportes.length === 0 ? (
+          <div className="emptyState">
+            <h2>No se encontraron reportes</h2>
+            <p>Intenta cambiar la búsqueda o el filtro seleccionado.</p>
+          </div>
+        ) : (
+          reportes.map((reporte) => (
+            <article className="reportCard" key={reporte.id}>
+              <div className={reporte.imageUrl ? "reportImage withPhoto" : "reportImage"}>
+                {reporte.imageUrl ? (
+                  <img src={getImageUrl(reporte.imageUrl)} alt={reporte.typeLabel} />
+                ) : (
+                  <span>{reporte.markerIcon || reporte.typeLabel?.charAt(0) || "R"}</span>
+                )}
+              </div>
 
-            <div className="reportContent">
-              <div className="reportHeader">
-                <div>
-                  <h2>{reporte.tipo}</h2>
-                  <p className="reportLocation">{reporte.ubicacion}</p>
+              <div className="reportContent">
+                <div className="reportHeader">
+                  <div>
+                    <h2>{reporte.typeLabel}</h2>
+                    <p className="reportLocation">Coordenadas: {formatCoordinates(reporte)}</p>
+                  </div>
+
+                  <div className="badgeGroup">
+                    <span className={getSeverityClass(reporte.severity)}>
+                      {reporte.severityLabel}
+                    </span>
+
+                    <span className={getStatusClass(reporte.status)}>
+                      {reporte.statusLabel}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="badgeGroup">
-                  <span className={claseSeveridad(reporte.severidad)}>
-                    {reporte.severidad}
-                  </span>
+                <p className="reportDescription">{reporte.description || "Sin descripción."}</p>
 
-                  <span className={claseEstado(reporte.estado)}>
-                    {reporte.estado}
-                  </span>
+                <div className="reportMeta">
+                  <span>{reporte.createdAtDisplay || new Date(reporte.createdAt).toLocaleDateString()}</span>
+                  <span>Confirmaciones: {reporte.confirmations}</span>
+                  <span>Rechazos: {reporte.rejections}</span>
+                  <span>ID: {reporte.id}</span>
+                </div>
+
+                <div className="reportActions">
+                  <button type="button" onClick={() => confirmarReporte(reporte.id)} disabled={accionandoId === reporte.id}>
+                    Sigue ahí
+                  </button>
+                  <button type="button" onClick={() => rechazarReporte(reporte.id)} disabled={accionandoId === reporte.id}>
+                    Ya no está
+                  </button>
+                  <button type="button" onClick={() => marcarResuelto(reporte.id)} disabled={accionandoId === reporte.id || reporte.status === "resolved"}>
+                    Marcar como resuelto
+                  </button>
+                  <Link to="/mapa">Ver en mapa</Link>
                 </div>
               </div>
-
-              <p className="reportDescription">{reporte.descripcion}</p>
-
-              <div className="reportMeta">
-                <span>Fecha: {reporte.fecha}</span>
-                <span>Confirmaciones: {reporte.confirmaciones}</span>
-                <span>
-                  Coordenadas: {reporte.latitud.toFixed(4)},{" "}
-                  {reporte.longitud.toFixed(4)}
-                </span>
-              </div>
-
-              <div className="reportActions">
-                <button type="button">Sigue ahí</button>
-                <button type="button">Marcar como resuelto</button>
-                <button type="button">Ver en mapa</button>
-              </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))
+        )}
       </section>
     </main>
   );

@@ -329,7 +329,7 @@ public class ReportsController : ControllerBase
             return CreateReportCoreResult.Fail("La descripción no puede superar 500 caracteres.", 400);
         }
 
-        var imageResult = await _fileStorage.SaveReportImageAsync(image);
+        var imageResult = await _fileStorage.SaveReportImageAsync(image, cancellationToken);
         if (!imageResult.Success)
         {
             return CreateReportCoreResult.Fail(imageResult.Error ?? "No se pudo guardar la imagen.", 400);
@@ -343,7 +343,10 @@ public class ReportsController : ControllerBase
             Longitude = longitude.Value,
             Severity = severity,
             Status = "active",
-            ImageUrl = imageResult.ImageUrl
+            ImageUrl = imageResult.ImageUrl,
+            ImageStorageProvider = imageResult.StorageProvider,
+            ImageStoragePath = imageResult.StoragePath,
+            ImageContentType = imageResult.ContentType
         };
 
         try
@@ -365,7 +368,7 @@ public class ReportsController : ControllerBase
         }
         catch (Exception)
         {
-            _fileStorage.DeleteLocalImage(imageResult.ImageUrl);
+            await _fileStorage.DeleteImageAsync(imageResult.ImageUrl, imageResult.StorageProvider, imageResult.StoragePath, cancellationToken);
             return CreateReportCoreResult.Fail("No se pudo guardar el reporte en la base de datos.", 500);
         }
     }

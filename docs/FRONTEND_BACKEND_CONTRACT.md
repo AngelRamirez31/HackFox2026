@@ -262,3 +262,24 @@ y después creen el reporte con:
 ```http
 POST /api/reports
 ```
+
+## Imágenes de reportes
+
+El frontend debe seguir usando el campo `imageUrl` que devuelve el backend. No necesita saber si la imagen viene de almacenamiento local o de Firebase Storage.
+
+Ejemplo cuando la imagen está en Firebase Storage:
+
+```json
+{
+  "imageUrl": "https://firebasestorage.googleapis.com/v0/b/...",
+  "imageStorageProvider": "firebase_storage",
+  "imageStoragePath": "reports/archivo.jpg",
+  "imageContentType": "image/jpeg"
+}
+```
+
+Para verificar desde frontend/backend que el almacenamiento está listo:
+
+```text
+GET /api/storage/status
+```

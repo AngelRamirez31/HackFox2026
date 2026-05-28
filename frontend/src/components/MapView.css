@@ -1,0 +1,212 @@
+.mapPageShell {
+  min-height: calc(100vh - 74px);
+  display: grid;
+  grid-template-columns: minmax(320px, 410px) 1fr;
+  background: #eef6ff;
+}
+
+.mapPanel {
+  padding: 28px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-right: 1px solid #dbeafe;
+  box-shadow: 18px 0 45px rgba(15, 23, 42, 0.08);
+  z-index: 2;
+}
+
+.mapBadge {
+  display: inline-block;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 900;
+  padding: 9px 14px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.mapPanel h1 {
+  margin: 0 0 14px;
+  color: #0f172a;
+  line-height: 1.1;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -1px;
+}
+
+.mapPanel p {
+  color: #475569;
+  line-height: 1.7;
+  margin: 0 0 20px;
+}
+
+.mapStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.mapStatsGrid article {
+  background: #f8fafc;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.mapStatsGrid span {
+  display: block;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.mapStatsGrid strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 1.8rem;
+  margin-top: 4px;
+}
+
+.mapPrimaryButton,
+.mapSecondaryButton {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-weight: 900;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mapPrimaryButton {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.25);
+}
+
+.mapSecondaryButton {
+  background: #0f172a;
+  color: white;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+}
+
+.mapPrimaryButton:hover,
+.mapSecondaryButton:hover {
+  transform: translateY(-2px);
+}
+
+.mapPrimaryButton:disabled,
+.mapSecondaryButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.scoreCard {
+  margin-top: 14px;
+  border-radius: 22px;
+  padding: 18px;
+  border: 1px solid #dbeafe;
+  background: white;
+}
+
+.scoreCard span {
+  font-weight: 900;
+  color: #64748b;
+}
+
+.scoreCard strong {
+  display: block;
+  font-size: 2.4rem;
+  margin: 6px 0;
+}
+
+.scoreCard p {
+  margin-bottom: 10px;
+}
+
+.scoreCard ul {
+  padding-left: 18px;
+  margin: 0;
+  color: #475569;
+}
+
+.scoreHigh strong { color: #16a34a; }
+.scoreMedium strong { color: #d97706; }
+.scoreLow strong { color: #dc2626; }
+
+.mapError,
+.errorBox {
+  margin-top: 14px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-weight: 700;
+}
+
+.mapCanvasWrap {
+  min-width: 0;
+}
+
+.mapMessage {
+  margin: 36px auto;
+  max-width: 720px;
+  background: white;
+  border: 1px solid #dbeafe;
+  border-radius: 22px;
+  padding: 24px;
+  color: #1d4ed8;
+  font-weight: 900;
+  text-align: center;
+}
+
+.mapInfoCard {
+  max-width: 300px;
+  color: #0f172a;
+}
+
+.mapInfoCard h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.mapInfoCard p {
+  margin: 0 0 10px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.mapInfoCard img {
+  width: 100%;
+  max-height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.mapInfoMeta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mapInfoMeta span {
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 6px 8px;
+  border-radius: 999px;
+}
+
+@media (max-width: 900px) {
+  .mapPageShell {
+    grid-template-columns: 1fr;
+  }
+
+  .mapPanel {
+    border-right: none;
+    border-bottom: 1px solid #dbeafe;
+  }
+}

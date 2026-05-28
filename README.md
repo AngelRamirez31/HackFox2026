@@ -242,3 +242,48 @@ POST /api/reports
 ```
 
 La clave de Gemini sigue viviendo solamente en backend mediante User Secrets o variables de entorno.
+
+## Integracion frontend-backend actual
+
+El frontend ya consume la API del backend para mostrar reportes reales, crear reportes con foto, usar Gemini desde el backend y consultar estadisticas.
+
+Archivo local requerido en `frontend/.env.local`:
+
+```env
+VITE_API_URL=https://localhost:7271
+VITE_GOOGLE_MAPS_API_KEY=TU_API_KEY_DE_GOOGLE_MAPS
+```
+
+Endpoints conectados en frontend:
+
+```text
+GET    /api/reports/map
+GET    /api/reports
+GET    /api/stats
+POST   /api/reports
+POST   /api/reports/analyze-and-create
+POST   /api/routes/score
+POST   /api/reports/{id}/confirm
+POST   /api/reports/{id}/reject
+PUT    /api/reports/{id}/status
+```
+
+El frontend no usa Firebase ni Gemini directamente; esas integraciones se mantienen en backend para proteger credenciales.
+
+## Firebase Storage para fotos
+
+El backend ya puede guardar imágenes de reportes en Firebase Storage / Google Cloud Storage. Para activarlo en desarrollo local, desde `backend/` configura:
+
+```bat
+dotnet user-secrets set "Storage:Provider" "FirebaseStorage"
+dotnet user-secrets set "Firebase:StorageBucket" "TU_BUCKET_DE_FIREBASE_STORAGE"
+dotnet user-secrets set "Firebase:StorageFolder" "reports"
+```
+
+Luego verifica:
+
+```text
+https://localhost:7271/api/storage/status
+```
+
+Si no se configura Storage, el backend usa almacenamiento local como fallback en `backend/wwwroot/uploads/reports/`.

@@ -406,3 +406,21 @@ Content-Type: multipart/form-data
 ```
 
 En ese caso, la respuesta se mantiene como `ReportResponse` para no romper al frontend actual, pero el backend puede usar Gemini para completar tipo, severidad o descripción cuando falten.
+
+## Almacenamiento de imágenes
+
+El backend puede guardar fotos de reportes en Firebase Storage / Google Cloud Storage cuando se configura:
+
+```bat
+dotnet user-secrets set "Storage:Provider" "FirebaseStorage"
+dotnet user-secrets set "Firebase:StorageBucket" "TU_BUCKET_DE_FIREBASE_STORAGE"
+dotnet user-secrets set "Firebase:StorageFolder" "reports"
+```
+
+Para revisar el estado:
+
+```http
+GET /api/storage/status
+```
+
+Cuando Firebase Storage está activo, `imageUrl` queda como una URL de `firebasestorage.googleapis.com` y Firestore guarda también `imageStorageProvider`, `imageStoragePath` e `imageContentType`.

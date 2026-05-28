@@ -201,3 +201,8 @@ Content-Disposition: form-data; name="useGemini"
 
 true
 --HackFoxCreateWithGeminiBoundary--
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/storage/status
+Accept: application/json
