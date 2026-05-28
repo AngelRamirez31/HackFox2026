@@ -3,6 +3,7 @@
   background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 45%, #ffffff 100%);
   color: #1f2937;
   padding: 32px;
+  animation: pageFade 0.6s ease both;
 }
 
 .hero {
@@ -19,6 +20,7 @@
   display: flex;
   flex-direction: column;
   gap: 22px;
+  animation: slideFromLeft 0.8s ease both;
 }
 
 .badge {
@@ -29,6 +31,7 @@
   padding: 10px 16px;
   border-radius: 999px;
   font-size: 0.95rem;
+  animation: fadeUp 0.7s ease both;
 }
 
 .hero h1 {
@@ -37,6 +40,8 @@
   margin: 0;
   color: #0f172a;
   letter-spacing: -1.5px;
+  animation: fadeUp 0.8s ease both;
+  animation-delay: 0.1s;
 }
 
 .heroText {
@@ -45,6 +50,8 @@
   line-height: 1.8;
   color: #475569;
   margin: 0;
+  animation: fadeUp 0.8s ease both;
+  animation-delay: 0.2s;
 }
 
 .heroButtons {
@@ -52,6 +59,8 @@
   gap: 16px;
   flex-wrap: wrap;
   margin-top: 8px;
+  animation: fadeUp 0.8s ease both;
+  animation-delay: 0.3s;
 }
 
 .primaryButton,
@@ -61,7 +70,7 @@
   border-radius: 16px;
   padding: 14px 22px;
   font-weight: 800;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
 }
 
 .primaryButton {
@@ -79,7 +88,16 @@
 .primaryButton:hover,
 .secondaryButton:hover,
 .missionButton:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+
+.primaryButton:hover {
+  box-shadow: 0 18px 38px rgba(37, 99, 235, 0.34);
+}
+
+.secondaryButton:hover {
+  background-color: #eff6ff;
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.14);
 }
 
 .heroCard {
@@ -89,46 +107,206 @@
   padding: 32px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
   backdrop-filter: blur(12px);
+  animation: slideFromRight 0.9s ease both, softFloat 5s ease-in-out infinite;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.heroCard h2 {
+.heroCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.16);
+}
+
+/* Últimos reportes */
+
+.reportsTickerCard {
+  overflow: hidden;
+}
+
+.tickerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.tickerLabel {
+  display: inline-block;
+  color: #1d4ed8;
+  background-color: #dbeafe;
+  border: 1px solid #bfdbfe;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.tickerHeader h2 {
   font-size: 2rem;
-  margin: 0 0 12px;
+  margin: 0;
   color: #0f172a;
+  letter-spacing: -0.6px;
 }
 
-.heroCard p {
+.liveBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 900;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.livePulse {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  animation: pulseLive 1.4s ease-in-out infinite;
+}
+
+.tickerDescription {
   color: #475569;
   line-height: 1.7;
-  margin-bottom: 26px;
+  margin: 0 0 24px;
 }
 
-.statusList {
-  display: grid;
-  gap: 14px;
-}
-
-.statusList div {
-  background-color: #eff6ff;
-  border-radius: 18px;
-  padding: 18px;
+.tickerWindow {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #eff6ff, #f8fbff);
   border: 1px solid #dbeafe;
+  padding: 18px 0;
 }
 
-.statusList strong {
+.tickerWindow::before,
+.tickerWindow::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 70px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tickerWindow::before {
+  left: 0;
+  background: linear-gradient(90deg, #eff6ff, transparent);
+}
+
+.tickerWindow::after {
+  right: 0;
+  background: linear-gradient(270deg, #eff6ff, transparent);
+}
+
+.tickerTrack {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: tickerMove 24s linear infinite;
+}
+
+.tickerWindow:hover .tickerTrack {
+  animation-play-state: paused;
+}
+
+.tickerItem {
+  min-width: 190px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.tickerItem span {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.tickerItem.high span {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.tickerItem.medium span {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.tickerItem.low span {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.tickerItem strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.tickerItem p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.tickerSummary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.tickerSummary div {
+  background-color: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+
+.tickerSummary div:hover {
+  transform: translateY(-4px);
+  background-color: #dbeafe;
+}
+
+.tickerSummary strong {
   display: block;
   color: #1d4ed8;
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   margin-bottom: 4px;
 }
 
-.statusList span {
+.tickerSummary span {
   color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 700;
 }
+
+/* Features */
 
 .features {
   max-width: 1180px;
   margin: 60px auto 0;
+  animation: fadeUp 0.9s ease both;
+  animation-delay: 0.2s;
 }
 
 .features h2,
@@ -151,6 +329,30 @@
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  animation: fadeUp 0.8s ease both;
+}
+
+.featureCard:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.featureCard:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.featureCard:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.featureCard:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.featureCard:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.11);
+  border-color: #bfdbfe;
 }
 
 .icon {
@@ -162,6 +364,12 @@
   border-radius: 18px;
   font-size: 1.7rem;
   margin-bottom: 16px;
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+
+.featureCard:hover .icon {
+  transform: scale(1.08) rotate(-3deg);
+  background-color: #dbeafe;
 }
 
 .featureCard h3 {
@@ -176,6 +384,8 @@
   line-height: 1.7;
 }
 
+/* Mission */
+
 .mission {
   max-width: 1180px;
   margin: 60px auto 0;
@@ -187,6 +397,13 @@
   justify-content: space-between;
   align-items: center;
   gap: 24px;
+  animation: fadeUp 0.9s ease both;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.mission:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 55px rgba(15, 23, 42, 0.22);
 }
 
 .mission h2 {
@@ -206,6 +423,92 @@
   color: #0f172a;
   white-space: nowrap;
 }
+
+.missionButton:hover {
+  background-color: #eff6ff;
+}
+
+/* Animaciones */
+
+@keyframes pageFade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-34px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(34px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes softFloat {
+  0%, 100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -8px;
+  }
+}
+
+@keyframes tickerMove {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes pulseLive {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(1.45);
+  }
+}
+
+/* Responsivo */
 
 @media (max-width: 950px) {
   .home {
@@ -273,6 +576,27 @@
   .mission {
     border-radius: 22px;
     padding: 24px;
+    animation-name: fadeUp;
+    animation-duration: 0.8s;
+    animation-iteration-count: 1;
+  }
+
+  .tickerHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .tickerDescription {
+    text-align: center;
+  }
+
+  .tickerSummary {
+    grid-template-columns: 1fr;
+  }
+
+  .tickerItem {
+    min-width: 175px;
   }
 
   .features {
@@ -291,5 +615,14 @@
 
   .mission {
     text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 }

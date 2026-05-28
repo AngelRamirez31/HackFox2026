@@ -8,13 +8,13 @@ function Home() {
         <div className="heroContent">
           <span className="badge">HackFox 2026 · Tijuana Sin Barreras</span>
 
-          <h1>Rutas accesibles para moverse con más seguridad en Tijuana</h1>
+          <h1>Planea tu camino, evita obstáculos</h1>
 
           <p className="heroText">
-            Streets-H es una plataforma colaborativa que permite reportar barreras
-            físicas como banquetas destruidas, rampas bloqueadas, obstáculos y
-            zonas difíciles de transitar. Con estos reportes, ayudamos a construir
-            un mapa vivo de accesibilidad urbana.
+            Streets-H es una plataforma colaborativa que permite reportar
+            barreras físicas como banquetas destruidas, rampas bloqueadas,
+            obstáculos y zonas difíciles de transitar. Con estos reportes,
+            ayudamos a construir un mapa vivo de accesibilidad urbana.
           </p>
 
           <div className="heroButtons">
@@ -28,27 +28,102 @@ function Home() {
           </div>
         </div>
 
-        <div className="heroCard">
-          <h2>Mapa Actual</h2>
-          <p>
-            Los reportes ciudadanos ayudan a identificar zonas problemáticas en
-            tiempo real para planear trayectos más seguros.
+        <div className="heroCard reportsTickerCard">
+          <div className="tickerHeader">
+            <div>
+              <span className="tickerLabel">Actividad reciente</span>
+              <h2>Últimos reportes</h2>
+            </div>
+
+            <span className="liveBadge">
+              <span className="livePulse"></span>
+              En vivo
+            </span>
+          </div>
+
+          <p className="tickerDescription">
+            Reportes ciudadanos actualizados para identificar barreras físicas y
+            planear trayectos más seguros.
           </p>
 
-          <div className="statusList">
+          <div className="tickerWindow">
+            <div className="tickerTrack">
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Banqueta rota</strong>
+                <p>Zona Río · hace 4 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Rampa bloqueada</strong>
+                <p>Centro · hace 12 min</p>
+              </div>
+
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Sin banqueta</strong>
+                <p>Otay · hace 20 min</p>
+              </div>
+
+              <div className="tickerItem low">
+                <span>Baja</span>
+                <strong>Obstáculo en paso</strong>
+                <p>Playas · hace 31 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Cruce inseguro</strong>
+                <p>La Mesa · hace 44 min</p>
+              </div>
+
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Banqueta rota</strong>
+                <p>Zona Río · hace 4 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Rampa bloqueada</strong>
+                <p>Centro · hace 12 min</p>
+              </div>
+
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Sin banqueta</strong>
+                <p>Otay · hace 20 min</p>
+              </div>
+
+              <div className="tickerItem low">
+                <span>Baja</span>
+                <strong>Obstáculo en paso</strong>
+                <p>Playas · hace 31 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Cruce inseguro</strong>
+                <p>La Mesa · hace 44 min</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="tickerSummary">
             <div>
-              <strong>+170,000</strong>
-              <span>personas afectadas</span>
+              <strong>24</strong>
+              <span>reportes hoy</span>
             </div>
 
             <div>
-              <strong>Tiempo real</strong>
-              <span>reportes actualizados</span>
+              <strong>7</strong>
+              <span>prioridad alta</span>
             </div>
 
             <div>
-              <strong>Accesible</strong>
-              <span>interfaz simple</span>
+              <strong>3</strong>
+              <span>zonas críticas</span>
             </div>
           </div>
         </div>
@@ -80,8 +155,8 @@ function Home() {
             <div className="icon">🌎</div>
             <h3>Ver reportes globales</h3>
             <p>
-              Explora los reportes realizados por la comunidad y ayuda a mantener
-              actualizado el mapa de accesibilidad de la ciudad.
+              Explora los reportes realizados por la comunidad y ayuda a
+              mantener actualizado el mapa de accesibilidad de la ciudad.
             </p>
           </article>
 
@@ -90,7 +165,8 @@ function Home() {
             <h3>Diseño accesible</h3>
             <p>
               La plataforma está pensada para adultos mayores, personas con
-              discapacidad motriz y familias que necesitan trayectos más seguros.
+              discapacidad motriz y familias que necesitan trayectos más
+              seguros.
             </p>
           </article>
         </div>
@@ -101,7 +177,7 @@ function Home() {
           <h2>Una ciudad más accesible empieza con datos reales</h2>
           <p>
             Cada reporte ayuda a visibilizar problemas que muchas veces pasan
-            desapercibidos. HackFox convierte la participación ciudadana en
+            desapercibidos. Streets-H convierte la participación ciudadana en
             información útil para mejorar la movilidad urbana.
           </p>
         </div>
