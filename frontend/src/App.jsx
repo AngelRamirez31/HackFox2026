@@ -11,7 +11,7 @@ function App() {
       <header className="navbar">
         <div className="navbarContainer">
           <NavLink to="/" className="logo">
-            HackFox
+            Streets-H
           </NavLink>
 
           <nav className="navLinks">

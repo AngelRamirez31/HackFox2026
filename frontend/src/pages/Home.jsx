@@ -11,7 +11,7 @@ function Home() {
           <h1>Rutas accesibles para moverse con más seguridad en Tijuana</h1>
 
           <p className="heroText">
-            HackFox es una plataforma colaborativa que permite reportar barreras
+            Streets-H es una plataforma colaborativa que permite reportar barreras
             físicas como banquetas destruidas, rampas bloqueadas, obstáculos y
             zonas difíciles de transitar. Con estos reportes, ayudamos a construir
             un mapa vivo de accesibilidad urbana.
@@ -29,7 +29,7 @@ function Home() {
         </div>
 
         <div className="heroCard">
-          <h2>Mapa vivo</h2>
+          <h2>Mapa Actual</h2>
           <p>
             Los reportes ciudadanos ayudan a identificar zonas problemáticas en
             tiempo real para planear trayectos más seguros.
@@ -55,7 +55,7 @@ function Home() {
       </section>
 
       <section className="features">
-        <h2>¿Qué puedes hacer con HackFox?</h2>
+        <h2>¿Qué puedes hacer con Streets-H?</h2>
 
         <div className="featureGrid">
           <article className="featureCard">

@@ -98,7 +98,7 @@ function Reportes() {
     <main className="reportsPage">
       <section className="reportsHero">
         <div>
-          <span className="reportsBadge">Mapa vivo de accesibilidad</span>
+          <span className="reportsBadge">Mapa Actual</span>
           <h1>Reportes globales</h1>
           <p>
             Consulta las barreras físicas reportadas por la comunidad. Estos
