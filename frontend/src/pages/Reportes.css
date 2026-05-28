@@ -1,217 +1,330 @@
-.reportsTickerCard {
-  overflow: hidden;
+.reportsPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 48%, #ffffff 100%);
+  padding: 36px 24px 70px;
+  color: #0f172a;
 }
 
-.tickerHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 18px;
+.reportsHero {
+  max-width: 1180px;
+  margin: 0 auto 42px;
+  text-align: center;
+}
+
+.reportsBadge {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 800;
+  padding: 10px 16px;
+  border-radius: 999px;
   margin-bottom: 18px;
 }
 
-.tickerLabel {
-  display: inline-block;
-  color: #1d4ed8;
-  background-color: #dbeafe;
-  border: 1px solid #bfdbfe;
-  padding: 7px 12px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.tickerHeader h2 {
-  font-size: 2rem;
-  margin: 0;
+.reportsHero h1 {
+  font-size: clamp(2.2rem, 4vw, 4rem);
+  margin: 0 0 28px;
+  letter-spacing: -1px;
+  line-height: 1.1;
   color: #0f172a;
-  letter-spacing: -0.6px;
-}
-
-.liveBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-  border-radius: 999px;
-  padding: 8px 12px;
   font-weight: 900;
-  font-size: 0.85rem;
-  white-space: nowrap;
 }
 
-.livePulse {
-  width: 8px;
-  height: 8px;
-  background-color: #22c55e;
-  border-radius: 50%;
-  animation: pulseLive 1.4s ease-in-out infinite;
-}
-
-.tickerDescription {
+.reportsHero p {
+  max-width: 850px;
   color: #475569;
-  line-height: 1.7;
-  margin: 0 0 24px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 0 auto;
 }
 
-.tickerWindow {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #eff6ff, #f8fbff);
-  border: 1px solid #dbeafe;
-  padding: 18px 0;
+.statsGrid {
+  max-width: 1180px;
+  margin: 0 auto 28px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
 }
 
-.tickerWindow::before,
-.tickerWindow::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 70px;
-  height: 100%;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.tickerWindow::before {
-  left: 0;
-  background: linear-gradient(90deg, #eff6ff, transparent);
-}
-
-.tickerWindow::after {
-  right: 0;
-  background: linear-gradient(270deg, #eff6ff, transparent);
-}
-
-.tickerTrack {
-  display: flex;
-  gap: 14px;
-  width: max-content;
-  animation: tickerMove 24s linear infinite;
-}
-
-.tickerWindow:hover .tickerTrack {
-  animation-play-state: paused;
-}
-
-.tickerItem {
-  min-width: 190px;
+.statCard {
   background-color: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.07);
 }
 
-.tickerItem span {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 0.78rem;
+.statCard span {
+  display: block;
+  color: #64748b;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.statCard strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 2.5rem;
+  margin-bottom: 6px;
+}
+
+.statCard p {
+  color: #475569;
+  margin: 0;
+}
+
+.reportsControls {
+  max-width: 1180px;
+  margin: 0 auto 28px;
+  background-color: white;
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 18px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.searchBox,
+.filterBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.searchBox label,
+.filterBox label {
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.searchBox input,
+.filterBox select {
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  background-color: #f8fafc;
+  color: #0f172a;
+  outline: none;
+}
+
+.searchBox input:focus,
+.filterBox select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.reportsList {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.reportCard {
+  background-color: white;
+  border: 1px solid #dbeafe;
+  border-radius: 28px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 22px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.07);
+}
+
+.reportImage {
+  min-height: 160px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #2563eb, #93c5fd);
+  display: grid;
+  place-items: center;
+}
+
+.reportImage span {
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #1d4ed8;
+  border-radius: 50%;
+  font-size: 2rem;
   font-weight: 900;
-  margin-bottom: 12px;
 }
 
-.tickerItem.high span {
+.reportContent {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.reportHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.reportHeader h2 {
+  margin: 0 0 6px;
+  font-size: 1.55rem;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.reportLocation {
+  margin: 0;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.badgeGroup {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.severityBadge,
+.statusBadge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 900;
+  text-transform: capitalize;
+}
+
+.severityBadge.high {
   background-color: #fee2e2;
   color: #b91c1c;
 }
 
-.tickerItem.medium span {
+.severityBadge.medium {
   background-color: #fef3c7;
   color: #92400e;
 }
 
-.tickerItem.low span {
+.severityBadge.low {
   background-color: #dcfce7;
   color: #166534;
 }
 
-.tickerItem strong {
-  display: block;
-  color: #0f172a;
-  font-size: 1rem;
-  margin-bottom: 6px;
-}
-
-.tickerItem p {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.tickerSummary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-top: 20px;
-}
-
-.tickerSummary div {
-  background-color: #eff6ff;
-  border: 1px solid #dbeafe;
-  border-radius: 18px;
-  padding: 16px;
-  text-align: center;
-}
-
-.tickerSummary strong {
-  display: block;
+.statusBadge.confirmed {
+  background-color: #dbeafe;
   color: #1d4ed8;
-  font-size: 1.35rem;
-  margin-bottom: 4px;
 }
 
-.tickerSummary span {
+.statusBadge.review {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.statusBadge.new {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.reportDescription {
+  color: #475569;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.reportMeta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.reportMeta span {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
   color: #64748b;
+  padding: 9px 12px;
+  border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 700;
 }
 
-@keyframes tickerMove {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
+.reportActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
 }
 
-@keyframes pulseLive {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
+.reportActions button {
+  border: none;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 14px;
+  padding: 11px 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reportActions button:hover {
+  background-color: #2563eb;
+  color: white;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 900px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
   }
 
-  50% {
-    opacity: 0.55;
-    transform: scale(1.45);
+  .reportsControls {
+    grid-template-columns: 1fr;
+  }
+
+  .reportCard {
+    grid-template-columns: 1fr;
+  }
+
+  .reportHeader {
+    flex-direction: column;
+  }
+
+  .badgeGroup {
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 600px) {
-  .tickerHeader {
+  .reportsPage {
+    padding: 24px 14px 50px;
+  }
+
+  .reportsHero h1 {
+    font-size: 2.35rem;
+    margin-bottom: 28px;
+  }
+
+  .reportsHero p {
+    font-size: 1rem;
+  }
+
+  .reportCard,
+  .reportsControls,
+  .statCard {
+    border-radius: 22px;
+  }
+
+  .reportActions {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
   }
 
-  .tickerDescription {
-    text-align: center;
+  .reportActions button {
+    width: 100%;
   }
 
-  .tickerSummary {
-    grid-template-columns: 1fr;
-  }
-
-  .tickerItem {
-    min-width: 175px;
+  .reportMeta span {
+    width: 100%;
+    border-radius: 14px;
   }
 }
