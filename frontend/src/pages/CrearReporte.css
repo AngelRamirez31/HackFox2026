@@ -1,0 +1,263 @@
+.reportPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 50%, #ffffff 100%);
+  padding: 36px 24px 70px;
+  color: #0f172a;
+}
+
+.reportHero {
+  max-width: 1180px;
+  margin: 0 auto 42px;
+  text-align: center;
+}
+
+.reportBadge {
+  display: inline-block;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 800;
+  padding: 10px 16px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+
+.reportHero h1 {
+  font-size: clamp(2.1rem, 4vw, 4rem);
+  margin: 0 0 30px;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  color: #0f172a;
+}
+
+.reportHero p {
+  max-width: 820px;
+  color: #475569;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 0 auto;
+}
+
+.reportLayout {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 28px;
+  align-items: start;
+}
+
+.reportForm {
+  background-color: white;
+  border: 1px solid #dbeafe;
+  border-radius: 28px;
+  padding: 30px;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.formGroup label {
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 1rem;
+  color: #0f172a;
+  background-color: #f8fafc;
+  outline: none;
+}
+
+.formGroup select:focus,
+.formGroup textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.severityOptions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.severity {
+  border: 2px solid #dbeafe;
+  background-color: #f8fafc;
+  color: #475569;
+  padding: 13px;
+  border-radius: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.severity.active {
+  background-color: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.photoBox {
+  min-height: 250px;
+  border: 2px dashed #bfdbfe;
+  background-color: #eff6ff;
+  border-radius: 22px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.photoBox input {
+  display: none;
+}
+
+.photoBox div {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #1d4ed8;
+}
+
+.photoBox span {
+  color: #64748b;
+}
+
+.photoBox img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.locationButton,
+.submitButton {
+  border: none;
+  border-radius: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.locationButton {
+  background-color: #0f172a;
+  color: white;
+  padding: 14px 18px;
+}
+
+.locationInfo {
+  background-color: #f8fafc;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+
+.locationInfo p {
+  margin: 4px 0;
+  color: #475569;
+}
+
+.message {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 14px 16px;
+  border-radius: 16px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.submitButton {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  padding: 16px;
+  font-size: 1.05rem;
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.25);
+}
+
+.reportTips {
+  background-color: #0f172a;
+  color: white;
+  border-radius: 28px;
+  padding: 26px;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.18);
+  position: sticky;
+  top: 95px;
+}
+
+.reportTips h2 {
+  margin: 0 0 20px;
+  font-size: 1.6rem;
+}
+
+.tipCard {
+  display: flex;
+  gap: 14px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.tipCard span {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  display: grid;
+  place-items: center;
+  background-color: white;
+  color: #0f172a;
+  border-radius: 50%;
+  font-weight: 900;
+}
+
+.tipCard p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .reportLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .reportTips {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .reportPage {
+    padding: 24px 14px 50px;
+  }
+
+  .reportHero h1 {
+    font-size: 2.35rem;
+  }
+
+  .reportForm,
+  .reportTips {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .severityOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .locationButton,
+  .submitButton {
+    width: 100%;
+  }
+}
