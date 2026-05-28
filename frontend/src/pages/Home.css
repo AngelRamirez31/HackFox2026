@@ -1,0 +1,255 @@
+.home {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 45%, #ffffff 100%);
+  color: #1f2937;
+  padding: 32px;
+}
+
+.hero {
+  max-width: 1180px;
+  margin: 0 auto;
+  min-height: 520px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 40px;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.badge {
+  width: fit-content;
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+}
+
+.hero h1 {
+  font-size: clamp(2.3rem, 5vw, 4.8rem);
+  line-height: 1.05;
+  margin: 0;
+  color: #0f172a;
+  letter-spacing: -1.5px;
+}
+
+.heroText {
+  max-width: 720px;
+  font-size: 1.18rem;
+  line-height: 1.8;
+  color: #475569;
+  margin: 0;
+}
+
+.heroButtons {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.primaryButton,
+.secondaryButton,
+.missionButton {
+  text-decoration: none;
+  border-radius: 16px;
+  padding: 14px 22px;
+  font-weight: 800;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primaryButton {
+  background-color: #2563eb;
+  color: white;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+}
+
+.secondaryButton {
+  background-color: white;
+  color: #2563eb;
+  border: 2px solid #bfdbfe;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.missionButton:hover {
+  transform: translateY(-2px);
+}
+
+.heroCard {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid #dbeafe;
+  border-radius: 30px;
+  padding: 32px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(12px);
+}
+
+.heroCard h2 {
+  font-size: 2rem;
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.heroCard p {
+  color: #475569;
+  line-height: 1.7;
+  margin-bottom: 26px;
+}
+
+.statusList {
+  display: grid;
+  gap: 14px;
+}
+
+.statusList div {
+  background-color: #eff6ff;
+  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid #dbeafe;
+}
+
+.statusList strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.statusList span {
+  color: #64748b;
+}
+
+.features {
+  max-width: 1180px;
+  margin: 60px auto 0;
+}
+
+.features h2,
+.mission h2 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  color: #0f172a;
+  margin-bottom: 24px;
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.featureCard {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+}
+
+.icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  background-color: #eff6ff;
+  border-radius: 18px;
+  font-size: 1.7rem;
+  margin-bottom: 16px;
+}
+
+.featureCard h3 {
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 1.25rem;
+}
+
+.featureCard p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.mission {
+  max-width: 1180px;
+  margin: 60px auto 0;
+  background-color: #0f172a;
+  color: white;
+  border-radius: 30px;
+  padding: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.mission h2 {
+  color: white;
+  margin: 0 0 12px;
+}
+
+.mission p {
+  color: #cbd5e1;
+  line-height: 1.8;
+  margin: 0;
+  max-width: 760px;
+}
+
+.missionButton {
+  background-color: white;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+@media (max-width: 950px) {
+  .home {
+    padding: 22px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-top: 20px;
+  }
+
+  .featureGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mission {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .home {
+    padding: 16px;
+  }
+
+  .heroButtons {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .missionButton {
+    width: 100%;
+    text-align: center;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .heroCard,
+  .mission {
+    border-radius: 22px;
+    padding: 24px;
+  }
+}

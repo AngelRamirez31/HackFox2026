@@ -1,18 +1,38 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, NavLink } from "react-router-dom";
 import Home from "./pages/Home";
 import CrearReporte from "./pages/CrearReporte";
 import Reportes from "./pages/Reportes";
 import MapView from "./components/MapView";
+import "./App.css";
 
 function App() {
   return (
     <>
-      <nav>
-        <Link to="/">Inicio</Link> |{" "}
-        <Link to="/mapa">Mapa</Link> |{" "}
-        <Link to="/crear-reporte">Reportar</Link> |{" "}
-        <Link to="/reportes">Reportes</Link>
-      </nav>
+      <header className="navbar">
+        <div className="navbarContainer">
+          <NavLink to="/" className="logo">
+            HackFox
+          </NavLink>
+
+          <nav className="navLinks">
+            <NavLink to="/" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+              Inicio
+            </NavLink>
+
+            <NavLink to="/mapa" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+              Mapa
+            </NavLink>
+
+            <NavLink to="/crear-reporte" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+              Reportar
+            </NavLink>
+
+            <NavLink to="/reportes" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+              Reportes
+            </NavLink>
+          </nav>
+        </div>
+      </header>
 
       <Routes>
         <Route path="/" element={<Home />} />
