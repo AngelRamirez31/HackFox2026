@@ -8,6 +8,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IReportRepository, InMemoryReportRepository>();
 builder.Services.AddScoped<LocalFileStorageService>();
 builder.Services.AddScoped<AccessibilityScoringService>();
+builder.Services.AddHttpClient<GeminiVisionService>();
 
 builder.Services.Configure<FormOptions>(options =>
 {

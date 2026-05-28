@@ -13,7 +13,7 @@ Esta versión está preparada para abrirse desde Visual Studio 2022 Community, e
 HackFox2026.sln
 ```
 
-La solución de la raíz es la recomendada porque deja visible el backend, la documentación y archivos importantes del frontend.
+La solución de la raíz es la recomendada para backend porque carga solamente el proyecto ASP.NET Core y evita que Visual Studio marque `frontend/` o `docs/` como proyectos no soportados.
 
 También puedes abrir la solución interna si solo vas a trabajar backend:
 
@@ -100,7 +100,26 @@ POST   /api/reports/{id}/confirm
 POST   /api/reports/{id}/reject
 POST   /api/routes/score
 GET    /api/stats
+GET    /api/vision/status
+POST   /api/vision/analyze-report-image
 ```
+
+
+## Configurar Gemini en Visual Studio / backend
+
+Desde una terminal ubicada en `backend/`, guarda la clave de Gemini con User Secrets:
+
+```bat
+dotnet user-secrets set "Gemini:ApiKey" "TU_API_KEY_DE_GEMINI"
+```
+
+Luego corre el backend y abre:
+
+```text
+https://localhost:7271/api/vision/status
+```
+
+Si aparece `configured: true`, el backend ya puede llamar a Gemini Vision.
 
 ## Correr el frontend aparte
 
@@ -139,7 +158,7 @@ No subir `.env.local` a GitHub.
 
 ## Notas de seguridad para el concurso
 
-La API key de Google Maps se usa en el frontend porque carga el mapa. La key de Gemini o credenciales de Google Cloud no deben ir en React; deben manejarse desde backend o variables seguras. En esta primera iteración Gemini queda contemplado como siguiente paso, sin exponer llaves.
+La API key de Google Maps se usa en el frontend porque carga el mapa. La key de Gemini o credenciales de Google Cloud no deben ir en React; deben manejarse desde backend o variables seguras. En esta iteración Gemini ya queda integrado desde backend para analizar fotos de barreras. La clave se lee desde User Secrets o desde una variable segura, nunca desde React.
 
 ## Archivos importantes
 
@@ -152,4 +171,17 @@ backend/Controllers/                    Endpoints del backend
 backend/Services/                       Lógica de reportes, archivos y score de accesibilidad
 backend/wwwroot/uploads/reports/        Carpeta local para fotos de reportes
 frontend/package.json                   Dependencias del frontend React/Vite
+```
+
+
+## Nota sobre frontend y docs en la solucion
+
+La solucion principal `HackFox2026.sln` carga unicamente el backend ASP.NET Core. No incluye `frontend/` ni `docs/` como proyectos de Visual Studio porque Visual Studio puede mostrarlos como no soportados si no estan instaladas las cargas de trabajo de Node/JavaScript o si se agregan como carpetas de solucion.
+
+Para trabajar el frontend, abre `frontend/` en VS Code o desde una terminal:
+
+```bat
+cd frontend
+npm install
+npm run dev
 ```

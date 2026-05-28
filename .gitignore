@@ -183,3 +183,7 @@ backend/appsettings.Development.local.json
 backend/*service-account*.json
 backend/*firebase-adminsdk*.json
 backend/*gcloud-key*.json
+backend/wwwroot/uploads/*
+!backend/wwwroot/uploads/.gitkeep
+!backend/wwwroot/uploads/reports/
+!backend/wwwroot/uploads/reports/.gitkeep

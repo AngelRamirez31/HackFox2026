@@ -43,7 +43,8 @@ Crear una plataforma sencilla que permita:
 - Frontend: React, Vite, JavaScript, CSS
 - Mapa: Google Maps Platform
 - Despliegue opcional: Docker y Google Cloud Run
-- Siguientes recursos posibles: Firebase, Cloud Storage y Gemini Vision desde backend
+- IA opcional: Gemini Vision desde backend para sugerir tipo y severidad de barreras
+- Siguientes recursos posibles: Firebase, Cloud Storage y Cloud Run
 
 ## Cómo abrirlo en Visual Studio 2022
 
@@ -132,5 +133,30 @@ La clave de Gemini o credenciales de Google Cloud no deben ir en React.
 - `POST /api/reports/{id}/reject`
 - `POST /api/routes/score`
 - `GET /api/stats`
+- `GET /api/vision/status`
+- `POST /api/vision/analyze-report-image`
 
 La primera iteración usa almacenamiento en memoria para avanzar rápido durante el hackathon. La siguiente mejora natural es cambiar `InMemoryReportRepository` por SQLite, Firestore o Cloud SQL.
+
+
+## Gemini API en backend
+
+La clave de Gemini no va en React ni en GitHub. Para desarrollo local, desde la carpeta `backend/`:
+
+```bash
+dotnet user-secrets set "Gemini:ApiKey" "TU_API_KEY_DE_GEMINI"
+```
+
+Después de correr el backend, verifica:
+
+```text
+GET https://localhost:7271/api/vision/status
+```
+
+Si responde `configured: true`, el endpoint de análisis de imágenes ya puede usarse desde el backend.
+
+## Visual Studio
+
+Abre `HackFox2026.sln` desde la raiz del repositorio. La solucion carga solamente el proyecto `backend/HackFox2026.csproj` para evitar que Visual Studio marque `frontend` o `docs` como proyectos no soportados.
+
+El frontend sigue estando separado en `frontend/` y se corre por terminal con `npm install` y `npm run dev`.

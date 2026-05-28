@@ -77,3 +77,20 @@ Content-Type: application/json
 
 GET {{HackFox2026_HostAddress}}/api/stats
 Accept: application/json
+
+###
+
+GET {{HackFox2026_HostAddress}}/api/vision/status
+Accept: application/json
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/vision/analyze-report-image
+Content-Type: multipart/form-data; boundary=HackFoxVisionBoundary
+
+--HackFoxVisionBoundary
+Content-Disposition: form-data; name="image"; filename="barrera.jpg"
+Content-Type: image/jpeg
+
+< ./docs/sample-barrera.jpg
+--HackFoxVisionBoundary--

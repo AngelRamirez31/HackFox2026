@@ -131,3 +131,58 @@ Devuelve totales por estatus, tipo y reportes graves activos.
 - Las imágenes se guardan con nombre aleatorio.
 - No hay API keys ni credenciales en el repositorio.
 - La clave de Gemini queda pensada para backend, no para React.
+
+## Gemini Vision
+
+La clave de Gemini no debe guardarse en React ni en archivos del repositorio. Para desarrollo local se usa User Secrets dentro de `backend/`:
+
+```bash
+dotnet user-secrets set "Gemini:ApiKey" "TU_API_KEY_DE_GEMINI"
+```
+
+Para revisar si el backend detecta la clave:
+
+```http
+GET /api/vision/status
+```
+
+Respuesta esperada si ya está configurada:
+
+```json
+{
+  "configured": true,
+  "resource": "Gemini Vision desde backend",
+  "keyLocation": "User Secrets en local o variable Gemini__ApiKey en despliegue"
+}
+```
+
+Para analizar una foto antes de crear el reporte:
+
+```http
+POST /api/vision/analyze-report-image
+Content-Type: multipart/form-data
+```
+
+Campo:
+
+```text
+image: archivo .jpg, .jpeg, .png o .webp, máximo 5 MB
+```
+
+Respuesta esperada:
+
+```json
+{
+  "type": "sidewalk_damage",
+  "typeLabel": "Banqueta dañada",
+  "severity": 3,
+  "severityLabel": "Alta",
+  "confidence": 0.86,
+  "summary": "Se observa una banqueta dañada que dificulta el paso.",
+  "suggestedDescription": "Banqueta dañada que puede bloquear el paso de una silla de ruedas.",
+  "accessibilityImpact": "Puede obligar a personas con movilidad reducida a bajar a la calle.",
+  "model": "gemini-2.5-flash"
+}
+```
+
+La respuesta de Gemini funciona como sugerencia. El frontend debe permitir que el usuario confirme o edite el tipo, severidad y descripción antes de guardar el reporte.
