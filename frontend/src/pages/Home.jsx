@@ -2,64 +2,55 @@ import { Link } from "react-router-dom";
 import "./Home.css";
 
 function Home() {
-  const latidosItems = [
+  const reviewItems = [
     {
-      badge: "Bache",
-      badgeClass: "badge-warning",
-      icon: "warning",
-      time: "Hace 5m",
-      title: "Hoyo profundo en Av. Revolución",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuC4QOXCGTQIn8o__R055pqNwJK0dgBym_krvF-p3L27blrB-Cqbw0YxGJtIQb1XhJUz3AMJ4-M7jRA6d_0KI0saI-aDoSD7q3rrClwdX5sj33rXpW8VDCyAQYdmDfzWHkcRYe5vqCxwIsBZkqYWwVivIBc9tNKqCTJYK1j66iuU-MDxXLDitt530zJvBefvszZlzEj7iOvhOGcCo5JoDMyfbrooSSsqFJgqJMcAFyVm7m3-51XZgXvi9wMe9aD9Z6-69ku2MDHWVAE",
+      badge: "Acceso",
+      badgeClass: "badge-primary",
+      icon: "♿",
+      time: "Hace 5 min",
+      title: "Rampa libre cerca de Zona Río",
       user: "@carlos_tj",
     },
     {
-      badge: "Mejora",
-      badgeClass: "badge-primary",
-      icon: "park",
-      time: "Hace 12m",
-      title: "Plantando árboles en el parque",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuA6FHm2-B2U1R7G5fI2qvXYBNv1qN7aiPV7o_dgUza2pVujsxMMIai5K3hQn1bV8a1TOyLxnoqDLgOSBFm_jLZ7nEmv2hY1LQ3JNvO9CbL-N_JgyTniNKDfZNFINN5Mvrm4aqJVCMyrw5Dhu1ksgmIqGT1PRCgsPTNhy8vxc-c2K27vAPeiR50oMkPw0O1i9V05PUXjqBrORA8FN7-dubWCoBqdYItxZN07AZBrqdiptnh1BLfOXdBxW4uMv-qRGmLURR4ciKKeRzk",
+      badge: "Alerta",
+      badgeClass: "badge-warning",
+      icon: "⚠️",
+      time: "Hace 12 min",
+      title: "Banqueta dañada en cruce principal",
       user: "@ana_verde",
     },
     {
-      badge: "Alumbrado",
-      badgeClass: "badge-error",
-      icon: "lightbulb",
-      time: "Hace 1h",
-      title: "Lámpara fundida en calle 4ta",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCTb7190a0xSgGF3Q0koXhy3mtQK9cayZPj99yGsr9T0XjQpU6qiAxhzTld_yps8u_BpYwAN1LVWYKetNxYxQ36_aVJ-xeNUsZv4krPTCtxQFzjmbNdOaU1rQH4OaxaH0aQgYfPklUFxQcablSOnuNZUGKSgIHdf0wTbSw3JOMkNemZzhAw_ppxBLsirlQbe_v_ZMiLXcfNFP1F5wanMVGALkiwEQMnrIAcD03rv-spZ4kErGrCTJnlx8fXl_ijCjxMrmRLr8esdA8",
+      badge: "Ruta",
+      badgeClass: "badge-success",
+      icon: "📍",
+      time: "Hace 25 min",
+      title: "Trayecto recomendado hacia el parque",
       user: "@luis_m",
     },
     {
-      badge: "Evento",
-      badgeClass: "badge-secondary",
-      icon: "celebration",
-      time: "Hace 2h",
-      title: "Mercado sobre ruedas cultural",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuD_cEXbGsgp5V2f8YFIee4poyODLdFt-25w9mhjo_qNq6Gf9E5PXmxe0yjzLPw9t3QaE9zh6dzska0Z9yRTHSWiWBKHWGXkdi8UO3lP-Lgoruy4UK2-4Oj_S1nkStyxwgEFs4jly0DyST6Kzy85nX9RJcKSGmGxRdfShvospX733rkXTzb4rd94meSmRrpQPziWafbT_uUOsSTDl5wxzwg6RmbXLAgWxfIuTnC8sqmT0UMaeEae2jeVYMgQpgigDtkBZ6NDQrAShtQ",
+      badge: "Reporte",
+      badgeClass: "badge-error",
+      icon: "🚧",
+      time: "Hace 1 h",
+      title: "Obstáculo bloqueando paso peatonal",
       user: "@colectivo_sur",
     },
   ];
 
-  const latidosLoop = [...latidosItems, ...latidosItems];
+  const reviewLoop = [...reviewItems, ...reviewItems];
 
   return (
     <main className="home">
       <section className="hero">
         <div className="heroContent">
-          <span className="badge">HackFox 2026 · Tijuana Sin Barreras</span>
+          <span className="badge">Tijuana Sin Barreras</span>
 
           <h1>Planea tu camino, evita obstáculos</h1>
 
           <p className="heroText">
             Streets-H es una plataforma colaborativa que permite reportar
             barreras físicas como banquetas destruidas, rampas bloqueadas,
-            obstáculos y zonas difíciles de transitar. Con estos reportes,
-            ayudamos a construir un mapa vivo de accesibilidad urbana.
+            obstáculos y zonas difíciles de transitar. 
           </p>
 
           <div className="heroButtons">
@@ -74,86 +65,21 @@ function Home() {
         </div>
 
         <div className="heroCard reportsTickerCard">
-          <div className="tickerHeader">
-            <div>
-              <span className="tickerLabel">Actividad reciente</span>
-              <h2>Últimos reportes</h2>
-            </div>
-
-            <span className="liveBadge">
+          <div className="tickerTop">
+            <span className="tickerLabel">
               <span className="livePulse"></span>
-              En vivo
+              Actividad reciente
             </span>
           </div>
 
+          <div className="tickerHeader">
+            <h2>Últimos reportes</h2>
+          </div>
+
           <p className="tickerDescription">
-            Reportes ciudadanos actualizados para identificar barreras físicas y
+            Reportes ciudadanos  para identificar barreras físicas y
             planear trayectos más seguros.
           </p>
-
-          <div className="tickerWindow">
-            <div className="tickerTrack">
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Banqueta rota</strong>
-                <p>Zona Río · hace 4 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Rampa bloqueada</strong>
-                <p>Centro · hace 12 min</p>
-              </div>
-
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Sin banqueta</strong>
-                <p>Otay · hace 20 min</p>
-              </div>
-
-              <div className="tickerItem low">
-                <span>Baja</span>
-                <strong>Obstáculo en paso</strong>
-                <p>Playas · hace 31 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Cruce inseguro</strong>
-                <p>La Mesa · hace 44 min</p>
-              </div>
-
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Banqueta rota</strong>
-                <p>Zona Río · hace 4 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Rampa bloqueada</strong>
-                <p>Centro · hace 12 min</p>
-              </div>
-
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Sin banqueta</strong>
-                <p>Otay · hace 20 min</p>
-              </div>
-
-              <div className="tickerItem low">
-                <span>Baja</span>
-                <strong>Obstáculo en paso</strong>
-                <p>Playas · hace 31 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Cruce inseguro</strong>
-                <p>La Mesa · hace 44 min</p>
-              </div>
-            </div>
-          </div>
 
           <div className="tickerSummary">
             <div>
@@ -209,51 +135,52 @@ function Home() {
             <div className="icon">♿</div>
             <h3>Diseño accesible</h3>
             <p>
-              La plataforma está pensada para adultos mayores, personas con
-              discapacidad motriz y familias que necesitan trayectos más
-              seguros.
+              Pensado para adultos mayores, personas con discapacidad motriz y
+              familias que necesitan trayectos más seguros.
             </p>
           </article>
         </div>
-        <section className="latidos-section" aria-labelledby="latidos-title">
-          <div className="latidos-header">
-            <h2 id="latidos-title">Latidos de la Calle</h2>
-            <Link to="/mapa">Ver Mapa</Link>
+      </section>
+
+      <section className="reviewsSection" aria-labelledby="reviews-title">
+        <div className="reviewsHeader">
+          <div>
+            <span>Comunidad activa</span>
+            <h2 id="reviews-title">Reviews más relevantes</h2>
           </div>
 
-          <div className="latidos-carousel-wrapper">
-            <div className="latidos-carousel-track">
-              {latidosLoop.map((item, index) => (
-                <article
-                  className="latidos-card"
-                  key={`${item.badge}-${index}`}
-                  aria-hidden={index >= latidosItems.length}
-                >
-                  <div className="latidos-card-top">
-                    <span className={`latidos-badge ${item.badgeClass}`}>
-                      <span className="material-symbols-outlined" aria-hidden="true">
-                        {item.icon}
-                      </span>
-                      {item.badge}
-                    </span>
-                    <span className="latidos-time">{item.time}</span>
-                  </div>
+          <Link to="/mapa">Ver mapa</Link>
+        </div>
 
-                  <h4>{item.title}</h4>
+        <div className="reviewsCarouselWrapper">
+          <div className="reviewsCarouselTrack">
+            {reviewLoop.map((item, index) => (
+              <article
+                className="reviewCard"
+                key={`${item.badge}-${index}`}
+                aria-hidden={index >= reviewItems.length}
+              >
+                <div className="reviewTop">
+                  <span className={`reviewBadge ${item.badgeClass}`}>
+                    <span>{item.icon}</span>
+                    {item.badge}
+                  </span>
 
-                  <div className="latidos-user">
-                    <img
-                      className="latidos-avatar"
-                      src={item.avatar}
-                      alt={`Avatar de ${item.user}`}
-                    />
-                    <span>Por {item.user}</span>
+                  <span className="reviewTime">{item.time}</span>
+                </div>
+
+                <h4>{item.title}</h4>
+
+                <div className="reviewUser">
+                  <div className="reviewAvatar">
+                    {item.user.charAt(1).toUpperCase()}
                   </div>
-                </article>
-              ))}
-            </div>
+                  <span>Por {item.user}</span>
+                </div>
+              </article>
+            ))}
           </div>
-        </section>
+        </div>
       </section>
 
       <section className="mission">
