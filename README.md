@@ -270,20 +270,18 @@ PUT    /api/reports/{id}/status
 
 El frontend no usa Firebase ni Gemini directamente; esas integraciones se mantienen en backend para proteger credenciales.
 
-## Firebase Storage para fotos
+## Imágenes de reportes
 
-El backend ya puede guardar imágenes de reportes en Firebase Storage / Google Cloud Storage. Para activarlo en desarrollo local, desde `backend/` configura:
-
-```bat
-dotnet user-secrets set "Storage:Provider" "FirebaseStorage"
-dotnet user-secrets set "Firebase:StorageBucket" "TU_BUCKET_DE_FIREBASE_STORAGE"
-dotnet user-secrets set "Firebase:StorageFolder" "reports"
-```
-
-Luego verifica:
+Por ahora las imágenes de los reportes se guardan localmente en el backend:
 
 ```text
-https://localhost:7271/api/storage/status
+backend/wwwroot/uploads/reports/
 ```
 
-Si no se configura Storage, el backend usa almacenamiento local como fallback en `backend/wwwroot/uploads/reports/`.
+Firestore guarda solamente la referencia `imageUrl`, por ejemplo:
+
+```text
+/uploads/reports/archivo.jpg
+```
+
+Esta decisión evita requerir Firebase Storage/Blaze para la demo. No subas las imágenes generadas al repositorio.

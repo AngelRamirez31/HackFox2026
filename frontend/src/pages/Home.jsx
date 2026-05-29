@@ -2,51 +2,6 @@ import { Link } from "react-router-dom";
 import "./Home.css";
 
 function Home() {
-  const latidosItems = [
-    {
-      badge: "Bache",
-      badgeClass: "badge-warning",
-      icon: "warning",
-      time: "Hace 5m",
-      title: "Hoyo profundo en Av. Revolución",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuC4QOXCGTQIn8o__R055pqNwJK0dgBym_krvF-p3L27blrB-Cqbw0YxGJtIQb1XhJUz3AMJ4-M7jRA6d_0KI0saI-aDoSD7q3rrClwdX5sj33rXpW8VDCyAQYdmDfzWHkcRYe5vqCxwIsBZkqYWwVivIBc9tNKqCTJYK1j66iuU-MDxXLDitt530zJvBefvszZlzEj7iOvhOGcCo5JoDMyfbrooSSsqFJgqJMcAFyVm7m3-51XZgXvi9wMe9aD9Z6-69ku2MDHWVAE",
-      user: "@carlos_tj",
-    },
-    {
-      badge: "Mejora",
-      badgeClass: "badge-primary",
-      icon: "park",
-      time: "Hace 12m",
-      title: "Plantando árboles en el parque",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuA6FHm2-B2U1R7G5fI2qvXYBNv1qN7aiPV7o_dgUza2pVujsxMMIai5K3hQn1bV8a1TOyLxnoqDLgOSBFm_jLZ7nEmv2hY1LQ3JNvO9CbL-N_JgyTniNKDfZNFINN5Mvrm4aqJVCMyrw5Dhu1ksgmIqGT1PRCgsPTNhy8vxc-c2K27vAPeiR50oMkPw0O1i9V05PUXjqBrORA8FN7-dubWCoBqdYItxZN07AZBrqdiptnh1BLfOXdBxW4uMv-qRGmLURR4ciKKeRzk",
-      user: "@ana_verde",
-    },
-    {
-      badge: "Alumbrado",
-      badgeClass: "badge-error",
-      icon: "lightbulb",
-      time: "Hace 1h",
-      title: "Lámpara fundida en calle 4ta",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuCTb7190a0xSgGF3Q0koXhy3mtQK9cayZPj99yGsr9T0XjQpU6qiAxhzTld_yps8u_BpYwAN1LVWYKetNxYxQ36_aVJ-xeNUsZv4krPTCtxQFzjmbNdOaU1rQH4OaxaH0aQgYfPklUFxQcablSOnuNZUGKSgIHdf0wTbSw3JOMkNemZzhAw_ppxBLsirlQbe_v_ZMiLXcfNFP1F5wanMVGALkiwEQMnrIAcD03rv-spZ4kErGrCTJnlx8fXl_ijCjxMrmRLr8esdA8",
-      user: "@luis_m",
-    },
-    {
-      badge: "Evento",
-      badgeClass: "badge-secondary",
-      icon: "celebration",
-      time: "Hace 2h",
-      title: "Mercado sobre ruedas cultural",
-      avatar:
-        "https://lh3.googleusercontent.com/aida-public/AB6AXuD_cEXbGsgp5V2f8YFIee4poyODLdFt-25w9mhjo_qNq6Gf9E5PXmxe0yjzLPw9t3QaE9zh6dzska0Z9yRTHSWiWBKHWGXkdi8UO3lP-Lgoruy4UK2-4Oj_S1nkStyxwgEFs4jly0DyST6Kzy85nX9RJcKSGmGxRdfShvospX733rkXTzb4rd94meSmRrpQPziWafbT_uUOsSTDl5wxzwg6RmbXLAgWxfIuTnC8sqmT0UMaeEae2jeVYMgQpgigDtkBZ6NDQrAShtQ",
-      user: "@colectivo_sur",
-    },
-  ];
-
-  const latidosLoop = [...latidosItems, ...latidosItems];
-
   return (
     <main className="home">
       <section className="hero">
@@ -215,45 +170,6 @@ function Home() {
             </p>
           </article>
         </div>
-        <section className="latidos-section" aria-labelledby="latidos-title">
-          <div className="latidos-header">
-            <h2 id="latidos-title">Latidos de la Calle</h2>
-            <Link to="/mapa">Ver Mapa</Link>
-          </div>
-
-          <div className="latidos-carousel-wrapper">
-            <div className="latidos-carousel-track">
-              {latidosLoop.map((item, index) => (
-                <article
-                  className="latidos-card"
-                  key={`${item.badge}-${index}`}
-                  aria-hidden={index >= latidosItems.length}
-                >
-                  <div className="latidos-card-top">
-                    <span className={`latidos-badge ${item.badgeClass}`}>
-                      <span className="material-symbols-outlined" aria-hidden="true">
-                        {item.icon}
-                      </span>
-                      {item.badge}
-                    </span>
-                    <span className="latidos-time">{item.time}</span>
-                  </div>
-
-                  <h4>{item.title}</h4>
-
-                  <div className="latidos-user">
-                    <img
-                      className="latidos-avatar"
-                      src={item.avatar}
-                      alt={`Avatar de ${item.user}`}
-                    />
-                    <span>Por {item.user}</span>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
       </section>
 
       <section className="mission">

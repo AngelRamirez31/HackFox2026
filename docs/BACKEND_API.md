@@ -409,18 +409,16 @@ En ese caso, la respuesta se mantiene como `ReportResponse` para no romper al fr
 
 ## Almacenamiento de imágenes
 
-El backend puede guardar fotos de reportes en Firebase Storage / Google Cloud Storage cuando se configura:
+Las fotos de reportes se guardan localmente en el backend, dentro de:
 
-```bat
-dotnet user-secrets set "Storage:Provider" "FirebaseStorage"
-dotnet user-secrets set "Firebase:StorageBucket" "TU_BUCKET_DE_FIREBASE_STORAGE"
-dotnet user-secrets set "Firebase:StorageFolder" "reports"
+```text
+backend/wwwroot/uploads/reports/
 ```
 
-Para revisar el estado:
+El campo `imageUrl` queda como una ruta relativa, por ejemplo:
 
-```http
-GET /api/storage/status
+```text
+/uploads/reports/archivo.jpg
 ```
 
-Cuando Firebase Storage está activo, `imageUrl` queda como una URL de `firebasestorage.googleapis.com` y Firestore guarda también `imageStorageProvider`, `imageStoragePath` e `imageContentType`.
+El backend sirve esas imágenes con `UseStaticFiles()`. Para la demo local esto es suficiente y evita depender de Firebase Storage/Blaze.
