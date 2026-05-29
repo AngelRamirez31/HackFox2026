@@ -127,8 +127,8 @@ function Reportes() {
     <main className="reportsPage">
       <section className="reportsHero">
         <div>
-          <span className="reportsBadge">Mapa actual</span>
-          <h1>Reportes globales</h1>
+          <span className="reportsBadge">Mapa Actual</span>
+          <h1>Reportes Globales</h1>
           <p>
             Consulta las barreras físicas reportadas por la comunidad. Estos
             datos vienen del backend y Firebase, y ayudan a identificar zonas de riesgo.
@@ -144,7 +144,7 @@ function Reportes() {
         </article>
 
         <article className="statCard">
-          <span>Prioridad alta</span>
+          <span>Prioridad Alta</span>
           <strong>{reportesAltos}</strong>
           <p>barreras críticas activas</p>
         </article>
@@ -158,7 +158,7 @@ function Reportes() {
 
       <section className="reportsControls">
         <div className="searchBox">
-          <label>Buscar reporte</label>
+          <label>Buscar Reporte</label>
           <input
             type="text"
             placeholder="Buscar por tipo o descripción..."
@@ -168,7 +168,7 @@ function Reportes() {
         </div>
 
         <div className="filterBox">
-          <label>Filtrar por severidad</label>
+          <label>Filtrar por Severidad</label>
           <select
             value={filtroSeveridad}
             onChange={(e) => setFiltroSeveridad(e.target.value)}

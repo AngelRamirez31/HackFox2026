@@ -303,7 +303,7 @@ function MapView() {
   if (!isLoaded) {
     return (
       <main className="mapPageShell">
-        <div className="mapMessage">Cargando mapa...</div>
+        <div className="mapMessage">Cargando Mapa...</div>
       </main>
     );
   }
@@ -311,8 +311,8 @@ function MapView() {
   return (
     <main className="mapPageShell">
       <aside className="mapPanel">
-        <span className="mapBadge">Mapa vivo</span>
-        <h1>Reportes de accesibilidad</h1>
+        <span className="mapBadge">Mapa Vivo</span>
+        <h1>Reportes de Accesibilidad</h1>
         <p>
           Los marcadores vienen directamente del backend y Firestore. Selecciona un punto A y un punto B en el mapa para trazar una ruta peatonal y calcular su accesibilidad.
         </p>
@@ -327,7 +327,7 @@ function MapView() {
             <strong>{activeReports.length}</strong>
           </article>
           <article>
-            <span>Alta prioridad</span>
+            <span>Urgente</span>
             <strong>{highPriorityReports.length}</strong>
           </article>
         </div>

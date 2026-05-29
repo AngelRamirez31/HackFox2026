@@ -4,14 +4,14 @@ import api, { getApiErrorMessage, getImageUrl } from "../services/api";
 import "./CrearReporte.css";
 
 const fallbackReportTypes = [
-  { value: "sidewalk_damage", label: "Banqueta rota" },
-  { value: "blocked_ramp", label: "Rampa bloqueada" },
-  { value: "missing_ramp", label: "Falta de rampa" },
-  { value: "obstacle", label: "Obstáculo en el camino" },
-  { value: "stairs", label: "Escalón sin rampa" },
-  { value: "unsafe_crossing", label: "Cruce inseguro" },
-  { value: "construction", label: "Obra o reparación" },
-  { value: "transport_issue", label: "Problema de transporte" },
+  { value: "sidewalk_damage", label: "Banqueta Rota" },
+  { value: "blocked_ramp", label: "Rampa Bloqueada" },
+  { value: "missing_ramp", label: "Falta de Rampa" },
+  { value: "obstacle", label: "Obstáculo en el Camino" },
+  { value: "stairs", label: "Escalón sin Rampa" },
+  { value: "unsafe_crossing", label: "Cruce Inseguro" },
+  { value: "construction", label: "Obra o Reparación" },
+  { value: "transport_issue", label: "Problema de Transporte" },
   { value: "other", label: "Otro" },
 ];
 
@@ -24,12 +24,12 @@ const fallbackSeverities = [
 const reportTips = [
   {
     id: 1,
-    title: "Foto clara",
+    title: "Foto Clara",
     text: "Toma una foto donde se vea la barrera física.",
   },
   {
     id: 2,
-    title: "Impacto real",
+    title: "Impacto Real",
     text: "Describe cómo afecta el paso de una persona con movilidad reducida.",
   },
   {
@@ -152,7 +152,7 @@ function CrearReporte() {
           longitud: position.coords.longitude,
         });
 
-        setMensaje("Ubicación obtenida correctamente.");
+        setMensaje("Ubicación Obtenida Correctamente.");
       },
       () => {
         setMensaje("No se pudo obtener la ubicación. Permite el acceso a ubicación o intenta de nuevo.");
@@ -243,8 +243,8 @@ function CrearReporte() {
     <main className="reportPage">
       <section className="reportHero">
         <div>
-          <span className="reportBadge">Reporte ciudadano</span>
-          <h1>Reporta una barrera física</h1>
+          <span className="reportBadge">Reporte Ciudadano</span>
+          <h1>Reporta una Barrera Física</h1>
           <p>
             Ayuda a construir un mapa vivo de accesibilidad. Registra banquetas
             rotas, rampas bloqueadas, obstáculos o zonas difíciles para que otras
@@ -271,7 +271,7 @@ function CrearReporte() {
           </div>
 
           <div className="formGroup">
-            <label>Nivel de severidad</label>
+            <label>Nivel de Severidad</label>
 
             <div className="severityOptions">
               {severities.map((option) => {
@@ -305,7 +305,7 @@ function CrearReporte() {
           </div>
 
           <div className="formGroup">
-            <label>Fotografía del lugar</label>
+            <label>Fotografía del Lugar</label>
 
             <div className="photoGuidedUpload">
               {reportTips.map((tip) => (
@@ -332,7 +332,7 @@ function CrearReporte() {
                   )}
 
                   <div className="photoUploadCopy">
-                    <strong>Subir o tomar foto</strong>
+                    <strong>Subir o Tomar Foto</strong>
                     <span>Máximo {maxImageSize} MB. Gemini puede sugerir el tipo de barrera.</span>
                   </div>
 
@@ -395,7 +395,7 @@ function CrearReporte() {
 
           {resultado && (
             <section className="createdReportCard">
-              <h2>Reporte creado</h2>
+              <h2>Reporte Creado</h2>
               <p>{resultado.message}</p>
 
               <div className="createdReportMeta">
@@ -416,13 +416,13 @@ function CrearReporte() {
                 <img
                   className="createdReportImage"
                   src={getImageUrl(resultado.report.imageUrl)}
-                  alt="Imagen del reporte creado"
+                  alt="Imagen del Reporte Creado"
                 />
               )}
 
               <div className="createdReportActions">
                 <Link to={`/mapa?reportId=${resultado.report.id}`}>Ver en mapa</Link>
-                <Link to="/reportes">Ver reportes</Link>
+                <Link to="/reportes">Ver Reportes</Link>
               </div>
             </section>
           )}
