@@ -1,11 +1,30 @@
 import { useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api, { getApiErrorMessage, getImageUrl } from "../services/api";
 import "./CrearReporte.css";
 
+const fallbackReportTypes = [
+  { value: "sidewalk_damage", label: "Banqueta rota" },
+  { value: "blocked_ramp", label: "Rampa bloqueada" },
+  { value: "missing_ramp", label: "Falta de rampa" },
+  { value: "obstacle", label: "Obstáculo en el camino" },
+  { value: "stairs", label: "Escalón sin rampa" },
+  { value: "unsafe_crossing", label: "Cruce inseguro" },
+  { value: "construction", label: "Obra o reparación" },
+  { value: "transport_issue", label: "Problema de transporte" },
+  { value: "other", label: "Otro" },
+];
+
+const fallbackSeverities = [
+  { value: 1, label: "Baja" },
+  { value: 2, label: "Media" },
+  { value: 3, label: "Alta" },
+];
+
 function CrearReporte() {
   const [tipo, setTipo] = useState("");
-  const [severidad, setSeveridad] = useState("media");
+  const [severidad, setSeveridad] = useState("2");
   const [descripcion, setDescripcion] = useState("");
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -37,6 +56,29 @@ function CrearReporte() {
       text: "Marca el nivel de riesgo o dificultad.",
     },
   ];
+  const [config, setConfig] = useState(null);
+  const [cargandoConfig, setCargandoConfig] = useState(true);
+
+  const reportTypes = useMemo(() => config?.reports?.types || fallbackReportTypes, [config]);
+  const severities = useMemo(() => config?.reports?.severities || fallbackSeverities, [config]);
+  const maxImageSize = config?.uploads?.maxImageSizeMb || 5;
+
+  const cargarConfig = useCallback(async () => {
+    setCargandoConfig(true);
+
+    try {
+      const response = await api.get("/api/app/config");
+      setConfig(response.data);
+    } catch {
+      setConfig(null);
+    } finally {
+      setCargandoConfig(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    cargarConfig();
+  }, [cargarConfig]);
 
   function manejarFoto(e) {
     const archivo = e.target.files[0];
@@ -44,6 +86,11 @@ function CrearReporte() {
     if (!archivo) return;
 
     if (preview) URL.revokeObjectURL(preview);
+    if (archivo.size > maxImageSize * 1024 * 1024) {
+      setMensaje(`La imagen no puede pesar más de ${maxImageSize} MB.`);
+      e.target.value = "";
+      return;
+    }
 
     setFoto(archivo);
     setPreview(URL.createObjectURL(archivo));
@@ -93,7 +140,7 @@ function CrearReporte() {
     if (preview) URL.revokeObjectURL(preview);
 
     setTipo("");
-    setSeveridad("media");
+    setSeveridad("2");
     setDescripcion("");
     setFoto(null);
     setPreview(null);
@@ -177,45 +224,29 @@ function CrearReporte() {
             <label>Tipo de barrera</label>
             <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
               <option value="">Selecciona una opción o deja que Gemini sugiera</option>
-              <option value="sidewalk_damage">Banqueta rota</option>
-              <option value="blocked_ramp">Rampa bloqueada</option>
-              <option value="missing_ramp">Falta de rampa</option>
-              <option value="obstacle">Obstáculo en el camino</option>
-              <option value="stairs">Escalón sin rampa</option>
-              <option value="unsafe_crossing">Cruce inseguro</option>
-              <option value="construction">Obra o reparación</option>
-              <option value="transport_issue">Problema de transporte</option>
-              <option value="other">Otro</option>
+              {reportTypes.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.markerIcon ? `${option.markerIcon} ` : ""}{option.label}
+                </option>
+              ))}
             </select>
+            {cargandoConfig && <small className="fieldHint">Cargando opciones desde el backend...</small>}
           </div>
 
           <div className="formGroup">
             <label>Nivel de severidad</label>
 
             <div className="severityOptions">
-              <button
-                type="button"
-                className={severidad === "baja" ? "severity active" : "severity"}
-                onClick={() => setSeveridad("baja")}
-              >
-                Baja
-              </button>
-
-              <button
-                type="button"
-                className={severidad === "media" ? "severity active" : "severity"}
-                onClick={() => setSeveridad("media")}
-              >
-                Media
-              </button>
-
-              <button
-                type="button"
-                className={severidad === "alta" ? "severity active" : "severity"}
-                onClick={() => setSeveridad("alta")}
-              >
-                Alta
-              </button>
+              {severities.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={String(severidad) === String(option.value) ? "severity active" : "severity"}
+                  onClick={() => setSeveridad(String(option.value))}
+                >
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -226,7 +257,9 @@ function CrearReporte() {
               onChange={(e) => setDescripcion(e.target.value)}
               placeholder="Ejemplo: La banqueta está rota y una silla de ruedas no puede pasar. Si subes foto, Gemini puede sugerirla."
               rows="5"
+              maxLength={300}
             />
+            <small className="fieldHint">{descripcion.length}/300 caracteres</small>
           </div>
 
           <div className="formGroup">
@@ -304,6 +337,7 @@ function CrearReporte() {
                 <div>
                   <strong>Subir o tomar foto</strong>
                   <span>Con foto se usará Gemini para sugerir tipo y severidad</span>
+                  <small>Máximo {maxImageSize} MB</small>
                 </div>
               )}
             </label>
@@ -357,7 +391,7 @@ function CrearReporte() {
               )}
 
               <div className="createdReportActions">
-                <Link to="/mapa">Ver en mapa</Link>
+                <Link to={`/mapa?reportId=${resultado.report.id}`}>Ver en mapa</Link>
                 <Link to="/reportes">Ver reportes</Link>
               </div>
             </section>

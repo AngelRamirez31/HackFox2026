@@ -124,18 +124,52 @@ El backend también acepta etiquetas visibles en español como `Banqueta rota`, 
 ## Score de ruta
 
 ```http
+GET /api/routes/options
+```
+
+Sirve para que el frontend conozca los límites y campos opcionales del score de ruta.
+
+Cuando Google Maps Directions/Routes regrese una ruta real, el frontend debe mandar el polyline decodificado al backend:
+
+```http
 POST /api/routes/score
 Content-Type: application/json
 ```
+
+Alias equivalente:
+
+```http
+POST /api/routes/accessibility
+Content-Type: application/json
+```
+
+Request recomendado:
 
 ```json
 {
   "points": [
     { "lat": 32.514947, "lng": -117.038247 },
-    { "lat": 32.51598, "lng": -117.034608 }
+    { "lat": 32.51598, "lng": -117.034608 },
+    { "lat": 32.510182, "lng": -117.036537 }
   ],
-  "radiusMeters": 50
+  "radiusMeters": 50,
+  "distanceMeters": 1200,
+  "durationSeconds": 900,
+  "travelMode": "walking",
+  "source": "google-directions",
+  "includeReports": true
 }
+```
+
+Campos importantes:
+
+```text
+points: puntos reales de la ruta generada por Google. Mínimo 2, máximo 1000.
+radiusMeters: radio para considerar reportes cercanos. Default 50, rango 10-300.
+distanceMeters: distancia que Google calculó, opcional.
+durationSeconds: duración que Google calculó, opcional.
+travelMode: normalmente walking.
+includeReports: si es false, omite la lista completa de reportes para respuestas más ligeras.
 ```
 
 Respuesta útil para pintar la ruta:
@@ -143,10 +177,12 @@ Respuesta útil para pintar la ruta:
 ```json
 {
   "score": 36,
+  "accessibilityPercent": 36,
   "level": "low",
   "levelLabel": "Ruta poco accesible",
   "color": "red",
   "message": "La ruta tiene varias barreras cercanas. Se recomienda buscar una alternativa si es posible.",
+  "summary": "Ruta poco accesible: se detectaron 3 reportes cercanos.",
   "radiusMeters": 50,
   "nearbyReports": 3,
   "nearbyReportIds": [4, 2, 1],
@@ -158,11 +194,33 @@ Respuesta útil para pintar la ruta:
     "badgeLabel": "Rojo",
     "description": "Ruta poco accesible"
   },
-  "reports": []
+  "impactReports": [
+    {
+      "id": 2,
+      "type": "blocked_ramp",
+      "typeLabel": "Rampa bloqueada",
+      "distanceMeters": 21.6,
+      "distanceLabel": "22 m",
+      "penalty": 18,
+      "impactLevel": "high",
+      "impactLabel": "Impacto alto"
+    }
+  ],
+  "routeLengthMeters": 1188.2,
+  "routeLengthLabel": "1.19 km",
+  "googleDistanceMeters": 1200,
+  "googleDistanceLabel": "1.2 km",
+  "durationLabel": "15 min",
+  "bounds": {
+    "north": 32.51598,
+    "south": 32.510182,
+    "east": -117.034608,
+    "west": -117.038247
+  }
 }
 ```
 
-El frontend puede pasar `routeStyle.strokeColor`, `routeStyle.strokeOpacity` y `routeStyle.strokeWeight` a la polyline de Google Maps.
+El frontend puede pasar `routeStyle.strokeColor`, `routeStyle.strokeOpacity` y `routeStyle.strokeWeight` a la polyline de Google Maps. El backend ya calcula cercanía contra segmentos de la ruta, por lo que no depende de que el polyline tenga puntos extremadamente densos.
 
 ## Estadísticas
 
@@ -265,21 +323,54 @@ POST /api/reports
 
 ## Imágenes de reportes
 
-El frontend debe seguir usando el campo `imageUrl` que devuelve el backend. No necesita saber si la imagen viene de almacenamiento local o de Firebase Storage.
-
-Ejemplo cuando la imagen está en Firebase Storage:
+El frontend debe usar el campo `imageUrl` que devuelve el backend. En esta versión las imágenes se guardan localmente y `imageUrl` llega como ruta relativa:
 
 ```json
 {
-  "imageUrl": "https://firebasestorage.googleapis.com/v0/b/...",
-  "imageStorageProvider": "firebase_storage",
-  "imageStoragePath": "reports/archivo.jpg",
+  "imageUrl": "/uploads/reports/archivo.jpg",
+  "imageStorageProvider": "local",
   "imageContentType": "image/jpeg"
 }
 ```
 
-Para verificar desde frontend/backend que el almacenamiento está listo:
+El helper `getImageUrl` en `frontend/src/services/api.js` convierte esa ruta relativa en URL completa usando `VITE_API_URL`.
 
-```text
-GET /api/storage/status
+## Endpoints nuevos útiles para frontend
+
+### `GET /api/app/config`
+
+Usar para cargar catálogos y límites desde backend:
+
+- tipos de reporte
+- severidades
+- estados
+- endpoints principales
+- límite de imagen
+- configuración de duplicados
+- bounds de Tijuana
+
+### `GET /api/dashboard/summary`
+
+Usar para tarjetas de resumen en home/dashboard:
+
+- reportes totales
+- activos
+- alta prioridad
+- reportes con imagen
+- barrera más común
+- últimos reportes
+- hotspots principales
+
+### `GET /api/reports/hotspots`
+
+Usar si se quiere pintar zonas críticas en el mapa o mostrar una lista de áreas problemáticas.
+
+Ejemplo:
+
+```http
+GET /api/reports/hotspots?radiusMeters=140&minReports=2&limit=10
 ```
+
+### `GET /api/health?deep=true`
+
+Usar en pruebas para verificar que el backend sí puede leer desde Firestore.

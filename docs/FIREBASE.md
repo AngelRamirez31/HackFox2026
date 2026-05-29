@@ -123,22 +123,8 @@ Este endpoint no borra reportes reales. Solo agrega reportes demo que todavía n
 
 El backend acepta campos en inglés y español para que el frontend pueda enviar `tipo`, `descripcion`, `latitud`, `longitud`, `severidad` y `foto` sin romper el contrato. Internamente todo queda normalizado antes de guardarse en Firestore.
 
-## Firebase Storage para imágenes
+## Imágenes de reportes
 
-Además de Firestore, el backend puede usar Firebase Storage / Google Cloud Storage para guardar las fotos de los reportes.
+Las fotos se guardan localmente en el backend dentro de `backend/wwwroot/uploads/reports/`. Firestore guarda la ruta relativa en el campo `imageUrl`.
 
-Configuración local en `backend/`:
-
-```bat
-dotnet user-secrets set "Storage:Provider" "FirebaseStorage"
-dotnet user-secrets set "Firebase:StorageBucket" "TU_BUCKET_DE_FIREBASE_STORAGE"
-dotnet user-secrets set "Firebase:StorageFolder" "reports"
-```
-
-El bucket se copia desde Firebase Console en **Build > Storage**. Usa exactamente el nombre que aparece ahí.
-
-Verificación:
-
-```text
-GET /api/storage/status
-```
+No se usa Firebase Storage en esta versión para evitar depender del plan Blaze durante la demo.

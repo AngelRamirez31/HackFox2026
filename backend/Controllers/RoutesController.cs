@@ -17,12 +17,68 @@ public class RoutesController : ControllerBase
         _scoringService = scoringService;
     }
 
+    [HttpGet("options")]
+    public ActionResult GetRouteOptions()
+    {
+        return Ok(new
+        {
+            endpoint = "/api/routes/score",
+            aliases = new[] { "/api/routes/accessibility" },
+            description = "Calcula el porcentaje de accesibilidad de una ruta real generada por Google Maps.",
+            requiredFields = new[] { "points" },
+            optionalFields = new[] { "radiusMeters", "distanceMeters", "durationSeconds", "travelMode", "source", "includeReports" },
+            defaults = new
+            {
+                radiusMeters = 50,
+                travelMode = "walking",
+                includeReports = true
+            },
+            limits = new
+            {
+                minPoints = 2,
+                maxPoints = 1000,
+                minRadiusMeters = 10,
+                maxRadiusMeters = 300
+            },
+            scoreLevels = new[]
+            {
+                new { min = 80, max = 100, level = "high", label = "Ruta accesible", color = "green" },
+                new { min = 50, max = 79, level = "medium", label = "Ruta con precaución", color = "yellow" },
+                new { min = 0, max = 49, level = "low", label = "Ruta poco accesible", color = "red" }
+            }
+        });
+    }
+
     [HttpPost("score")]
     public async Task<ActionResult<RouteScoreResponse>> ScoreRoute([FromBody] RouteScoreRequest request)
     {
-        if (request.Points.Count < 2)
+        var validationResult = ValidateRouteRequest(request);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
+
+        var reports = await _reports.GetAllAsync();
+        var result = _scoringService.CalculateScore(request, reports);
+        return Ok(result);
+    }
+
+    [HttpPost("accessibility")]
+    public async Task<ActionResult<RouteScoreResponse>> AnalyzeAccessibility([FromBody] RouteScoreRequest request)
+    {
+        return await ScoreRoute(request);
+    }
+
+    private BadRequestObjectResult? ValidateRouteRequest(RouteScoreRequest request)
+    {
+        if (request.Points is null || request.Points.Count < 2)
         {
             return BadRequest(new { message = "La ruta debe tener al menos dos puntos." });
+        }
+
+        if (request.Points.Count > 1000)
+        {
+            return BadRequest(new { message = "La ruta no puede tener más de 1000 puntos." });
         }
 
         if (request.Points.Any(point => point.Lat is < -90 or > 90 || point.Lng is < -180 or > 180))
@@ -30,8 +86,21 @@ public class RoutesController : ControllerBase
             return BadRequest(new { message = "La ruta contiene coordenadas inválidas." });
         }
 
-        var reports = await _reports.GetAllAsync();
-        var result = _scoringService.CalculateScore(request, reports);
-        return Ok(result);
+        if (request.RadiusMeters is < 10 or > 300)
+        {
+            return BadRequest(new { message = "El radio de análisis debe estar entre 10 y 300 metros." });
+        }
+
+        var uniquePoints = request.Points
+            .Select(point => new { Lat = Math.Round(point.Lat, 6), Lng = Math.Round(point.Lng, 6) })
+            .Distinct()
+            .Count();
+
+        if (uniquePoints < 2)
+        {
+            return BadRequest(new { message = "La ruta debe contener al menos dos puntos diferentes." });
+        }
+
+        return null;
     }
 }

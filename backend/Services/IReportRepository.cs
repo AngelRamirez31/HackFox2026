@@ -10,4 +10,5 @@ public interface IReportRepository
     Task<Report?> UpdateStatusAsync(int id, string status);
     Task<Report?> ConfirmAsync(int id);
     Task<Report?> RejectAsync(int id);
+    Task<int> DeleteAllAsync();
 }
