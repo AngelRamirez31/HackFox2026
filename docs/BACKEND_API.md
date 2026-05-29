@@ -121,7 +121,7 @@ Request mínimo:
 }
 ```
 
-Request recomendado cuando el frontend ya tenga la ruta real de Google Directions/Routes:
+Request recomendado cuando el frontend ya tenga la ruta real de Geoapify Routing:
 
 ```json
 {
@@ -134,12 +134,12 @@ Request recomendado cuando el frontend ya tenga la ruta real de Google Direction
   "distanceMeters": 1200,
   "durationSeconds": 900,
   "travelMode": "walking",
-  "source": "google-directions",
+  "source": "geoapify-routing",
   "includeReports": true
 }
 ```
 
-El frontend debe mandar los puntos del polyline real de Google Maps. El backend no calcula la ruta A → B; solo analiza accesibilidad sobre la ruta ya generada.
+El frontend debe mandar los puntos del polyline real de Geoapify. El backend no calcula la ruta A → B; solo analiza accesibilidad sobre la ruta ya generada.
 
 La mejora importante de esta iteración es que el backend calcula distancia de cada reporte a los segmentos de la ruta, no únicamente a puntos individuales. Así se detectan barreras ubicadas entre dos puntos del polyline.
 
@@ -184,7 +184,7 @@ Respuesta esperada:
   "durationSeconds": 900,
   "durationLabel": "15 min",
   "travelMode": "walking",
-  "source": "google-directions"
+  "source": "geoapify-routing"
 }
 ```
 
@@ -305,7 +305,7 @@ dotnet user-secrets set "Firebase:ProjectId" "ID_DEL_PROYECTO_FIREBASE"
 dotnet user-secrets set "Firebase:ReportsCollection" "reports"
 ```
 
-Autenticación local recomendada con Google Cloud CLI:
+Autenticación local recomendada con Geoapify Cloud CLI:
 
 ```bash
 gcloud auth application-default login
@@ -350,7 +350,7 @@ Esta iteración agrega campos y endpoints pensados para que el frontend consuma 
 GET /api/reports/map
 ```
 
-Devuelve una lista ligera de reportes lista para Google Maps. Por defecto regresa reportes `active`.
+Devuelve una lista ligera de reportes lista para Geoapify. Por defecto regresa reportes `active`.
 
 Filtros soportados:
 
@@ -404,7 +404,7 @@ routeStyle.badgeLabel
 routeStyle.description
 ```
 
-El frontend puede usar `routeStyle` directamente para pintar la polyline de Google Maps en verde, amarillo o rojo.
+El frontend puede usar `routeStyle` directamente para pintar la polyline de Geoapify en verde, amarillo o rojo.
 
 ### Documentación para frontend
 

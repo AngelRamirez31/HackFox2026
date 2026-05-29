@@ -8,7 +8,9 @@ Crear `frontend/.env.local`:
 
 ```env
 VITE_API_URL=https://localhost:7271
-VITE_GOOGLE_MAPS_API_KEY=TU_API_KEY_DE_GOOGLE_MAPS
+VITE_GEOAPIFY_API_KEY=TU_API_KEY_DE_GEOAPIFY
+VITE_GEOAPIFY_TILE_STYLE=osm-bright
+VITE_GEOAPIFY_ROUTE_MODE=walk
 ```
 
 Si el backend corre con `dotnet run` en HTTP, usar:

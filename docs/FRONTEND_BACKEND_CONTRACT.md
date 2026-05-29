@@ -1,6 +1,6 @@
 # Contrato frontend-backend
 
-Esta guía resume los endpoints que el frontend puede consumir sin conocer detalles internos de Firebase, Gemini o Google Cloud.
+Esta guía resume los endpoints que el frontend puede consumir sin conocer detalles internos de Firebase, Gemini o Geoapify Cloud.
 
 Base local recomendada:
 
@@ -12,7 +12,9 @@ En `frontend/.env.local`:
 
 ```env
 VITE_API_URL=https://localhost:7271
-VITE_GOOGLE_MAPS_API_KEY=TU_API_KEY_DE_GOOGLE_MAPS
+VITE_GEOAPIFY_API_KEY=TU_API_KEY_DE_GEOAPIFY
+VITE_GEOAPIFY_TILE_STYLE=osm-bright
+VITE_GEOAPIFY_ROUTE_MODE=walk
 ```
 
 ## Reportes para mapa
@@ -21,7 +23,7 @@ VITE_GOOGLE_MAPS_API_KEY=TU_API_KEY_DE_GOOGLE_MAPS
 GET /api/reports/map
 ```
 
-Devuelve reportes listos para pintar marcadores en Google Maps. Por defecto regresa solo reportes activos.
+Devuelve reportes listos para pintar marcadores en Geoapify. Por defecto regresa solo reportes activos.
 
 Filtros útiles:
 
@@ -129,7 +131,7 @@ GET /api/routes/options
 
 Sirve para que el frontend conozca los límites y campos opcionales del score de ruta.
 
-Cuando Google Maps Directions/Routes regrese una ruta real, el frontend debe mandar el polyline decodificado al backend:
+Cuando Geoapify Routing regrese una ruta real, el frontend debe mandar el polyline decodificado al backend:
 
 ```http
 POST /api/routes/score
@@ -156,7 +158,7 @@ Request recomendado:
   "distanceMeters": 1200,
   "durationSeconds": 900,
   "travelMode": "walking",
-  "source": "google-directions",
+  "source": "geoapify-routing",
   "includeReports": true
 }
 ```
@@ -164,10 +166,10 @@ Request recomendado:
 Campos importantes:
 
 ```text
-points: puntos reales de la ruta generada por Google. Mínimo 2, máximo 1000.
+points: puntos reales de la ruta generada por Geoapify. Mínimo 2, máximo 1000.
 radiusMeters: radio para considerar reportes cercanos. Default 50, rango 10-300.
-distanceMeters: distancia que Google calculó, opcional.
-durationSeconds: duración que Google calculó, opcional.
+distanceMeters: distancia que Geoapify calculó, opcional.
+durationSeconds: duración que Geoapify calculó, opcional.
 travelMode: normalmente walking.
 includeReports: si es false, omite la lista completa de reportes para respuestas más ligeras.
 ```
@@ -220,7 +222,7 @@ Respuesta útil para pintar la ruta:
 }
 ```
 
-El frontend puede pasar `routeStyle.strokeColor`, `routeStyle.strokeOpacity` y `routeStyle.strokeWeight` a la polyline de Google Maps. El backend ya calcula cercanía contra segmentos de la ruta, por lo que no depende de que el polyline tenga puntos extremadamente densos.
+El frontend puede pasar `routeStyle.strokeColor`, `routeStyle.strokeOpacity` y `routeStyle.strokeWeight` a la polyline de Geoapify. El backend ya calcula cercanía contra segmentos de la ruta, por lo que no depende de que el polyline tenga puntos extremadamente densos.
 
 ## Estadísticas
 

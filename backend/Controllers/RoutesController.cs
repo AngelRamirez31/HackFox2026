@@ -24,7 +24,7 @@ public class RoutesController : ControllerBase
         {
             endpoint = "/api/routes/score",
             aliases = new[] { "/api/routes/accessibility" },
-            description = "Calcula el porcentaje de accesibilidad de una ruta real generada por Google Maps.",
+            description = "Calcula el porcentaje de accesibilidad de una ruta real generada por Geoapify u otro proveedor de rutas.",
             requiredFields = new[] { "points" },
             optionalFields = new[] { "radiusMeters", "distanceMeters", "durationSeconds", "travelMode", "source", "includeReports" },
             defaults = new

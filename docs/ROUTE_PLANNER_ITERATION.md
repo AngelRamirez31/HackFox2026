@@ -6,7 +6,7 @@ Esta iteración agrega una interfaz segura para probar rutas peatonales dentro d
 
 - Selección de punto A y punto B con clic en el mapa.
 - Marcadores A y B arrastrables.
-- Cálculo de ruta peatonal usando Google Maps Directions desde el frontend.
+- Cálculo de ruta peatonal usando Geoapify Routing desde el frontend.
 - Dibujo de la ruta sobre el mapa.
 - Resumen de distancia y tiempo estimado.
 - Botón para limpiar la ruta.
@@ -24,17 +24,17 @@ Esta iteración agrega una interfaz segura para probar rutas peatonales dentro d
 
 ## Requisitos
 
-El frontend necesita una key válida de Google Maps en:
+El frontend necesita una key válida de Geoapify en:
 
 ```env
-VITE_GOOGLE_MAPS_API_KEY=...
+VITE_GEOAPIFY_API_KEY=...
 ```
 
-La API key debe tener habilitada al menos `Maps JavaScript API`. Para rutas peatonales también debe tener habilitada `Directions API`.
+La API key debe pertenecer a Geoapify y permitir Map Tiles API y Routing API.
 
 ## Iteración backend: score de accesibilidad listo para ruta real
 
-La ruta A → B debe seguir dependiendo de Google Maps Directions/Routes. El backend no inventa rutas ni dibuja líneas provisionales.
+La ruta A → B debe seguir dependiendo de Geoapify Routing. El backend no inventa rutas ni dibuja líneas provisionales.
 
 Cuando el frontend tenga una ruta real, debe mandar los puntos del polyline a:
 
@@ -61,7 +61,7 @@ Request recomendado:
   "distanceMeters": 1200,
   "durationSeconds": 900,
   "travelMode": "walking",
-  "source": "google-directions",
+  "source": "geoapify-routing",
   "includeReports": true
 }
 ```
@@ -89,4 +89,4 @@ Respuesta útil para UI:
 }
 ```
 
-`routeStyle` se puede pasar directo a la polyline de Google Maps cuando la key de Directions esté lista.
+`routeStyle` se puede pasar directo a la polyline de Geoapify cuando la key de Directions esté lista.

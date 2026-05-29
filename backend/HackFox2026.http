@@ -137,7 +137,7 @@ Content-Type: application/json
   "distanceMeters": 1200,
   "durationSeconds": 900,
   "travelMode": "walking",
-  "source": "google-directions",
+  "source": "geoapify-routing",
   "includeReports": true
 }
 

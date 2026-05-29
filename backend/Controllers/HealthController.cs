@@ -29,8 +29,8 @@ public class HealthController : ControllerBase
             storage = isFirestore ? "firebase-firestore" : "in-memory",
             resources = new
             {
-                maps = "Google Maps Platform desde frontend",
-                routes = "Puntos de ruta recibidos desde Maps/Routes/Directions",
+                maps = "Geoapify Maps + Routing desde frontend",
+                routes = "Puntos de ruta recibidos desde Geoapify Routing",
                 gemini = geminiConfigured ? "configurado desde backend" : "pendiente de configurar en backend",
                 firebase = isFirestore ? "Cloud Firestore activo para reportes" : "preparado, pendiente de activar"
             },

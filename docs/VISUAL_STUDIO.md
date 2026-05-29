@@ -118,7 +118,7 @@ dotnet user-secrets set "Firebase:ProjectId" "ID_DEL_PROYECTO_FIREBASE"
 dotnet user-secrets set "Firebase:ReportsCollection" "reports"
 ```
 
-Para autenticarte localmente con Google Cloud CLI:
+Para autenticarte localmente con Geoapify Cloud CLI:
 
 ```bat
 gcloud auth application-default login
@@ -184,14 +184,16 @@ Contenido:
 
 ```env
 VITE_API_URL=https://localhost:7271
-VITE_GOOGLE_MAPS_API_KEY=TU_API_KEY_DE_GOOGLE_MAPS
+VITE_GEOAPIFY_API_KEY=TU_API_KEY_DE_GEOAPIFY
+VITE_GEOAPIFY_TILE_STYLE=osm-bright
+VITE_GEOAPIFY_ROUTE_MODE=walk
 ```
 
 No subir `.env.local` a GitHub.
 
 ## Notas de seguridad para el concurso
 
-La API key de Google Maps se usa en el frontend porque carga el mapa. La key de Gemini o credenciales de Google Cloud no deben ir en React; deben manejarse desde backend o variables seguras. En esta iteración Gemini ya queda integrado desde backend para analizar fotos de barreras. La clave se lee desde User Secrets o desde una variable segura, nunca desde React.
+La API key de Geoapify se usa en el frontend porque carga el mapa. La key de Gemini o credenciales de Google Cloud no deben ir en React; deben manejarse desde backend o variables seguras. En esta iteración Gemini ya queda integrado desde backend para analizar fotos de barreras. La clave se lee desde User Secrets o desde una variable segura, nunca desde React.
 
 ## Archivos importantes
 

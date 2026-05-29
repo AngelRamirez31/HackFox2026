@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { DirectionsRenderer, GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { CircleMarker, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import api, { getApiErrorMessage, getImageUrl } from "../services/api";
 import "./MapView.css";
 
@@ -20,6 +22,15 @@ const defaultRoutePoints = [
   { lat: 32.51598, lng: -117.034608 },
   { lat: 32.519156, lng: -117.026355 },
 ];
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 function getMarkerPosition(report) {
   const position = report.position || {};
@@ -45,38 +56,117 @@ function formatPoint(point) {
   return `${formatCoordinate(point.lat)}, ${formatCoordinate(point.lng)}`;
 }
 
-function getRoutePathPoints(directions) {
-  const route = directions?.routes?.[0];
-  if (!route) return [];
+function formatDistance(meters) {
+  if (!Number.isFinite(meters)) return "Distancia no disponible";
+  if (meters >= 1000) return `${(meters / 1000).toFixed(1)} km`;
+  return `${Math.round(meters)} m`;
+}
 
-  return route.legs.flatMap((leg) =>
-    leg.steps.flatMap((step) =>
-      step.path.map((point) => ({
-        lat: point.lat(),
-        lng: point.lng(),
-      }))
-    )
-  );
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds)) return "Tiempo no disponible";
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes > 0 ? `${hours} h ${remainingMinutes} min` : `${hours} h`;
 }
 
 function getRouteLineStyle(routeScore) {
   const style = routeScore?.routeStyle;
 
   return {
-    strokeColor: style?.strokeColor || "#2563eb",
-    strokeOpacity: style?.strokeOpacity ?? 0.9,
-    strokeWeight: style?.strokeWeight ?? 6,
+    color: style?.strokeColor || "#2563eb",
+    opacity: style?.strokeOpacity ?? 0.9,
+    weight: style?.strokeWeight ?? 6,
+    lineCap: "round",
+    lineJoin: "round",
   };
 }
 
-function getLegDistanceMeters(leg) {
-  const value = leg?.distance?.value;
-  return Number.isFinite(value) ? value : undefined;
+function getGeoapifyRoutePoints(featureCollection) {
+  const geometry = featureCollection?.features?.[0]?.geometry;
+  if (!geometry) return [];
+
+  if (geometry.type === "LineString") {
+    return geometry.coordinates
+      .map(([lng, lat]) => ({ lat: Number(lat), lng: Number(lng) }))
+      .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+  }
+
+  if (geometry.type === "MultiLineString") {
+    return geometry.coordinates
+      .flatMap((line) => line.map(([lng, lat]) => ({ lat: Number(lat), lng: Number(lng) })))
+      .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+  }
+
+  return [];
 }
 
-function getLegDurationSeconds(leg) {
-  const value = leg?.duration?.value;
-  return Number.isFinite(value) ? value : undefined;
+function getGeoapifyProperties(featureCollection) {
+  return featureCollection?.features?.[0]?.properties || {};
+}
+
+function toLeafletLatLng(point) {
+  return [point.lat, point.lng];
+}
+
+function getReportIcon(report) {
+  const icon = escapeHtml(report.markerIcon || "⚠");
+  const color = escapeHtml(report.markerColor || report.severityColor || "#ef4444");
+
+  return L.divIcon({
+    className: "accessibilityReportMarker",
+    html: `<span style="background:${color}"><b>${icon}</b></span>`,
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -34],
+  });
+}
+
+function getRoutePointIcon(label) {
+  return L.divIcon({
+    className: "routePointMarker",
+    html: `<span><b>${escapeHtml(label)}</b></span>`,
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -34],
+  });
+}
+
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({
+    click(event) {
+      onMapClick({ lat: event.latlng.lat, lng: event.latlng.lng });
+    },
+  });
+
+  return null;
+}
+
+function MapController({ mapRef, focusPoint, routePath }) {
+  const map = useMap();
+
+  useEffect(() => {
+    mapRef.current = map;
+
+    return () => {
+      if (mapRef.current === map) {
+        mapRef.current = null;
+      }
+    };
+  }, [map, mapRef]);
+
+  useEffect(() => {
+    if (!focusPoint) return;
+    map.flyTo(toLeafletLatLng(focusPoint), Math.max(map.getZoom(), 17), { duration: 0.6 });
+  }, [focusPoint, map]);
+
+  useEffect(() => {
+    if (!routePath || routePath.length < 2) return;
+    map.fitBounds(routePath.map(toLeafletLatLng), { padding: [42, 42] });
+  }, [map, routePath]);
+
+  return null;
 }
 
 function MapView() {
@@ -93,15 +183,14 @@ function MapView() {
   const [routeScore, setRouteScore] = useState(null);
   const [routeMode, setRouteMode] = useState("origin");
   const [routePoints, setRoutePoints] = useState({ origin: null, destination: null });
-  const [directions, setDirections] = useState(null);
+  const [routePath, setRoutePath] = useState([]);
   const [routeSummary, setRouteSummary] = useState(null);
-  const [mapCenter, setMapCenter] = useState(center);
+  const [focusPoint, setFocusPoint] = useState(null);
 
   const reportIdParam = searchParams.get("reportId");
-
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-  });
+  const geoapifyApiKey = import.meta.env.VITE_GEOAPIFY_API_KEY || "";
+  const geoapifyTileStyle = import.meta.env.VITE_GEOAPIFY_TILE_STYLE || "osm-bright";
+  const geoapifyRouteMode = import.meta.env.VITE_GEOAPIFY_ROUTE_MODE || "walk";
 
   const loadReports = useCallback(async () => {
     setLoadingReports(true);
@@ -125,6 +214,7 @@ function MapView() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadReports();
   }, [loadReports]);
 
@@ -137,40 +227,30 @@ function MapView() {
     const position = getMarkerPosition(target);
     if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelectedReport(target);
-    setMapCenter(position);
-
-    if (mapRef.current) {
-      mapRef.current.panTo(position);
-      mapRef.current.setZoom(Math.max(mapRef.current.getZoom() || 14, 17));
-    }
+    setFocusPoint(position);
   }, [reportIdParam, reports]);
 
   const activeReports = useMemo(() => reports.filter((report) => report.status === "active"), [reports]);
   const highPriorityReports = useMemo(() => reports.filter((report) => Number(report.severity) >= 3), [reports]);
   const routeReady = Boolean(routePoints.origin && routePoints.destination);
   const routePolylineOptions = useMemo(() => getRouteLineStyle(routeScore), [routeScore]);
+  const tileUrl = `https://maps.geoapify.com/v1/tile/${geoapifyTileStyle}/{z}/{x}/{y}.png?apiKey=${geoapifyApiKey}`;
 
   const setRoutePoint = useCallback((pointType, point) => {
     setRoutePoints((current) => ({
       ...current,
       [pointType]: point,
     }));
-    setDirections(null);
+    setRoutePath([]);
     setRouteSummary(null);
     setRouteScore(null);
     setRouteError("");
   }, []);
 
   const handleMapClick = useCallback(
-    (event) => {
-      if (!event.latLng) return;
-
-      const point = {
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng(),
-      };
-
+    (point) => {
       setRoutePoint(routeMode, point);
 
       if (routeMode === "origin") {
@@ -182,17 +262,15 @@ function MapView() {
 
   const handleRouteMarkerDragEnd = useCallback(
     (pointType, event) => {
-      if (!event.latLng) return;
-
       setRoutePoint(pointType, {
-        lat: event.latLng.lat(),
-        lng: event.latLng.lng(),
+        lat: event.target.getLatLng().lat,
+        lng: event.target.getLatLng().lng,
       });
     },
     [setRoutePoint]
   );
 
-  async function analyzeRouteAccessibility(points, leg) {
+  async function analyzeRouteAccessibility(points, routeProperties) {
     if (points.length < 2) {
       return null;
     }
@@ -204,10 +282,10 @@ function MapView() {
       const response = await api.post("/api/routes/accessibility", {
         points,
         radiusMeters: 50,
-        distanceMeters: getLegDistanceMeters(leg),
-        durationSeconds: getLegDurationSeconds(leg),
-        travelMode: "walking",
-        source: "google-directions",
+        distanceMeters: Number.isFinite(routeProperties?.distance) ? routeProperties.distance : undefined,
+        durationSeconds: Number.isFinite(routeProperties?.time) ? Math.round(routeProperties.time) : undefined,
+        travelMode: geoapifyRouteMode,
+        source: "geoapify-routing",
         includeReports: true,
       });
 
@@ -226,13 +304,12 @@ function MapView() {
     setError("");
 
     try {
-      const routePathPoints = getRoutePathPoints(directions);
       const pointsFromReports = activeReports
         .slice(0, 3)
         .map((report) => getMarkerPosition(report))
         .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
 
-      const points = routePathPoints.length > 0 ? routePathPoints : pointsFromReports.length >= 2 ? pointsFromReports : defaultRoutePoints;
+      const points = routePath.length > 0 ? routePath : pointsFromReports.length >= 2 ? pointsFromReports : defaultRoutePoints;
       const response = await api.post("/api/routes/accessibility", { points, source: "demo-or-existing-route", includeReports: true });
       setRouteScore(response.data);
     } catch (err) {
@@ -243,8 +320,13 @@ function MapView() {
   }
 
   async function calculateRoute() {
-    if (!routeReady || !window.google?.maps) {
+    if (!routeReady) {
       setRouteError("Selecciona el punto A y el punto B antes de calcular la ruta.");
+      return;
+    }
+
+    if (!geoapifyApiKey) {
+      setRouteError("Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local.");
       return;
     }
 
@@ -253,31 +335,40 @@ function MapView() {
     setRouteScore(null);
 
     try {
-      const directionsService = new window.google.maps.DirectionsService();
-
-      const result = await directionsService.route({
-        origin: routePoints.origin,
-        destination: routePoints.destination,
-        travelMode: window.google.maps.TravelMode.WALKING,
-        provideRouteAlternatives: false,
+      const query = new URLSearchParams({
+        waypoints: `${routePoints.origin.lat},${routePoints.origin.lng}|${routePoints.destination.lat},${routePoints.destination.lng}`,
+        mode: geoapifyRouteMode,
+        apiKey: geoapifyApiKey,
       });
 
-      const leg = result.routes?.[0]?.legs?.[0];
-      const routePathPoints = getRoutePathPoints(result);
-      setDirections(result);
+      const response = await fetch(`https://api.geoapify.com/v1/routing?${query.toString()}`);
 
-      const accessibility = await analyzeRouteAccessibility(routePathPoints, leg);
+      if (!response.ok) {
+        throw new Error(`Geoapify respondió ${response.status}`);
+      }
+
+      const data = await response.json();
+      const points = getGeoapifyRoutePoints(data);
+      const properties = getGeoapifyProperties(data);
+
+      if (points.length < 2) {
+        throw new Error("Geoapify no devolvió una ruta válida.");
+      }
+
+      setRoutePath(points);
+
+      const accessibility = await analyzeRouteAccessibility(points, properties);
 
       setRouteSummary({
-        distance: leg?.distance?.text || accessibility?.googleDistanceLabel || accessibility?.routeLengthLabel || "Distancia no disponible",
-        duration: leg?.duration?.text || accessibility?.durationLabel || "Tiempo no disponible",
-        startAddress: leg?.start_address || "Punto A",
-        endAddress: leg?.end_address || "Punto B",
+        distance: accessibility?.googleDistanceLabel || accessibility?.routeLengthLabel || formatDistance(properties.distance),
+        duration: accessibility?.durationLabel || formatDuration(properties.time),
+        startAddress: "Punto A",
+        endAddress: "Punto B",
       });
-    } catch {
-      setDirections(null);
+    } catch (err) {
+      setRoutePath([]);
       setRouteSummary(null);
-      setRouteError("No se pudo calcular la ruta. Verifica que la API key tenga Directions habilitado y que ambos puntos estén en zona caminable.");
+      setRouteError(err.message || "No se pudo calcular la ruta con Geoapify. Revisa la API key y que ambos puntos estén en una zona caminable.");
     } finally {
       setLoadingRoute(false);
     }
@@ -285,25 +376,17 @@ function MapView() {
 
   function clearRoute() {
     setRoutePoints({ origin: null, destination: null });
-    setDirections(null);
+    setRoutePath([]);
     setRouteSummary(null);
     setRouteScore(null);
     setRouteError("");
     setRouteMode("origin");
   }
 
-  if (loadError) {
+  if (!geoapifyApiKey) {
     return (
       <main className="mapPageShell">
-        <div className="mapMessage errorBox">No se pudo cargar Google Maps. Revisa VITE_GOOGLE_MAPS_API_KEY.</div>
-      </main>
-    );
-  }
-
-  if (!isLoaded) {
-    return (
-      <main className="mapPageShell">
-        <div className="mapMessage">Cargando Mapa...</div>
+        <div className="mapMessage errorBox">Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local.</div>
       </main>
     );
   }
@@ -314,7 +397,7 @@ function MapView() {
         <span className="mapBadge">Mapa Vivo</span>
         <h1>Reportes de Accesibilidad</h1>
         <p>
-          Los marcadores vienen directamente del backend y Firestore. Selecciona un punto A y un punto B en el mapa para trazar una ruta peatonal y calcular su accesibilidad.
+          Los marcadores vienen directamente del backend y Firestore. Selecciona un punto A y un punto B en el mapa para trazar una ruta peatonal con Geoapify y calcular su accesibilidad.
         </p>
 
         <div className="mapStatsGrid">
@@ -373,7 +456,7 @@ function MapView() {
             <div className="routeSummaryCard">
               <strong>{routeSummary.distance}</strong>
               <span>{routeSummary.duration}</span>
-              <p>{routeScore?.summary || routeScore?.message || "Ruta calculada con Google Maps."}</p>
+              <p>{routeScore?.summary || routeScore?.message || "Ruta calculada con Geoapify."}</p>
             </div>
           )}
 
@@ -385,7 +468,7 @@ function MapView() {
         </button>
 
         <button type="button" className="mapSecondaryButton" onClick={calculateDemoScore} disabled={loadingScore || reports.length === 0}>
-          {loadingScore ? "Calculando..." : directions ? "Recalcular accesibilidad" : "Score demo"}
+          {loadingScore ? "Calculando..." : routePath.length > 0 ? "Recalcular accesibilidad" : "Score demo"}
         </button>
 
         {routeScore && (
@@ -404,7 +487,11 @@ function MapView() {
               <div className="routeImpactList">
                 <h3>Reportes que afectan la ruta</h3>
                 {routeScore.impactReports.slice(0, 4).map((impact) => (
-                  <button type="button" key={impact.id} onClick={() => setSelectedReport(reports.find((report) => report.id === impact.id) || null)}>
+                  <button type="button" key={impact.id} onClick={() => {
+                      const report = reports.find((item) => item.id === impact.id) || null;
+                      setSelectedReport(report);
+                      if (report) setFocusPoint(getMarkerPosition(report));
+                    }}>
                     <span>{impact.markerIcon || "⚠"}</span>
                     <strong>{impact.typeLabel}</strong>
                     <small>{impact.distanceLabel}</small>
@@ -419,47 +506,28 @@ function MapView() {
       </aside>
 
       <section className="mapCanvasWrap">
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={mapCenter}
-          zoom={14}
-          options={{ streetViewControl: false, mapTypeControl: false }}
-          onClick={handleMapClick}
-          onLoad={(map) => {
-            mapRef.current = map;
-          }}
-          onUnmount={() => {
-            mapRef.current = null;
-          }}
-        >
-          {directions && (
-            <DirectionsRenderer
-              directions={directions}
-              options={{
-                suppressMarkers: true,
-                preserveViewport: false,
-                polylineOptions: routePolylineOptions,
-              }}
-            />
-          )}
+        <MapContainer center={toLeafletLatLng(center)} zoom={14} style={containerStyle} scrollWheelZoom>
+          <MapController mapRef={mapRef} focusPoint={focusPoint} routePath={routePath} />
+          <MapClickHandler onMapClick={handleMapClick} />
+          <TileLayer url={tileUrl} attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://www.geoapify.com/">Geoapify</a>' />
+
+          {routePath.length > 1 && <Polyline positions={routePath.map(toLeafletLatLng)} pathOptions={routePolylineOptions} />}
 
           {routePoints.origin && (
             <Marker
-              position={routePoints.origin}
+              position={toLeafletLatLng(routePoints.origin)}
+              icon={getRoutePointIcon("A")}
               draggable
-              label={{ text: "A", color: "white", fontWeight: "900" }}
-              title="Punto A"
-              onDragEnd={(event) => handleRouteMarkerDragEnd("origin", event)}
+              eventHandlers={{ dragend: (event) => handleRouteMarkerDragEnd("origin", event) }}
             />
           )}
 
           {routePoints.destination && (
             <Marker
-              position={routePoints.destination}
+              position={toLeafletLatLng(routePoints.destination)}
+              icon={getRoutePointIcon("B")}
               draggable
-              label={{ text: "B", color: "white", fontWeight: "900" }}
-              title="Punto B"
-              onDragEnd={(event) => handleRouteMarkerDragEnd("destination", event)}
+              eventHandlers={{ dragend: (event) => handleRouteMarkerDragEnd("destination", event) }}
             />
           )}
 
@@ -468,18 +536,12 @@ function MapView() {
             if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) return null;
 
             return (
-              <Marker
-                key={report.id}
-                position={position}
-                label={{ text: report.markerIcon || "⚠", fontSize: "20px" }}
-                title={report.title || report.typeLabel}
-                onClick={() => setSelectedReport(report)}
-              />
+              <Marker key={report.id} position={toLeafletLatLng(position)} icon={getReportIcon(report)} eventHandlers={{ click: () => { setSelectedReport(report); setFocusPoint(position); } }} />
             );
           })}
 
           {selectedReport && (
-            <InfoWindow position={getMarkerPosition(selectedReport)} onCloseClick={() => setSelectedReport(null)}>
+            <Popup position={toLeafletLatLng(getMarkerPosition(selectedReport))} eventHandlers={{ remove: () => setSelectedReport(null) }}>
               <article className="mapInfoCard">
                 <h2>{selectedReport.title || selectedReport.typeLabel}</h2>
                 <p>{selectedReport.description}</p>
@@ -490,9 +552,12 @@ function MapView() {
                   <span>{selectedReport.createdAtDisplay}</span>
                 </div>
               </article>
-            </InfoWindow>
+            </Popup>
           )}
-        </GoogleMap>
+
+          {routePoints.origin && <CircleMarker center={toLeafletLatLng(routePoints.origin)} radius={8} pathOptions={{ color: "#2563eb" }} />}
+          {routePoints.destination && <CircleMarker center={toLeafletLatLng(routePoints.destination)} radius={8} pathOptions={{ color: "#dc2626" }} />}
+        </MapContainer>
       </section>
     </main>
   );

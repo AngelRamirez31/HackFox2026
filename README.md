@@ -41,7 +41,7 @@ Crear una plataforma sencilla que permita:
 
 - Backend: ASP.NET Core Web API, C#, .NET 9
 - Frontend: React, Vite, JavaScript, CSS
-- Mapa: Google Maps Platform
+- Mapa: Geoapify Maps + Routing
 - Despliegue opcional: Docker y Google Cloud Run
 - IA opcional: Gemini Vision desde backend para sugerir tipo y severidad de barreras
 - Base de datos opcional: Firebase Cloud Firestore desde backend
@@ -118,7 +118,9 @@ Crear el archivo `frontend/.env.local`:
 
 ```env
 VITE_API_URL=https://localhost:7271
-VITE_GOOGLE_MAPS_API_KEY=TU_API_KEY_DE_GOOGLE_MAPS
+VITE_GEOAPIFY_API_KEY=TU_API_KEY_DE_GEOAPIFY
+VITE_GEOAPIFY_TILE_STYLE=osm-bright
+VITE_GEOAPIFY_ROUTE_MODE=walk
 ```
 
 La clave de Gemini o credenciales de Google Cloud no deben ir en React.
@@ -156,7 +158,7 @@ dotnet user-secrets set "Firebase:ProjectId" "ID_DEL_PROYECTO_FIREBASE"
 dotnet user-secrets set "Firebase:ReportsCollection" "reports"
 ```
 
-Para autenticación local con Google Cloud CLI:
+Para autenticación local con Geoapify Cloud CLI:
 
 ```bash
 gcloud auth application-default login
@@ -214,7 +216,7 @@ Este endpoint agrega reportes demo de Tijuana sin borrar datos existentes y solo
 
 La API ahora incluye respuestas más cómodas para el frontend:
 
-- `GET /api/reports/map`: reportes listos para marcadores de Google Maps.
+- `GET /api/reports/map`: reportes listos para marcadores del mapa.
 - `GET /api/reports`: filtros extra por búsqueda, severidad y límite.
 - `POST /api/routes/score`: respuesta extendida con `routeStyle` para pintar la ruta.
 - `GET /api/reports/options`: leyenda visual para tipos, severidades y estados.
@@ -251,7 +253,9 @@ Archivo local requerido en `frontend/.env.local`:
 
 ```env
 VITE_API_URL=https://localhost:7271
-VITE_GOOGLE_MAPS_API_KEY=TU_API_KEY_DE_GOOGLE_MAPS
+VITE_GEOAPIFY_API_KEY=TU_API_KEY_DE_GEOAPIFY
+VITE_GEOAPIFY_TILE_STYLE=osm-bright
+VITE_GEOAPIFY_ROUTE_MODE=walk
 ```
 
 Endpoints conectados en frontend:

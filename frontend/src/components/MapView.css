@@ -564,3 +564,79 @@
     transition: none !important;
   }
 }
+/* Geoapify / Leaflet */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  min-height: 620px;
+  border-radius: 22px;
+  font-family: inherit;
+}
+
+.leaflet-control-attribution {
+  font-size: 0.68rem;
+}
+
+.accessibilityReportMarker,
+.routePointMarker {
+  background: transparent;
+  border: none;
+}
+
+.accessibilityReportMarker span,
+.routePointMarker span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50% 50% 50% 8px;
+  transform: rotate(-45deg);
+  color: #ffffff;
+  border: 3px solid #ffffff;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.accessibilityReportMarker span {
+  background: #ef4444;
+}
+
+.routePointMarker span {
+  background: #2563eb;
+}
+
+.accessibilityReportMarker b,
+.routePointMarker b {
+  transform: rotate(45deg);
+  line-height: 1;
+  font: inherit;
+}
+
+.accessibilityReportMarker span {
+  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.28);
+}
+
+.routePointMarker span {
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 18px;
+  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.22);
+}
+
+.leaflet-popup-content {
+  margin: 14px;
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16) !important;
+}
+
+.leaflet-control-zoom a {
+  color: #1d4ed8 !important;
+  font-weight: 900;
+}
