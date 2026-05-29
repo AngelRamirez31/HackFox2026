@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import { useRef, useState } from "react";
+=======
+>>>>>>> dea9cf967ec9136605aa4980794568b398c9304e
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api, { getApiErrorMessage, getImageUrl } from "../services/api";
@@ -32,6 +35,7 @@ function CrearReporte() {
   const [mensaje, setMensaje] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState(null);
+<<<<<<< HEAD
   const fotoInputRef = useRef(null);
 
   const reportTips = [
@@ -56,6 +60,8 @@ function CrearReporte() {
       text: "Marca el nivel de riesgo o dificultad.",
     },
   ];
+=======
+>>>>>>> dea9cf967ec9136605aa4980794568b398c9304e
   const [config, setConfig] = useState(null);
   const [cargandoConfig, setCargandoConfig] = useState(true);
 
@@ -85,7 +91,10 @@ function CrearReporte() {
 
     if (!archivo) return;
 
+<<<<<<< HEAD
     if (preview) URL.revokeObjectURL(preview);
+=======
+>>>>>>> dea9cf967ec9136605aa4980794568b398c9304e
     if (archivo.size > maxImageSize * 1024 * 1024) {
       setMensaje(`La imagen no puede pesar más de ${maxImageSize} MB.`);
       e.target.value = "";
