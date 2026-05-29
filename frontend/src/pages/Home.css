@@ -716,3 +716,24 @@
     transition: none !important;
   }
 }
+.tickerItem {
+  text-decoration: none;
+  color: inherit;
+}
+
+.homeLiveSummary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.homeLiveSummary span {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 800;
+}

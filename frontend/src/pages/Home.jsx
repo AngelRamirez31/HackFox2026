@@ -1,5 +1,21 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../services/api";
 import "./Home.css";
+
+const fallbackReports = [
+  { id: "fallback-1", severity: 3, severityLabel: "Alta", typeLabel: "Banqueta rota", createdAtDisplay: "Demo" },
+  { id: "fallback-2", severity: 2, severityLabel: "Media", typeLabel: "Rampa bloqueada", createdAtDisplay: "Demo" },
+  { id: "fallback-3", severity: 3, severityLabel: "Alta", typeLabel: "Falta de rampa", createdAtDisplay: "Demo" },
+  { id: "fallback-4", severity: 1, severityLabel: "Baja", typeLabel: "Obstáculo en paso", createdAtDisplay: "Demo" },
+  { id: "fallback-5", severity: 2, severityLabel: "Media", typeLabel: "Cruce inseguro", createdAtDisplay: "Demo" },
+];
+
+function getTickerSeverityClass(report) {
+  if (Number(report.severity) >= 3) return "high";
+  if (Number(report.severity) === 2) return "medium";
+  return "low";
+}
 
 function Home() {
   const reviewItems = [
@@ -83,20 +99,28 @@ function Home() {
 
           <div className="tickerSummary">
             <div>
-              <strong>24</strong>
-              <span>reportes hoy</span>
+              <strong>{totalReports}</strong>
+              <span>reportes totales</span>
             </div>
 
             <div>
-              <strong>7</strong>
+              <strong>{highPriorityReports}</strong>
               <span>prioridad alta</span>
             </div>
 
             <div>
-              <strong>3</strong>
+              <strong>{hotspotCount}</strong>
               <span>zonas críticas</span>
             </div>
           </div>
+
+          {summary && (
+            <div className="homeLiveSummary">
+              <span>{summary.activeReports} activos</span>
+              <span>{summary.reportsWithImages} con foto</span>
+              <span>{summary.mostCommonBarrierLabel || "Sin barrera dominante"}</span>
+            </div>
+          )}
         </div>
       </section>
 
