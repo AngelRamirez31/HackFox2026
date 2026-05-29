@@ -445,6 +445,10 @@
   background: #f8fafc;
 }
 
+.communityValidationBox {
+  text-align: center;
+}
+
 .authoritySummaryHeader {
   margin-bottom: 10px;
   display: flex;
@@ -458,6 +462,11 @@
   margin-bottom: 5px;
   color: #0f172a;
   font-size: 1rem;
+}
+
+.communityValidationBox strong {
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 .authoritySummaryHeader span {
@@ -475,12 +484,21 @@
   line-height: 1.6;
 }
 
+.communityValidationBox p {
+  text-align: center;
+}
+
 .authoritySummaryActions,
 .communityValidationActions {
   margin-top: 14px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.communityValidationActions {
+  justify-content: center;
+  align-items: center;
 }
 
 .authoritySummaryActions button,
@@ -536,7 +554,6 @@
   transform: none;
   box-shadow: none;
 }
-
 /* Responsive */
 
 @media (max-width: 1100px) {
@@ -637,14 +654,25 @@
     flex-direction: column;
   }
 
-  .badgeGroup span,
-  .reportMeta span,
-  .authoritySummaryActions button,
-  .communityValidationActions button,
-  .communityValidationActions a {
-    width: 100%;
-    text-align: center;
-  }
+ .badgeGroup,
+.reportMeta,
+.authoritySummaryActions,
+.communityValidationActions {
+  flex-direction: column;
+}
+
+.badgeGroup span,
+.reportMeta span,
+.authoritySummaryActions button,
+.communityValidationActions button,
+.communityValidationActions a {
+  width: 100%;
+  text-align: center;
+}
+
+.communityValidationActions {
+  align-items: center;
+}
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -653,5 +681,6 @@
   *::after {
     animation: none !important;
     transition: none !important;
+
   }
 }
