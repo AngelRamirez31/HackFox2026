@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import api, { getApiErrorMessage, getImageUrl } from "../services/api";
 import "./CrearReporte.css";
@@ -13,15 +13,53 @@ function CrearReporte() {
   const [mensaje, setMensaje] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState(null);
+  const fotoInputRef = useRef(null);
+
+  const reportTips = [
+    {
+      id: 1,
+      title: "Foto clara",
+      text: "Toma una foto donde se vea la barrera física.",
+    },
+    {
+      id: 2,
+      title: "Impacto real",
+      text: "Describe cómo afecta el paso de una persona con movilidad reducida.",
+    },
+    {
+      id: 3,
+      title: "Ubicación",
+      text: "Usa la ubicación actual para que el reporte aparezca en el mapa.",
+    },
+    {
+      id: 4,
+      title: "Severidad",
+      text: "Marca el nivel de riesgo o dificultad.",
+    },
+  ];
 
   function manejarFoto(e) {
     const archivo = e.target.files[0];
 
     if (!archivo) return;
 
+    if (preview) URL.revokeObjectURL(preview);
+
     setFoto(archivo);
     setPreview(URL.createObjectURL(archivo));
     setResultado(null);
+  }
+
+  function limpiarFoto() {
+    if (preview) URL.revokeObjectURL(preview);
+
+    setFoto(null);
+    setPreview(null);
+    setResultado(null);
+
+    if (fotoInputRef.current) {
+      fotoInputRef.current.value = "";
+    }
   }
 
   function obtenerUbicacion() {
@@ -52,12 +90,18 @@ function CrearReporte() {
   }
 
   function limpiarFormulario() {
+    if (preview) URL.revokeObjectURL(preview);
+
     setTipo("");
     setSeveridad("media");
     setDescripcion("");
     setFoto(null);
     setPreview(null);
     setUbicacion(null);
+
+    if (fotoInputRef.current) {
+      fotoInputRef.current.value = "";
+    }
   }
 
   async function enviarReporte(e) {
@@ -188,7 +232,65 @@ function CrearReporte() {
           <div className="formGroup">
             <label>Fotografía del lugar</label>
 
-            <label className="photoBox">
+            <div className="photoGuidedUpload">
+              {reportTips.map((tip) => (
+                <article className={`photoInlineTip tipPosition${tip.id}`} key={tip.id}>
+                  <div className="photoInlineTipNumber" aria-hidden="true">
+                    {tip.id}
+                  </div>
+
+                  <div>
+                    <p>{tip.title}</p>
+                    <span>{tip.text}</span>
+                  </div>
+                </article>
+              ))}
+
+              <div className="photoUploader">
+              <label className={foto ? "photoUploadHeader hasFile" : "photoUploadHeader"} htmlFor="report-photo">
+                {preview ? (
+                  <img className="photoUploadPreview" src={preview} alt="Vista previa del reporte" />
+                ) : (
+                  <span className="material-symbols-outlined photoUploadIcon" aria-hidden="true">
+                    cloud_upload
+                  </span>
+                )}
+
+                <div className="photoUploadCopy">
+                  <strong>Subir o tomar foto</strong>
+                </div>
+
+                <input
+                  id="report-photo"
+                  ref={fotoInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={manejarFoto}
+                />
+              </label>
+
+              <div className="photoUploadFooter">
+                <span className="material-symbols-outlined fileStatusIcon" aria-hidden="true">
+                  description
+                </span>
+                <p>{foto ? foto.name : "Ningún archivo seleccionado"}</p>
+                <button
+                  type="button"
+                  className="clearPhotoButton"
+                  onClick={limpiarFoto}
+                  disabled={!foto}
+                  aria-label="Quitar fotografía seleccionada"
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    delete
+                  </span>
+                </button>
+              </div>
+            </div>
+            </div>
+
+            <label className="photoBox legacyPhotoBox">
               <input
                 type="file"
                 accept="image/*"
@@ -262,7 +364,7 @@ function CrearReporte() {
           )}
         </form>
 
-        <aside className="reportTips">
+        <aside className="reportTips oldReportTips">
           <h2>Consejos para un buen reporte</h2>
 
           <div className="tipCard">
