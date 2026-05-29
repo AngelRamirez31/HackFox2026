@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import "./Home.css";
 
 function Home() {
-<<<<<<< HEAD
   const reviewItems = [
     {
       badge: "Acceso",
@@ -40,8 +39,6 @@ function Home() {
 
   const reviewLoop = [...reviewItems, ...reviewItems];
 
-=======
->>>>>>> 969d0f43773b86fecb53aa78984a4427ceae8cb0
   return (
     <main className="home">
       <section className="hero">
@@ -53,7 +50,7 @@ function Home() {
           <p className="heroText">
             Streets-H es una plataforma colaborativa que permite reportar
             barreras físicas como banquetas destruidas, rampas bloqueadas,
-            obstáculos y zonas difíciles de transitar. 
+            obstáculos y zonas difíciles de transitar.
           </p>
 
           <div className="heroButtons">
@@ -80,8 +77,8 @@ function Home() {
           </div>
 
           <p className="tickerDescription">
-            Reportes ciudadanos  para identificar barreras físicas y
-            planear trayectos más seguros.
+            Reportes ciudadanos para identificar barreras físicas y planear
+            trayectos más seguros.
           </p>
 
           <div className="tickerSummary">
@@ -143,7 +140,6 @@ function Home() {
             </p>
           </article>
         </div>
-<<<<<<< HEAD
       </section>
 
       <section className="reviewsSection" aria-labelledby="reviews-title">
@@ -185,8 +181,6 @@ function Home() {
             ))}
           </div>
         </div>
-=======
->>>>>>> 969d0f43773b86fecb53aa78984a4427ceae8cb0
       </section>
 
       <section className="mission">

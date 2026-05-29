@@ -106,8 +106,6 @@
   overflow: hidden;
 }
 
-/* Tarjeta de últimos reportes */
-
 .reportsTickerCard {
   text-align: left;
 }
@@ -205,8 +203,6 @@
   line-height: 1.4;
 }
 
-/* Features */
-
 .features {
   max-width: 1180px;
   margin: 60px auto 0;
@@ -270,8 +266,6 @@
   color: #64748b;
   line-height: 1.7;
 }
-
-/* Reviews */
 
 .reviewsSection {
   max-width: 1180px;
@@ -432,8 +426,6 @@
   font-weight: 900;
 }
 
-/* Mission */
-
 .mission {
   max-width: 1180px;
   margin: 60px auto 0;
@@ -475,8 +467,6 @@
 .missionButton:hover {
   background-color: #eff6ff;
 }
-
-/* Animaciones */
 
 @keyframes pageFade {
   from {
@@ -557,8 +547,6 @@
     transform: scale(1.45);
   }
 }
-
-/* Responsive */
 
 @media (max-width: 950px) {
   .home {
@@ -701,7 +689,7 @@
   }
 
   .reviewCard {
-    width: 250px; 
+    width: 250px;
   }
 
   .mission {
