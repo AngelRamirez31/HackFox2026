@@ -24,12 +24,12 @@ const fallbackSeverities = [
 const reportTips = [
   {
     id: 1,
-    title: "Foto Clara",
+    title: "Foto clara",
     text: "Toma una foto donde se vea la barrera física.",
   },
   {
     id: 2,
-    title: "Impacto Real",
+    title: "Impacto real",
     text: "Describe cómo afecta el paso de una persona con movilidad reducida.",
   },
   {
@@ -52,6 +52,15 @@ function getOptionLabel(option) {
   return option.label ?? option.name ?? option.title ?? getOptionValue(option);
 }
 
+function getGeminiValue(vision, report, keys, fallback = "No disponible") {
+  for (const key of keys) {
+    if (vision?.[key]) return vision[key];
+    if (report?.[key]) return report[key];
+  }
+
+  return fallback;
+}
+
 function CrearReporte() {
   const [tipo, setTipo] = useState("");
   const [severidad, setSeveridad] = useState("media");
@@ -69,11 +78,15 @@ function CrearReporte() {
   const fotoInputRef = useRef(null);
 
   const reportTypes = useMemo(() => {
-    return config?.reports?.types?.length ? config.reports.types : fallbackReportTypes;
+    return config?.reports?.types?.length
+      ? config.reports.types
+      : fallbackReportTypes;
   }, [config]);
 
   const severities = useMemo(() => {
-    return config?.reports?.severities?.length ? config.reports.severities : fallbackSeverities;
+    return config?.reports?.severities?.length
+      ? config.reports.severities
+      : fallbackSeverities;
   }, [config]);
 
   const maxImageSize = config?.uploads?.maxImageSizeMb || 5;
@@ -92,7 +105,6 @@ function CrearReporte() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     cargarConfig();
   }, [cargarConfig]);
 
@@ -104,10 +116,22 @@ function CrearReporte() {
     };
   }, [preview]);
 
+  function cambiarModo(nuevoModo) {
+    setModoReporte(nuevoModo);
+    setMensaje("");
+    setResultado(null);
+  }
+
   function manejarFoto(e) {
     const archivo = e.target.files[0];
 
     if (!archivo) return;
+
+    if (!archivo.type.startsWith("image/")) {
+      setMensaje("El archivo seleccionado debe ser una imagen.");
+      e.target.value = "";
+      return;
+    }
 
     if (archivo.size > maxImageSize * 1024 * 1024) {
       setMensaje(`La imagen no puede pesar más de ${maxImageSize} MB.`);
@@ -154,10 +178,12 @@ function CrearReporte() {
           longitud: position.coords.longitude,
         });
 
-        setMensaje("Ubicación Obtenida Correctamente.");
+        setMensaje("Ubicación obtenida correctamente.");
       },
       () => {
-        setMensaje("No se pudo obtener la ubicación. Permite el acceso a ubicación o intenta de nuevo.");
+        setMensaje(
+          "No se pudo obtener la ubicación. Permite el acceso a ubicación o intenta de nuevo."
+        );
       },
       {
         enableHighAccuracy: true,
@@ -183,56 +209,111 @@ function CrearReporte() {
     }
   }
 
-  async function enviarReporte(e) {
-    e.preventDefault();
-    setResultado(null);
-
+  function validarFormulario() {
     if (!ubicacion) {
-      setMensaje("Primero obtén la ubicación del reporte.");
-      return;
+      return "Primero obtén la ubicación del reporte.";
     }
 
-    if (modoReporte === "rapido" && !foto) {
-      setMensaje("El reporte rápido necesita una foto para sugerir los datos automáticamente.");
-      return;
+    if (modoReporte === "rapido") {
+      if (!foto) {
+        return "El reporte rápido necesita una foto para generar sugerencias con Gemini.";
+      }
+
+      return "";
     }
 
-    if (!foto && (!tipo || !descripcion)) {
-      setMensaje("Sin foto debes completar el tipo de barrera y la descripción.");
-      return;
+    if (!tipo) {
+      return "Selecciona el tipo de barrera para el reporte manual.";
     }
 
+    if (!descripcion.trim()) {
+      return "Escribe una descripción breve del problema.";
+    }
+
+    return "";
+  }
+
+  function construirFormData() {
     const formData = new FormData();
+
     formData.append("latitude", ubicacion.latitud);
     formData.append("longitude", ubicacion.longitud);
 
-    if (tipo) formData.append("type", tipo);
-    if (descripcion) formData.append("description", descripcion);
-    if (severidad) formData.append("severity", severidad);
+    if (modoReporte === "rapido") {
+      formData.append("image", foto);
+      return formData;
+    }
+
+    formData.append("type", tipo);
+    formData.append("severity", severidad);
+    formData.append("description", descripcion.trim());
 
     if (foto) {
       formData.append("image", foto);
       formData.append("useGemini", "true");
     }
 
+    return formData;
+  }
+
+  async function enviarReporte(e) {
+    e.preventDefault();
+    setResultado(null);
+
+    const errorValidacion = validarFormulario();
+
+    if (errorValidacion) {
+      setMensaje(errorValidacion);
+      return;
+    }
+
+    const endpoint =
+      modoReporte === "rapido"
+        ? "/api/reports/quick"
+        : foto
+        ? "/api/reports/analyze-and-create"
+        : "/api/reports";
+
+    const formData = construirFormData();
+
     setEnviando(true);
-    setMensaje(foto ? "Analizando imagen y guardando reporte..." : "Guardando reporte...");
+    setMensaje(
+      modoReporte === "rapido"
+        ? "Creando reporte rápido con Gemini..."
+        : foto
+        ? "Analizando imagen y guardando reporte..."
+        : "Guardando reporte manual..."
+    );
 
     try {
-      const endpoint = foto && modoReporte === "rapido" ? "/api/reports/quick" : foto ? "/api/reports/analyze-and-create" : "/api/reports";
       const response = await api.post(endpoint, formData);
       const payload = response.data;
       const report = payload.report || payload;
 
+      const geminiRequested = Boolean(payload.geminiRequested);
+      const geminiSucceeded = Boolean(payload.geminiSucceeded);
+      const geminiFallido = geminiRequested && !geminiSucceeded;
+
       setResultado({
         report,
         vision: payload.vision || null,
-        geminiRequested: Boolean(payload.geminiRequested),
-        geminiSucceeded: Boolean(payload.geminiSucceeded),
-        message: payload.message || "Reporte creado correctamente.",
+        geminiRequested,
+        geminiSucceeded,
+        geminiError: payload.geminiError || "",
+        message:
+          payload.message ||
+          (geminiFallido
+            ? "Reporte creado, pero Gemini no pudo generar sugerencias."
+            : "Reporte creado correctamente."),
       });
 
-      setMensaje(payload.message || "Reporte creado correctamente.");
+      setMensaje(
+        payload.message ||
+          (geminiFallido
+            ? "Reporte creado, pero Gemini no pudo generar sugerencias."
+            : "Reporte creado correctamente.")
+      );
+
       limpiarFormulario();
     } catch (err) {
       setMensaje(getApiErrorMessage(err));
@@ -244,14 +325,23 @@ function CrearReporte() {
   const mensajeEsError =
     mensaje.toLowerCase().includes("error") ||
     mensaje.toLowerCase().includes("no se") ||
-    mensaje.toLowerCase().includes("no puede");
+    mensaje.toLowerCase().includes("no pudo") ||
+    mensaje.toLowerCase().includes("no puede") ||
+    mensaje.toLowerCase().includes("necesita") ||
+    mensaje.toLowerCase().includes("selecciona") ||
+    mensaje.toLowerCase().includes("escribe");
+
+  const fotoLista = Boolean(foto);
+  const ubicacionLista = Boolean(ubicacion);
 
   return (
     <main className="reportPage">
       <section className="reportHero">
         <div>
           <span className="reportBadge">Reporte Ciudadano</span>
+
           <h1>Reporta una Barrera Física</h1>
+
           <p>
             Ayuda a construir un mapa vivo de accesibilidad. Registra banquetas
             rotas, rampas bloqueadas, obstáculos o zonas difíciles para que otras
@@ -262,88 +352,129 @@ function CrearReporte() {
 
       <section className="reportLayout">
         <form className="reportForm" onSubmit={enviarReporte}>
-          <div className="reportModeSwitch" aria-label="Modo de reporte">
-            <button
-              type="button"
-              className={modoReporte === "rapido" ? "active" : ""}
-              onClick={() => setModoReporte("rapido")}
-              disabled={enviando}
-            >
-              Reporte rápido
-              <span>Foto + ubicación + análisis inteligente</span>
-            </button>
-            <button
-              type="button"
-              className={modoReporte === "manual" ? "active" : ""}
-              onClick={() => setModoReporte("manual")}
-              disabled={enviando}
-            >
-              Reporte manual
-              <span>Completar datos a mano</span>
-            </button>
-          </div>
+          <section className="reportModeSection">
+            <div className="reportModeSwitch" aria-label="Modo de reporte">
+              <button
+                type="button"
+                className={modoReporte === "rapido" ? "active" : ""}
+                onClick={() => cambiarModo("rapido")}
+                disabled={enviando}
+              >
+                <strong>Reporte rápido</strong>
+                <span>Foto + ubicación + análisis inteligente</span>
+              </button>
 
-          <div className="quickReportNotice">
-            {modoReporte === "rapido"
-              ? "Sube una foto y usa tu ubicación. El sistema propondrá tipo, severidad, descripción e impacto de accesibilidad."
-              : "Puedes completar el reporte manualmente. Si también subes foto, el sistema puede complementar los datos sin reemplazar lo que escribas."}
-          </div>
-
-          <div className="formGroup">
-            <label>Tipo de barrera</label>
-            <select value={tipo} onChange={(e) => setTipo(e.target.value)} disabled={enviando}>
-              <option value="">
-                {cargandoConfig ? "Cargando opciones..." : modoReporte === "rapido" ? "Opcional: el sistema puede sugerirlo" : "Selecciona una opción"}
-              </option>
-
-              {reportTypes.map((option) => (
-                <option value={getOptionValue(option)} key={getOptionValue(option)}>
-                  {getOptionLabel(option)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="formGroup">
-            <label>Nivel de Severidad</label>
-
-            <div className="severityOptions">
-              {severities.map((option) => {
-                const value = getOptionValue(option);
-                const label = getOptionLabel(option);
-
-                return (
-                  <button
-                    type="button"
-                    className={severidad === value ? "severity active" : "severity"}
-                    onClick={() => setSeveridad(value)}
-                    disabled={enviando}
-                    key={value}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
+              <button
+                type="button"
+                className={modoReporte === "manual" ? "active" : ""}
+                onClick={() => cambiarModo("manual")}
+                disabled={enviando}
+              >
+                <strong>Reporte manual</strong>
+                <span>Completar datos a mano</span>
+              </button>
             </div>
-          </div>
 
-          <div className="formGroup">
-            <label>Descripción</label>
-            <textarea
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder={modoReporte === "rapido" ? "Opcional. El sistema puede sugerir la descripción desde la foto." : "La banqueta está rota y una silla de ruedas no puede pasar."}
-              rows="5"
-              disabled={enviando}
-            />
-          </div>
+            <div className="quickReportNotice">
+              {modoReporte === "rapido"
+                ? "Sube una foto y usa tu ubicación. El sistema propondrá tipo, severidad, descripción e impacto de accesibilidad."
+                : "Completa los datos principales. La foto es opcional, pero puede ayudar a enriquecer el análisis del reporte."}
+            </div>
+          </section>
 
-          <div className="formGroup">
-            <label>Fotografía del Lugar</label>
+          {modoReporte === "rapido" && (
+            <section className="quickChecklist">
+              <article className={fotoLista ? "ready" : ""}>
+                <span>Foto</span>
+                <strong>{fotoLista ? "Lista" : "Pendiente"}</strong>
+              </article>
+
+              <article className={ubicacionLista ? "ready" : ""}>
+                <span>Ubicación</span>
+                <strong>{ubicacionLista ? "Lista" : "Pendiente"}</strong>
+              </article>
+            </section>
+          )}
+
+          {modoReporte === "manual" && (
+            <section className="manualFields">
+              <div className="formGroup">
+                <label>Tipo de barrera</label>
+
+                <select
+                  value={tipo}
+                  onChange={(e) => setTipo(e.target.value)}
+                  disabled={enviando}
+                >
+                  <option value="">
+                    {cargandoConfig
+                      ? "Cargando opciones..."
+                      : "Selecciona una opción"}
+                  </option>
+
+                  {reportTypes.map((option) => (
+                    <option
+                      value={getOptionValue(option)}
+                      key={getOptionValue(option)}
+                    >
+                      {getOptionLabel(option)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="formGroup">
+                <label>Nivel de severidad</label>
+
+                <div className="severityOptions">
+                  {severities.map((option) => {
+                    const value = getOptionValue(option);
+                    const label = getOptionLabel(option);
+
+                    return (
+                      <button
+                        type="button"
+                        className={
+                          severidad === value ? "severity active" : "severity"
+                        }
+                        onClick={() => setSeveridad(value)}
+                        disabled={enviando}
+                        key={value}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="formGroup">
+                <label>Descripción</label>
+
+                <textarea
+                  value={descripcion}
+                  onChange={(e) => setDescripcion(e.target.value)}
+                  placeholder="La banqueta está rota y una silla de ruedas no puede pasar."
+                  rows="5"
+                  disabled={enviando}
+                />
+              </div>
+            </section>
+          )}
+
+          <section className="formGroup">
+            <label>
+              {modoReporte === "rapido"
+                ? "Fotografía del lugar"
+                : "Fotografía opcional"}
+            </label>
 
             <div className="photoGuidedUpload">
               {reportTips.map((tip) => (
-                <article className={`photoInlineTip tipPosition${tip.id}`} key={tip.id}>
+                <article
+                  className={`photoInlineTip tipPosition${tip.id}`}
+                  key={tip.id}
+                >
                   <div className="photoInlineTipNumber" aria-hidden="true">
                     {tip.id}
                   </div>
@@ -356,18 +487,38 @@ function CrearReporte() {
               ))}
 
               <div className="photoUploader">
-                <label className={foto ? "photoUploadHeader hasFile" : "photoUploadHeader"} htmlFor="report-photo">
+                <label
+                  className={
+                    foto ? "photoUploadHeader hasFile" : "photoUploadHeader"
+                  }
+                  htmlFor="report-photo"
+                >
                   {preview ? (
-                    <img className="photoUploadPreview" src={preview} alt="Vista previa del reporte" />
+                    <img
+                      className="photoUploadPreview"
+                      src={preview}
+                      alt="Vista previa del reporte"
+                    />
                   ) : (
-                    <span className="material-symbols-outlined photoUploadIcon" aria-hidden="true">
+                    <span
+                      className="material-symbols-outlined photoUploadIcon"
+                      aria-hidden="true"
+                    >
                       cloud_upload
                     </span>
                   )}
 
                   <div className="photoUploadCopy">
-                    <strong>{modoReporte === "rapido" ? "Tomar foto para reporte rápido" : "Subir o tomar foto"}</strong>
-                    <span>Máximo {maxImageSize} MB. El análisis de imagen puede sugerir tipo, severidad, descripción e impacto.</span>
+                    <strong>
+                      {modoReporte === "rapido"
+                        ? "Tomar foto para reporte rápido"
+                        : "Subir o tomar foto"}
+                    </strong>
+
+                    <span>
+                      Máximo {maxImageSize} MB. El análisis de imagen puede
+                      sugerir tipo, severidad, descripción e impacto.
+                    </span>
                   </div>
 
                   <input
@@ -382,10 +533,15 @@ function CrearReporte() {
                 </label>
 
                 <div className="photoUploadFooter">
-                  <span className="material-symbols-outlined fileStatusIcon" aria-hidden="true">
+                  <span
+                    className="material-symbols-outlined fileStatusIcon"
+                    aria-hidden="true"
+                  >
                     description
                   </span>
+
                   <p>{foto ? foto.name : "Ningún archivo seleccionado"}</p>
+
                   <button
                     type="button"
                     className="clearPhotoButton"
@@ -400,40 +556,62 @@ function CrearReporte() {
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="formGroup locationGroup">
+          <section className="formGroup locationGroup">
             <label>Ubicación</label>
 
-          <div className="locationActionRow">
-            <button type="button" className="locationButton" onClick={obtenerUbicacion} disabled={enviando}>
-              <span className="locationButtonLoader" aria-hidden="true"></span>
-              <span className="locationButtonText">Obtener ubicación actual</span>
-            </button>
-          </div>
+            <div className="locationActionRow">
+              <button
+                type="button"
+                className="locationButton"
+                onClick={obtenerUbicacion}
+                disabled={enviando}
+              >
+                <span className="locationButtonLoader" aria-hidden="true"></span>
+
+                <span className="locationButtonText">
+                  Obtener ubicación actual
+                </span>
+              </button>
+            </div>
 
             {ubicacion && (
               <div className="locationInfo">
                 <p>
                   <strong>Latitud:</strong> {ubicacion.latitud.toFixed(6)}
                 </p>
+
                 <p>
                   <strong>Longitud:</strong> {ubicacion.longitud.toFixed(6)}
                 </p>
               </div>
             )}
-          </div>
+          </section>
 
-          {mensaje && <p className={mensajeEsError ? "message errorMessage" : "message"}>{mensaje}</p>}
+          {mensaje && (
+            <p className={mensajeEsError ? "message errorMessage" : "message"}>
+              {mensaje}
+            </p>
+          )}
 
           <button type="submit" className="submitButton" disabled={enviando}>
-            {enviando ? "Enviando..." : modoReporte === "rapido" ? "Crear reporte rápido" : foto ? "Analizar y enviar reporte" : "Enviar reporte"}
+            {enviando
+              ? "Enviando..."
+              : modoReporte === "rapido"
+              ? "Crear reporte rápido"
+              : foto
+              ? "Analizar y enviar reporte"
+              : "Enviar reporte manual"}
           </button>
 
           {resultado && (
             <section className="createdReportCard">
-              <h2>Reporte Creado</h2>
-              <p>{resultado.message}</p>
+              <div className="createdReportHeader">
+                <span>Reporte creado</span>
+                <h2>{resultado.report.title || resultado.report.typeLabel}</h2>
+                <p>{resultado.message}</p>
+              </div>
 
               <div className="createdReportMeta">
                 <span>ID: {resultado.report.id}</span>
@@ -443,12 +621,81 @@ function CrearReporte() {
                 <span>Prioridad: {resultado.report.priorityLabel}</span>
               </div>
 
-              {resultado.vision && (
-                <div className="geminiBox">
-                  <strong>Análisis detectado:</strong>
-                  <p>{resultado.vision.summary}</p>
-                  <small>{resultado.vision.accessibilityImpact}</small>
-                  <small>Confianza del análisis: {Math.round((resultado.vision.confidence || 0) * 100)}%</small>
+              {(resultado.vision || resultado.geminiRequested) && (
+                <div className="geminiSuggestions">
+                  <div className="geminiSuggestionsHeader">
+                    <span>Gemini</span>
+                    <h3>Sugerencias generadas</h3>
+                  </div>
+
+                  {resultado.geminiSucceeded && resultado.vision ? (
+                    <div className="geminiSuggestionGrid">
+                      <article>
+                        <strong>Tipo sugerido</strong>
+                        <span>
+                          {getGeminiValue(resultado.vision, resultado.report, [
+                            "typeLabel",
+                            "suggestedTypeLabel",
+                            "type",
+                          ])}
+                        </span>
+                      </article>
+
+                      <article>
+                        <strong>Severidad sugerida</strong>
+                        <span>
+                          {getGeminiValue(resultado.vision, resultado.report, [
+                            "severityLabel",
+                            "suggestedSeverityLabel",
+                            "severity",
+                          ])}
+                        </span>
+                      </article>
+
+                      <article className="wide">
+                        <strong>Descripción generada</strong>
+                        <span>
+                          {getGeminiValue(resultado.vision, resultado.report, [
+                            "description",
+                            "suggestedDescription",
+                            "summary",
+                          ])}
+                        </span>
+                      </article>
+
+                      <article className="wide">
+                        <strong>Impacto de accesibilidad</strong>
+                        <span>
+                          {getGeminiValue(resultado.vision, resultado.report, [
+                            "accessibilityImpact",
+                            "impact",
+                            "summary",
+                          ])}
+                        </span>
+                      </article>
+
+                      <article>
+                        <strong>Confianza Gemini</strong>
+                        <span>
+                          {Math.round((resultado.vision.confidence || 0) * 100)}%
+                        </span>
+                      </article>
+
+                      <article>
+                        <strong>Prioridad calculada</strong>
+                        <span>
+                          {resultado.report.priorityLabel || "No disponible"}
+                        </span>
+                      </article>
+                    </div>
+                  ) : (
+                    <div className="geminiWarning">
+                      Gemini no pudo generar sugerencias para este reporte.
+                      {resultado.geminiError && (
+                        <span>Error: {resultado.geminiError}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -456,28 +703,20 @@ function CrearReporte() {
                 <img
                   className="createdReportImage"
                   src={getImageUrl(resultado.report.imageUrl)}
-                  alt="Imagen del Reporte Creado"
+                  alt="Imagen del reporte creado"
                 />
               )}
 
               <div className="createdReportActions">
-                <Link to={`/mapa?reportId=${resultado.report.id}`}>Ver en mapa</Link>
-                <Link to="/reportes">Ver Reportes</Link>
+                <Link to={`/mapa?reportId=${resultado.report.id}`}>
+                  Ver en mapa
+                </Link>
+
+                <Link to="/reportes">Ver reportes</Link>
               </div>
             </section>
           )}
         </form>
-
-        <aside className="reportTips oldReportTips">
-          <h2>Consejos para un buen reporte</h2>
-
-          {reportTips.map((tip) => (
-            <div className="tipCard" key={tip.id}>
-              <span>{tip.id}</span>
-              <p>{tip.text}</p>
-            </div>
-          ))}
-        </aside>
       </section>
     </main>
   );
