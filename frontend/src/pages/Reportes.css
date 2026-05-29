@@ -372,3 +372,75 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+.reportsHero,
+.statsGrid,
+.reportsControls,
+.reportsList {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.reportsHero,
+.statsGrid {
+  padding: 34px 32px;
+  border-radius: 28px;
+  border: 1px solid #dbeafe;
+  background-color: rgba(248, 250, 252, 0.88);
+}
+
+.reportsHero::before,
+.statsGrid::before,
+.reportsControls::before,
+.reportsList::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #f8fafc;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 30px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  opacity: 0.75;
+}
+
+.statsGrid {
+  padding: 24px;
+}
+
+.reportsList {
+  padding: 24px;
+  border-radius: 28px;
+  border: 1px solid #dbeafe;
+  background-color: rgba(248, 250, 252, 0.88);
+}
+
+.reportsControls {
+  background-color: rgba(248, 250, 252, 0.88);
+}
+
+@media (max-width: 600px) {
+  .reportsHero,
+  .statsGrid,
+  .reportsControls,
+  .reportsList,
+  .reportHero,
+  .reportLayout,
+  .mapHero,
+  .mapSection,
+  .mapContainer {
+    border-radius: 22px;
+    padding: 24px;
+  }
+}

@@ -2,14 +2,57 @@
   min-height: calc(100vh - 74px);
   display: grid;
   grid-template-columns: minmax(320px, 410px) 1fr;
-  background: #eef6ff;
+  gap: 28px;
+  padding: 32px;
+  background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 48%, #ffffff 100%);
 }
+
+/* Fondo grid reutilizable */
+
+.mapPanel,
+.mapCanvasWrap,
+.routePlannerCard,
+.scoreCard,
+.mapMessage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.mapPanel::before,
+.mapCanvasWrap::before,
+.routePlannerCard::before,
+.scoreCard::before,
+.mapMessage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #f8fafc;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 30px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  opacity: 0.75;
+}
+
+/* Panel lateral */
 
 .mapPanel {
   padding: 28px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  border-right: 1px solid #dbeafe;
-  box-shadow: 18px 0 45px rgba(15, 23, 42, 0.08);
+  background-color: rgba(248, 250, 252, 0.9);
+  border: 1px solid #dbeafe;
+  border-radius: 28px;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
   z-index: 2;
 }
 
@@ -19,7 +62,7 @@
   color: #1d4ed8;
   font-weight: 900;
   padding: 9px 14px;
-  border-radius: 999px;
+  border-radius: 16px;
   margin-bottom: 16px;
 }
 
@@ -29,6 +72,7 @@
   line-height: 1.1;
   font-size: clamp(2rem, 4vw, 3rem);
   letter-spacing: -1px;
+  font-weight: 750;
 }
 
 .mapPanel p {
@@ -45,10 +89,11 @@
 }
 
 .mapStatsGrid article {
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid #dbeafe;
   border-radius: 18px;
   padding: 14px;
+  text-align: center;
 }
 
 .mapStatsGrid span {
@@ -63,7 +108,10 @@
   color: #1d4ed8;
   font-size: 1.8rem;
   margin-top: 4px;
+  text-align: center;
 }
+
+/* Botones */
 
 .mapPrimaryButton,
 .mapSecondaryButton {
@@ -101,12 +149,14 @@
   transform: none;
 }
 
+/* Score */
+
 .scoreCard {
   margin-top: 14px;
   border-radius: 22px;
   padding: 18px;
   border: 1px solid #dbeafe;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .scoreCard span {
@@ -130,9 +180,19 @@
   color: #475569;
 }
 
-.scoreHigh strong { color: #16a34a; }
-.scoreMedium strong { color: #d97706; }
-.scoreLow strong { color: #dc2626; }
+.scoreHigh strong {
+  color: #16a34a;
+}
+
+.scoreMedium strong {
+  color: #d97706;
+}
+
+.scoreLow strong {
+  color: #dc2626;
+}
+
+/* Errores */
 
 .mapError,
 .errorBox {
@@ -145,14 +205,29 @@
   font-weight: 700;
 }
 
+/* Área del mapa */
+
 .mapCanvasWrap {
   min-width: 0;
+  min-height: calc(100vh - 138px);
+  background-color: rgba(248, 250, 252, 0.88);
+  border: 1px solid #dbeafe;
+  border-radius: 28px;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+  padding: 18px;
+}
+
+.mapCanvasWrap > * {
+  position: relative;
+  z-index: 1;
+  border-radius: 22px;
+  overflow: hidden;
 }
 
 .mapMessage {
   margin: 36px auto;
   max-width: 720px;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid #dbeafe;
   border-radius: 22px;
   padding: 24px;
@@ -160,6 +235,8 @@
   font-weight: 900;
   text-align: center;
 }
+
+/* Info window */
 
 .mapInfoCard {
   max-width: 300px;
@@ -200,20 +277,11 @@
   border-radius: 999px;
 }
 
-@media (max-width: 900px) {
-  .mapPageShell {
-    grid-template-columns: 1fr;
-  }
-
-  .mapPanel {
-    border-right: none;
-    border-bottom: 1px solid #dbeafe;
-  }
-}
+/* Planeador de ruta */
 
 .routePlannerCard {
   margin: 20px 0 14px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid #bfdbfe;
   border-radius: 22px;
   padding: 18px;
@@ -272,7 +340,7 @@
 }
 
 .routePointList div {
-  background: #f8fafc;
+  background: rgba(248, 250, 252, 0.9);
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   padding: 10px 12px;
@@ -392,7 +460,8 @@
   gap: 9px;
   text-align: left;
   cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  transition: transform 0.18s ease, border-color 0.18s ease,
+    background 0.18s ease;
 }
 
 .routeImpactList button:hover {
@@ -414,4 +483,78 @@
 .routeImpactList button small {
   color: #64748b;
   font-weight: 900;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .mapPageShell {
+    grid-template-columns: 1fr;
+    padding: 22px;
+  }
+
+  .mapPanel {
+    border-right: 1px solid #dbeafe;
+    border-bottom: 1px solid #dbeafe;
+  }
+
+  .mapCanvasWrap {
+    min-height: 520px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mapPageShell {
+    padding: 18px 14px 50px;
+    gap: 20px;
+  }
+
+  .mapPanel,
+  .mapCanvasWrap,
+  .routePlannerCard,
+  .scoreCard,
+  .mapMessage {
+    border-radius: 22px;
+  }
+
+  .mapPanel {
+    padding: 24px;
+  }
+
+  .mapPanel h1 {
+    font-size: 2.2rem;
+    text-align: center;
+  }
+
+  .mapBadge {
+    display: block;
+    width: fit-content;
+    margin: 0 auto 16px;
+  }
+
+  .mapPanel p {
+    text-align: center;
+  }
+
+  .mapStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .routeButtonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mapCanvasWrap {
+    padding: 12px;
+    min-height: 460px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

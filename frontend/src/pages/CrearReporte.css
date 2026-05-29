@@ -689,3 +689,72 @@
   border-radius: 18px;
   margin-top: 14px;
 }
+
+.reportHero,
+.reportLayout,
+.reportForm,
+.reportTips {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.reportHero,
+.reportLayout {
+  border-radius: 28px;
+  border: 1px solid #dbeafe;
+  background-color: rgba(248, 250, 252, 0.88);
+}
+
+.reportHero {
+  padding: 34px 32px;
+}
+
+.reportLayout {
+  padding: 24px;
+}
+
+.reportHero::before,
+.reportLayout::before,
+.reportForm::before,
+.reportTips::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #f8fafc;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 30px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  opacity: 0.75;
+}
+
+.reportForm,
+.reportTips {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 600px) {
+  .reportsHero,
+  .statsGrid,
+  .reportsControls,
+  .reportsList,
+  .reportHero,
+  .reportLayout,
+  .mapHero,
+  .mapSection,
+  .mapContainer {
+    border-radius: 22px;
+    padding: 24px;
+  }
+}

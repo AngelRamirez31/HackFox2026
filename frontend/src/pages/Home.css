@@ -6,6 +6,43 @@
   animation: pageFade 0.6s ease both;
 }
 
+/* Fondo grid reutilizable dentro de secciones */
+.hero,
+.features,
+.reviewsSection,
+.mission {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.hero::before,
+.features::before,
+.reviewsSection::before,
+.mission::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #f8fafc;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 30px;
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  opacity: 0.75;
+}
+
+/* Hero */
+
 .hero {
   max-width: 1180px;
   margin: 0 auto;
@@ -14,7 +51,10 @@
   grid-template-columns: 1.2fr 0.8fr;
   align-items: start;
   gap: 40px;
-  padding-top: 42px;
+  padding: 42px 32px 38px;
+  border-radius: 28px;
+  border: 1px solid #dbeafe;
+  background-color: rgba(248, 250, 252, 0.88);
 }
 
 .heroContent {
@@ -71,7 +111,8 @@
   border-radius: 14px;
   padding: 14px 22px;
   font-weight: 800;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease,
+    background-color 0.22s ease;
 }
 
 .primaryButton {
@@ -102,7 +143,7 @@
 }
 
 .heroCard {
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.9);
   border: 1px solid #dbeafe;
   border-radius: 22px;
   padding: 32px;
@@ -185,7 +226,11 @@
   border: 1px solid #dbeafe;
   border-radius: 16px;
   padding: 22px 12px;
-  text-align: left;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.22s ease, background-color 0.22s ease;
 }
 
@@ -199,6 +244,8 @@
   color: #1d4ed8;
   font-size: 1.9rem;
   margin-bottom: 6px;
+  text-align: center;
+  width: 100%;
 }
 
 .tickerSummary span {
@@ -207,6 +254,8 @@
   font-size: 0.95rem;
   font-weight: 800;
   line-height: 1.4;
+  text-align: center;
+  width: 100%;
 }
 
 .homeLiveSummary {
@@ -226,9 +275,15 @@
   font-weight: 800;
 }
 
+/* Features */
+
 .features {
   max-width: 1180px;
   margin: 60px auto 0;
+  padding: 34px 32px;
+  border-radius: 28px;
+  border: 1px solid #dbeafe;
+  background-color: rgba(248, 250, 252, 0.88);
   animation: fadeUp 0.9s ease both;
 }
 
@@ -253,7 +308,8 @@
   padding: 24px;
   text-align: center;
   box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
-  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease,
+    border-color 0.22s ease;
 }
 
 .featureCard:hover {
@@ -293,15 +349,16 @@
   text-align: center;
 }
 
+/* Reviews */
+
 .reviewsSection {
   max-width: 1180px;
   margin: 60px auto 0;
-  background: rgba(255, 255, 255, 0.86);
+  background-color: rgba(248, 250, 252, 0.88);
   border: 1px solid #dbeafe;
-  border-radius: 22px;
-  padding: 30px;
+  border-radius: 28px;
+  padding: 34px 32px;
   box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
-  overflow: hidden;
 }
 
 .reviewsHeader {
@@ -352,12 +409,12 @@
 
 .reviewsCarouselWrapper::before {
   left: 0;
-  background: linear-gradient(90deg, white, transparent);
+  background: linear-gradient(90deg, #f8fafc, transparent);
 }
 
 .reviewsCarouselWrapper::after {
   right: 0;
-  background: linear-gradient(270deg, white, transparent);
+  background: linear-gradient(270deg, #f8fafc, transparent);
 }
 
 .reviewsCarouselTrack {
@@ -452,12 +509,14 @@
   font-weight: 900;
 }
 
+/* Mission */
+
 .mission {
   max-width: 1180px;
   margin: 60px auto 0;
   background-color: #0f172a;
   color: white;
-  border-radius: 22px;
+  border-radius: 28px;
   padding: 36px;
   display: flex;
   justify-content: space-between;
@@ -465,6 +524,13 @@
   gap: 24px;
   animation: fadeUp 0.9s ease both;
   transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.mission::before {
+  background-color: #0f172a;
+  background-image: linear-gradient(to right, rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+  opacity: 0.55;
 }
 
 .mission:hover {
@@ -493,6 +559,8 @@
 .missionButton:hover {
   background-color: #eff6ff;
 }
+
+/* Animaciones */
 
 @keyframes pageFade {
   from {
@@ -574,6 +642,8 @@
   }
 }
 
+/* Responsive */
+
 @media (max-width: 950px) {
   .home {
     padding: 22px;
@@ -610,6 +680,14 @@
     padding: 18px 14px 50px;
   }
 
+  .hero,
+  .features,
+  .reviewsSection,
+  .mission {
+    border-radius: 22px;
+    padding: 24px;
+  }
+
   .hero {
     gap: 28px;
   }
@@ -641,9 +719,7 @@
     text-align: center;
   }
 
-  .heroCard,
-  .mission,
-  .reviewsSection {
+  .heroCard {
     border-radius: 18px;
     padding: 24px;
     animation-name: fadeUp;
@@ -652,8 +728,8 @@
   }
 
   .tickerTop {
-  justify-content: center;
-}
+    justify-content: center;
+  }
 
   .tickerLabel {
     font-size: 0.88rem;
@@ -684,7 +760,7 @@
 
   .tickerSummary div {
     padding: 14px 8px;
-    text-align: left;
+    text-align: center;
   }
 
   .tickerSummary strong {
@@ -734,8 +810,8 @@
   }
 
   .tickerTop {
-  justify-content: center;
-}
+    justify-content: center;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -744,5 +820,20 @@
   *::after {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .reportsHero,
+  .statsGrid,
+  .reportsControls,
+  .reportsList,
+  .reportHero,
+  .reportLayout,
+  .mapHero,
+  .mapSection,
+  .mapContainer {
+    border-radius: 22px;
+    padding: 24px;
   }
 }
