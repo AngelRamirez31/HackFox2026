@@ -40,10 +40,11 @@ public class RoutesController : ControllerBase
                 minRadiusMeters = 10,
                 maxRadiusMeters = 300
             },
+            scoringFormula = "accessibilityPercent = max(0, 100 - nearbyReports * 10)",
             scoreLevels = new[]
             {
                 new { min = 80, max = 100, level = "high", label = "Ruta accesible", color = "green" },
-                new { min = 50, max = 79, level = "medium", label = "Ruta con precaución", color = "yellow" },
+                new { min = 50, max = 79, level = "medium", label = "Ruta intermedia", color = "orange" },
                 new { min = 0, max = 49, level = "low", label = "Ruta poco accesible", color = "red" }
             }
         });

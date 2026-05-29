@@ -18,8 +18,8 @@ public class AccessibilityScoringService
             .ThenByDescending(impact => impact.Report.Confirmations)
             .ToList();
 
-        var totalPenalty = impactReports.Sum(impact => impact.Penalty);
-        var score = Math.Clamp(100 - (int)Math.Round(totalPenalty), 0, 100);
+        var reportPenalty = impactReports.Count * 10;
+        var score = Math.Clamp(100 - reportPenalty, 0, 100);
         var groupedWarnings = impactReports
             .GroupBy(impact => impact.Report.Type)
             .OrderByDescending(group => group.Count())
@@ -105,19 +105,7 @@ public class AccessibilityScoringService
 
     private static double GetPenalty(Report report)
     {
-        var basePenalty = report.Severity switch
-        {
-            1 => 5,
-            2 => 10,
-            3 => 18,
-            _ => 10
-        };
-
-        var confirmationMultiplier = Math.Min(1.5, 1 + report.Confirmations * 0.1);
-        var rejectionMultiplier = Math.Max(0.5, 1 - report.Rejections * 0.1);
-        var ageMultiplier = report.CreatedAt < DateTime.UtcNow.AddDays(-30) ? 0.6 : 1.0;
-
-        return basePenalty * confirmationMultiplier * rejectionMultiplier * ageMultiplier;
+        return 10;
     }
 
     private static string GetLevel(int score)
@@ -135,7 +123,7 @@ public class AccessibilityScoringService
         return score switch
         {
             >= 80 => "green",
-            >= 50 => "yellow",
+            >= 50 => "orange",
             _ => "red"
         };
     }
@@ -214,7 +202,7 @@ public class AccessibilityScoringService
         var prefix = score switch
         {
             >= 80 => "Ruta mayormente accesible",
-            >= 50 => "Ruta con precaución",
+            >= 50 => "Ruta intermedia",
             _ => "Ruta poco accesible"
         };
 

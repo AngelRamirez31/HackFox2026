@@ -60,7 +60,7 @@
   display: inline-block;
   background: #dbeafe;
   color: #1d4ed8;
-  font-weight: 900;
+  font-weight: 850;
   padding: 9px 14px;
   border-radius: 16px;
   margin-bottom: 16px;
@@ -72,7 +72,7 @@
   line-height: 1.1;
   font-size: clamp(2rem, 4vw, 3rem);
   letter-spacing: -1px;
-  font-weight: 550;
+  font-weight: 750;
 }
 
 .mapPanel p {
@@ -98,7 +98,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 120px;
+  min-height: 116px;
 }
 
 .mapStatsGrid span {
@@ -125,7 +125,7 @@
   border: none;
   border-radius: 16px;
   padding: 14px 16px;
-  font-weight: 900;
+  font-weight: 800;
   cursor: pointer;
   margin-bottom: 10px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -155,49 +155,6 @@
   transform: none;
 }
 
-/* Score */
-
-.scoreCard {
-  margin-top: 14px;
-  border-radius: 22px;
-  padding: 18px;
-  border: 1px solid #dbeafe;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.scoreCard span {
-  font-weight: 900;
-  color: #64748b;
-}
-
-.scoreCard strong {
-  display: block;
-  font-size: 2.4rem;
-  margin: 6px 0;
-}
-
-.scoreCard p {
-  margin-bottom: 10px;
-}
-
-.scoreCard ul {
-  padding-left: 18px;
-  margin: 0;
-  color: #475569;
-}
-
-.scoreHigh strong {
-  color: #16a34a;
-}
-
-.scoreMedium strong {
-  color: #d97706;
-}
-
-.scoreLow strong {
-  color: #dc2626;
-}
-
 /* Errores */
 
 .mapError,
@@ -221,9 +178,12 @@
   border-radius: 28px;
   box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
   padding: 18px;
+  display: grid;
+  grid-template-rows: minmax(440px, 1fr) auto;
+  gap: 18px;
 }
 
-.mapCanvasWrap > * {
+.mapCanvasWrap .leaflet-container {
   position: relative;
   z-index: 1;
   border-radius: 22px;
@@ -238,7 +198,173 @@
   border-radius: 22px;
   padding: 24px;
   color: #1d4ed8;
-  font-weight: 900;
+  font-weight: 850;
+  text-align: center;
+}
+
+/* Score de accesibilidad */
+
+.scoreCard {
+  border-radius: 24px;
+  border: 1px solid #dbeafe;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
+}
+
+.mapScorePanel {
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+  padding: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scoreOverview {
+  width: min(100%, 560px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(248, 250, 252, 0.94);
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 44px 30px;
+  text-align: center;
+}
+
+.scorePercentBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.scorePercentBlock strong {
+  display: block;
+  font-size: clamp(4.5rem, 8vw, 7rem);
+  line-height: 0.85;
+  letter-spacing: -5px;
+  font-weight: 850;
+}
+
+.scorePercentBlock span {
+  display: block;
+  color: #0f172a;
+  font-size: clamp(1.6rem, 2.6vw, 2.35rem);
+  font-weight: 850;
+  line-height: 1;
+}
+
+.scoreHigh .scorePercentBlock strong {
+  color: #16a34a;
+}
+
+.scoreMedium .scorePercentBlock strong {
+  color: #f97316;
+}
+
+.scoreLow .scorePercentBlock strong {
+  color: #dc2626;
+}
+
+.scoreBulletList {
+  width: fit-content;
+  margin: 24px auto 0;
+  padding-left: 20px;
+  color: #475569;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.scoreBulletList li::marker {
+  color: #64748b;
+}
+
+.scoreDetailsPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+.routeImpactList {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+}
+
+.routeImpactList h3 {
+  max-width: 360px;
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  line-height: 1.15;
+  font-weight: 850;
+  text-align: center;
+}
+
+.routeImpactGrid {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.routeImpactList button {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px 16px;
+  min-width: 180px;
+  max-width: 240px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.routeImpactList button:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.routeImpactList button span {
+  color: #1d4ed8;
+  font-size: 1rem;
+}
+
+.routeImpactList button strong {
+  color: #0f172a;
+  font-size: 0.95rem;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.routeImpactList button small {
+  color: #64748b;
+  font-weight: 850;
+}
+
+.routeImpactEmpty {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 16px;
+  border-radius: 16px;
+  font-weight: 800;
   text-align: center;
 }
 
@@ -304,7 +430,7 @@
 
 .routePlannerHeader span {
   color: #64748b;
-  font-weight: 900;
+  font-weight: 850;
 }
 
 .routePlannerHeader strong {
@@ -325,7 +451,7 @@
   color: #334155;
   border-radius: 14px;
   padding: 11px 10px;
-  font-weight: 900;
+  font-weight: 850;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
@@ -356,7 +482,7 @@
   display: block;
   color: #64748b;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 850;
   margin-bottom: 2px;
 }
 
@@ -386,7 +512,7 @@
   color: #1d4ed8;
   border-radius: 16px;
   padding: 14px 16px;
-  font-weight: 900;
+  font-weight: 850;
   cursor: pointer;
   margin-bottom: 10px;
   transition: transform 0.2s ease, background 0.2s ease;
@@ -421,7 +547,7 @@
 .routeSummaryCard span {
   display: block;
   color: #334155;
-  font-weight: 900;
+  font-weight: 850;
   margin-bottom: 8px;
 }
 
@@ -442,55 +568,6 @@
   font-weight: 800;
 }
 
-.routeImpactList {
-  margin-top: 14px;
-  display: grid;
-  gap: 8px;
-}
-
-.routeImpactList h3 {
-  margin: 0 0 4px;
-  color: #0f172a;
-  font-size: 0.95rem;
-}
-
-.routeImpactList button {
-  width: 100%;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 14px;
-  padding: 10px 12px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 9px;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease,
-    background 0.18s ease;
-}
-
-.routeImpactList button:hover {
-  transform: translateY(-1px);
-  border-color: #bfdbfe;
-  background: #eff6ff;
-}
-
-.routeImpactList button span {
-  color: #1d4ed8;
-}
-
-.routeImpactList button strong {
-  color: #0f172a;
-  font-size: 0.88rem;
-  margin: 0;
-}
-
-.routeImpactList button small {
-  color: #64748b;
-  font-weight: 900;
-}
-
 /* Responsive */
 
 @media (max-width: 900px) {
@@ -506,6 +583,20 @@
 
   .mapCanvasWrap {
     min-height: 520px;
+    grid-template-rows: minmax(420px, auto) auto;
+  }
+
+  .mapScorePanel {
+    grid-template-columns: 1fr;
+  }
+
+  .routeImpactGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .routeImpactList button {
+    max-width: 100%;
   }
 }
 
@@ -553,6 +644,28 @@
   .mapCanvasWrap {
     padding: 12px;
     min-height: 460px;
+    grid-template-rows: minmax(360px, auto) auto;
+  }
+
+  .mapScorePanel {
+    padding: 18px;
+  }
+
+  .scoreOverview {
+    padding: 24px;
+  }
+
+  .scorePercentBlock strong {
+    font-size: 4rem;
+    letter-spacing: -2px;
+  }
+
+  .scorePercentBlock span {
+    font-size: 1.35rem;
+  }
+
+  .routeImpactList h3 {
+    font-size: 1.35rem;
   }
 }
 
@@ -563,80 +676,4 @@
     animation: none !important;
     transition: none !important;
   }
-}
-/* Geoapify / Leaflet */
-.leaflet-container {
-  width: 100%;
-  height: 100%;
-  min-height: 620px;
-  border-radius: 22px;
-  font-family: inherit;
-}
-
-.leaflet-control-attribution {
-  font-size: 0.68rem;
-}
-
-.accessibilityReportMarker,
-.routePointMarker {
-  background: transparent;
-  border: none;
-}
-
-.accessibilityReportMarker span,
-.routePointMarker span {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 50% 50% 50% 8px;
-  transform: rotate(-45deg);
-  color: #ffffff;
-  border: 3px solid #ffffff;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.25);
-  font-size: 1.05rem;
-  font-weight: 900;
-}
-
-.accessibilityReportMarker span {
-  background: #ef4444;
-}
-
-.routePointMarker span {
-  background: #2563eb;
-}
-
-.accessibilityReportMarker b,
-.routePointMarker b {
-  transform: rotate(45deg);
-  line-height: 1;
-  font: inherit;
-}
-
-.accessibilityReportMarker span {
-  text-shadow: 0 1px 2px rgba(15, 23, 42, 0.28);
-}
-
-.routePointMarker span {
-  font-size: 0.95rem;
-  letter-spacing: 0.03em;
-}
-
-.leaflet-popup-content-wrapper {
-  border-radius: 18px;
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.22);
-}
-
-.leaflet-popup-content {
-  margin: 14px;
-}
-
-.leaflet-control-zoom {
-  border: none !important;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16) !important;
-}
-
-.leaflet-control-zoom a {
-  color: #1d4ed8 !important;
-  font-weight: 900;
 }

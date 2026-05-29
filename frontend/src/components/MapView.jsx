@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { CircleMarker, MapContainer, Marker, Polyline, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import {
+  CircleMarker,
+  MapContainer,
+  Marker,
+  Polyline,
+  Popup,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import api, { getApiErrorMessage, getImageUrl } from "../services/api";
@@ -8,8 +17,8 @@ import "./MapView.css";
 
 const containerStyle = {
   width: "100%",
-  height: "calc(100vh - 74px)",
-  minHeight: "620px",
+  height: "100%",
+  minHeight: "440px",
 };
 
 const center = {
@@ -64,11 +73,17 @@ function formatDistance(meters) {
 
 function formatDuration(seconds) {
   if (!Number.isFinite(seconds)) return "Tiempo no disponible";
+
   const minutes = Math.round(seconds / 60);
+
   if (minutes < 60) return `${minutes} min`;
+
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
-  return remainingMinutes > 0 ? `${hours} h ${remainingMinutes} min` : `${hours} h`;
+
+  return remainingMinutes > 0
+    ? `${hours} h ${remainingMinutes} min`
+    : `${hours} h`;
 }
 
 function getRouteLineStyle(routeScore) {
@@ -85,18 +100,28 @@ function getRouteLineStyle(routeScore) {
 
 function getGeoapifyRoutePoints(featureCollection) {
   const geometry = featureCollection?.features?.[0]?.geometry;
+
   if (!geometry) return [];
 
   if (geometry.type === "LineString") {
     return geometry.coordinates
       .map(([lng, lat]) => ({ lat: Number(lat), lng: Number(lng) }))
-      .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+      .filter(
+        (point) => Number.isFinite(point.lat) && Number.isFinite(point.lng)
+      );
   }
 
   if (geometry.type === "MultiLineString") {
     return geometry.coordinates
-      .flatMap((line) => line.map(([lng, lat]) => ({ lat: Number(lat), lng: Number(lng) })))
-      .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+      .flatMap((line) =>
+        line.map(([lng, lat]) => ({
+          lat: Number(lat),
+          lng: Number(lng),
+        }))
+      )
+      .filter(
+        (point) => Number.isFinite(point.lat) && Number.isFinite(point.lng)
+      );
   }
 
   return [];
@@ -112,7 +137,9 @@ function toLeafletLatLng(point) {
 
 function getReportIcon(report) {
   const icon = escapeHtml(report.markerIcon || "⚠");
-  const color = escapeHtml(report.markerColor || report.severityColor || "#ef4444");
+  const color = escapeHtml(
+    report.markerColor || report.severityColor || "#ef4444"
+  );
 
   return L.divIcon({
     className: "accessibilityReportMarker",
@@ -136,7 +163,10 @@ function getRoutePointIcon(label) {
 function MapClickHandler({ onMapClick }) {
   useMapEvents({
     click(event) {
-      onMapClick({ lat: event.latlng.lat, lng: event.latlng.lng });
+      onMapClick({
+        lat: event.latlng.lat,
+        lng: event.latlng.lng,
+      });
     },
   });
 
@@ -158,12 +188,18 @@ function MapController({ mapRef, focusPoint, routePath }) {
 
   useEffect(() => {
     if (!focusPoint) return;
-    map.flyTo(toLeafletLatLng(focusPoint), Math.max(map.getZoom(), 17), { duration: 0.6 });
+
+    map.flyTo(toLeafletLatLng(focusPoint), Math.max(map.getZoom(), 17), {
+      duration: 0.6,
+    });
   }, [focusPoint, map]);
 
   useEffect(() => {
     if (!routePath || routePath.length < 2) return;
-    map.fitBounds(routePath.map(toLeafletLatLng), { padding: [42, 42] });
+
+    map.fitBounds(routePath.map(toLeafletLatLng), {
+      padding: [42, 42],
+    });
   }, [map, routePath]);
 
   return null;
@@ -182,14 +218,18 @@ function MapView() {
   const [routeError, setRouteError] = useState("");
   const [routeScore, setRouteScore] = useState(null);
   const [routeMode, setRouteMode] = useState("origin");
-  const [routePoints, setRoutePoints] = useState({ origin: null, destination: null });
+  const [routePoints, setRoutePoints] = useState({
+    origin: null,
+    destination: null,
+  });
   const [routePath, setRoutePath] = useState([]);
   const [routeSummary, setRouteSummary] = useState(null);
   const [focusPoint, setFocusPoint] = useState(null);
 
   const reportIdParam = searchParams.get("reportId");
   const geoapifyApiKey = import.meta.env.VITE_GEOAPIFY_API_KEY || "";
-  const geoapifyTileStyle = import.meta.env.VITE_GEOAPIFY_TILE_STYLE || "osm-bright";
+  const geoapifyTileStyle =
+    import.meta.env.VITE_GEOAPIFY_TILE_STYLE || "osm-bright";
   const geoapifyRouteMode = import.meta.env.VITE_GEOAPIFY_ROUTE_MODE || "walk";
 
   const loadReports = useCallback(async () => {
@@ -214,35 +254,91 @@ function MapView() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadReports();
   }, [loadReports]);
 
   useEffect(() => {
     if (!reportIdParam || reports.length === 0) return;
 
-    const target = reports.find((report) => String(report.id) === String(reportIdParam));
+    const target = reports.find(
+      (report) => String(report.id) === String(reportIdParam)
+    );
+
     if (!target) return;
 
     const position = getMarkerPosition(target);
-    if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) return;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) {
+      return;
+    }
+
     setSelectedReport(target);
     setFocusPoint(position);
   }, [reportIdParam, reports]);
 
-  const activeReports = useMemo(() => reports.filter((report) => report.status === "active"), [reports]);
-  const highPriorityReports = useMemo(() => reports.filter((report) => Number(report.severity) >= 3), [reports]);
+  const activeReports = useMemo(
+    () => reports.filter((report) => report.status === "active"),
+    [reports]
+  );
+
+  const urgentReports = useMemo(
+    () => reports.filter((report) => Number(report.severity) >= 3),
+    [reports]
+  );
+
   const routeReady = Boolean(routePoints.origin && routePoints.destination);
-  const routePolylineOptions = useMemo(() => getRouteLineStyle(routeScore), [routeScore]);
+
+  const routePolylineOptions = useMemo(
+    () => getRouteLineStyle(routeScore),
+    [routeScore]
+  );
+
   const tileUrl = `https://maps.geoapify.com/v1/tile/${geoapifyTileStyle}/{z}/{x}/{y}.png?apiKey=${geoapifyApiKey}`;
+
+  const routeAccessibilityPercent = useMemo(() => {
+    const value = Number(
+      routeScore?.accessibilityPercent ?? routeScore?.score ?? 0
+    );
+
+    if (!Number.isFinite(value)) return 0;
+
+    return Math.max(0, Math.min(100, Math.round(value)));
+  }, [routeScore]);
+
+  const routeImpactCount = useMemo(() => {
+    const value = Number(
+      routeScore?.nearbyReports ?? routeScore?.impactReports?.length ?? 0
+    );
+
+    if (!Number.isFinite(value)) return 0;
+
+    return Math.max(0, Math.round(value));
+  }, [routeScore]);
+
+  const routeImpactLabel =
+    routeImpactCount === 1
+      ? "1 reporte encontrado"
+      : `${routeImpactCount} reportes encontrados`;
+
+  const routeScoreMessage = useMemo(() => {
+    const message =
+      routeScore?.summary ||
+      routeScore?.message ||
+      routeScore?.routeStyle?.description ||
+      "Ruta calculada con Geoapify.";
+
+    return String(message).replace(
+      /\b\d{1,3}\/100\b/g,
+      `${routeAccessibilityPercent}%`
+    );
+  }, [routeScore, routeAccessibilityPercent]);
 
   const setRoutePoint = useCallback((pointType, point) => {
     setRoutePoints((current) => ({
       ...current,
       [pointType]: point,
     }));
+
     setRoutePath([]);
     setRouteSummary(null);
     setRouteScore(null);
@@ -282,8 +378,12 @@ function MapView() {
       const response = await api.post("/api/routes/accessibility", {
         points,
         radiusMeters: 50,
-        distanceMeters: Number.isFinite(routeProperties?.distance) ? routeProperties.distance : undefined,
-        durationSeconds: Number.isFinite(routeProperties?.time) ? Math.round(routeProperties.time) : undefined,
+        distanceMeters: Number.isFinite(routeProperties?.distance)
+          ? routeProperties.distance
+          : undefined,
+        durationSeconds: Number.isFinite(routeProperties?.time)
+          ? Math.round(routeProperties.time)
+          : undefined,
         travelMode: geoapifyRouteMode,
         source: "geoapify-routing",
         includeReports: true,
@@ -307,10 +407,23 @@ function MapView() {
       const pointsFromReports = activeReports
         .slice(0, 3)
         .map((report) => getMarkerPosition(report))
-        .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+        .filter(
+          (point) => Number.isFinite(point.lat) && Number.isFinite(point.lng)
+        );
 
-      const points = routePath.length > 0 ? routePath : pointsFromReports.length >= 2 ? pointsFromReports : defaultRoutePoints;
-      const response = await api.post("/api/routes/accessibility", { points, source: "demo-or-existing-route", includeReports: true });
+      const points =
+        routePath.length > 0
+          ? routePath
+          : pointsFromReports.length >= 2
+          ? pointsFromReports
+          : defaultRoutePoints;
+
+      const response = await api.post("/api/routes/accessibility", {
+        points,
+        source: "demo-or-existing-route",
+        includeReports: true,
+      });
+
       setRouteScore(response.data);
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -321,12 +434,16 @@ function MapView() {
 
   async function calculateRoute() {
     if (!routeReady) {
-      setRouteError("Selecciona el punto A y el punto B antes de calcular la ruta.");
+      setRouteError(
+        "Selecciona el punto A y el punto B antes de calcular la ruta."
+      );
       return;
     }
 
     if (!geoapifyApiKey) {
-      setRouteError("Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local.");
+      setRouteError(
+        "Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local."
+      );
       return;
     }
 
@@ -341,7 +458,9 @@ function MapView() {
         apiKey: geoapifyApiKey,
       });
 
-      const response = await fetch(`https://api.geoapify.com/v1/routing?${query.toString()}`);
+      const response = await fetch(
+        `https://api.geoapify.com/v1/routing?${query.toString()}`
+      );
 
       if (!response.ok) {
         throw new Error(`Geoapify respondió ${response.status}`);
@@ -360,7 +479,10 @@ function MapView() {
       const accessibility = await analyzeRouteAccessibility(points, properties);
 
       setRouteSummary({
-        distance: accessibility?.googleDistanceLabel || accessibility?.routeLengthLabel || formatDistance(properties.distance),
+        distance:
+          accessibility?.googleDistanceLabel ||
+          accessibility?.routeLengthLabel ||
+          formatDistance(properties.distance),
         duration: accessibility?.durationLabel || formatDuration(properties.time),
         startAddress: "Punto A",
         endAddress: "Punto B",
@@ -368,14 +490,21 @@ function MapView() {
     } catch (err) {
       setRoutePath([]);
       setRouteSummary(null);
-      setRouteError(err.message || "No se pudo calcular la ruta con Geoapify. Revisa la API key y que ambos puntos estén en una zona caminable.");
+      setRouteError(
+        err.message ||
+          "No se pudo calcular la ruta con Geoapify. Revisa la API key y que ambos puntos estén en una zona caminable."
+      );
     } finally {
       setLoadingRoute(false);
     }
   }
 
   function clearRoute() {
-    setRoutePoints({ origin: null, destination: null });
+    setRoutePoints({
+      origin: null,
+      destination: null,
+    });
+
     setRoutePath([]);
     setRouteSummary(null);
     setRouteScore(null);
@@ -386,7 +515,9 @@ function MapView() {
   if (!geoapifyApiKey) {
     return (
       <main className="mapPageShell">
-        <div className="mapMessage errorBox">Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local.</div>
+        <div className="mapMessage errorBox">
+          Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local.
+        </div>
       </main>
     );
   }
@@ -395,9 +526,13 @@ function MapView() {
     <main className="mapPageShell">
       <aside className="mapPanel">
         <span className="mapBadge">Mapa Vivo</span>
+
         <h1>Reportes de Accesibilidad</h1>
+
         <p>
-          Los marcadores vienen directamente del backend y Firestore. Selecciona un punto A y un punto B en el mapa para trazar una ruta peatonal con Geoapify y calcular su accesibilidad.
+          Los marcadores vienen directamente del backend y Firestore. Selecciona
+          un punto A y un punto B en el mapa para trazar una ruta peatonal con
+          Geoapify y calcular su accesibilidad.
         </p>
 
         <div className="mapStatsGrid">
@@ -405,13 +540,15 @@ function MapView() {
             <span>Total</span>
             <strong>{reports.length}</strong>
           </article>
+
           <article>
             <span>Activos</span>
             <strong>{activeReports.length}</strong>
           </article>
+
           <article>
             <span>Urgente</span>
-            <strong>{highPriorityReports.length}</strong>
+            <strong>{urgentReports.length}</strong>
           </article>
         </div>
 
@@ -421,11 +558,23 @@ function MapView() {
             <strong>A → B</strong>
           </div>
 
-          <div className="routeModeToggle" aria-label="Seleccionar punto de ruta">
-            <button type="button" className={routeMode === "origin" ? "active" : ""} onClick={() => setRouteMode("origin")}>
+          <div
+            className="routeModeToggle"
+            aria-label="Seleccionar punto de ruta"
+          >
+            <button
+              type="button"
+              className={routeMode === "origin" ? "active" : ""}
+              onClick={() => setRouteMode("origin")}
+            >
               Elegir punto A
             </button>
-            <button type="button" className={routeMode === "destination" ? "active" : ""} onClick={() => setRouteMode("destination")}>
+
+            <button
+              type="button"
+              className={routeMode === "destination" ? "active" : ""}
+              onClick={() => setRouteMode("destination")}
+            >
               Elegir punto B
             </button>
           </div>
@@ -435,19 +584,38 @@ function MapView() {
               <span>Punto A</span>
               <strong>{formatPoint(routePoints.origin)}</strong>
             </div>
+
             <div>
               <span>Punto B</span>
               <strong>{formatPoint(routePoints.destination)}</strong>
             </div>
           </div>
 
-          <p className="routeHint">Da clic en el mapa para colocar el punto activo. También puedes arrastrar los marcadores A y B.</p>
+          <p className="routeHint">
+            Da clic en el mapa para colocar el punto activo. También puedes
+            arrastrar los marcadores A y B.
+          </p>
 
           <div className="routeButtonGrid">
-            <button type="button" className="mapPrimaryButton" onClick={calculateRoute} disabled={!routeReady || loadingRoute || loadingScore}>
-              {loadingRoute ? "Calculando..." : loadingScore ? "Analizando..." : "Trazar ruta"}
+            <button
+              type="button"
+              className="mapPrimaryButton"
+              onClick={calculateRoute}
+              disabled={!routeReady || loadingRoute || loadingScore}
+            >
+              {loadingRoute
+                ? "Calculando..."
+                : loadingScore
+                ? "Analizando..."
+                : "Trazar ruta"}
             </button>
-            <button type="button" className="mapOutlineButton" onClick={clearRoute} disabled={!routePoints.origin && !routePoints.destination}>
+
+            <button
+              type="button"
+              className="mapOutlineButton"
+              onClick={clearRoute}
+              disabled={!routePoints.origin && !routePoints.destination}
+            >
               Limpiar
             </button>
           </div>
@@ -456,69 +624,73 @@ function MapView() {
             <div className="routeSummaryCard">
               <strong>{routeSummary.distance}</strong>
               <span>{routeSummary.duration}</span>
-              <p>{routeScore?.summary || routeScore?.message || "Ruta calculada con Geoapify."}</p>
+              <p>{routeScoreMessage}</p>
             </div>
           )}
 
           {routeError && <div className="routeError">{routeError}</div>}
         </section>
 
-        <button type="button" className="mapSecondaryButton" onClick={loadReports} disabled={loadingReports}>
+        <button
+          type="button"
+          className="mapSecondaryButton"
+          onClick={loadReports}
+          disabled={loadingReports}
+        >
           {loadingReports ? "Actualizando..." : "Actualizar reportes"}
         </button>
 
-        <button type="button" className="mapSecondaryButton" onClick={calculateDemoScore} disabled={loadingScore || reports.length === 0}>
-          {loadingScore ? "Calculando..." : routePath.length > 0 ? "Recalcular accesibilidad" : "Score demo"}
+        <button
+          type="button"
+          className="mapSecondaryButton"
+          onClick={calculateDemoScore}
+          disabled={loadingScore || reports.length === 0}
+        >
+          {loadingScore
+            ? "Calculando..."
+            : routePath.length > 0
+            ? "Recalcular accesibilidad"
+            : "Score demo"}
         </button>
-
-        {routeScore && (
-          <section className={`scoreCard ${getLevelClass(routeScore.level)}`}>
-            <span>{routeScore.routeStyle?.badgeLabel || routeScore.levelLabel || "Score"}</span>
-            <strong>{routeScore.accessibilityPercent ?? routeScore.score}/100</strong>
-            <p>{routeScore.message || routeScore.routeStyle?.description}</p>
-            {routeScore.warnings?.length > 0 && (
-              <ul>
-                {routeScore.warnings.map((warning) => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
-            )}
-            {routeScore.impactReports?.length > 0 && (
-              <div className="routeImpactList">
-                <h3>Reportes que afectan la ruta</h3>
-                {routeScore.impactReports.slice(0, 4).map((impact) => (
-                  <button type="button" key={impact.id} onClick={() => {
-                      const report = reports.find((item) => item.id === impact.id) || null;
-                      setSelectedReport(report);
-                      if (report) setFocusPoint(getMarkerPosition(report));
-                    }}>
-                    <span>{impact.markerIcon || "⚠"}</span>
-                    <strong>{impact.typeLabel}</strong>
-                    <small>{impact.distanceLabel}</small>
-                  </button>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
 
         {error && <div className="mapError">{error}</div>}
       </aside>
 
       <section className="mapCanvasWrap">
-        <MapContainer center={toLeafletLatLng(center)} zoom={14} style={containerStyle} scrollWheelZoom>
-          <MapController mapRef={mapRef} focusPoint={focusPoint} routePath={routePath} />
-          <MapClickHandler onMapClick={handleMapClick} />
-          <TileLayer url={tileUrl} attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://www.geoapify.com/">Geoapify</a>' />
+        <MapContainer
+          center={toLeafletLatLng(center)}
+          zoom={14}
+          style={containerStyle}
+          scrollWheelZoom
+        >
+          <MapController
+            mapRef={mapRef}
+            focusPoint={focusPoint}
+            routePath={routePath}
+          />
 
-          {routePath.length > 1 && <Polyline positions={routePath.map(toLeafletLatLng)} pathOptions={routePolylineOptions} />}
+          <MapClickHandler onMapClick={handleMapClick} />
+
+          <TileLayer
+            url={tileUrl}
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://www.geoapify.com/">Geoapify</a>'
+          />
+
+          {routePath.length > 1 && (
+            <Polyline
+              positions={routePath.map(toLeafletLatLng)}
+              pathOptions={routePolylineOptions}
+            />
+          )}
 
           {routePoints.origin && (
             <Marker
               position={toLeafletLatLng(routePoints.origin)}
               icon={getRoutePointIcon("A")}
               draggable
-              eventHandlers={{ dragend: (event) => handleRouteMarkerDragEnd("origin", event) }}
+              eventHandlers={{
+                dragend: (event) => handleRouteMarkerDragEnd("origin", event),
+              }}
             />
           )}
 
@@ -527,25 +699,57 @@ function MapView() {
               position={toLeafletLatLng(routePoints.destination)}
               icon={getRoutePointIcon("B")}
               draggable
-              eventHandlers={{ dragend: (event) => handleRouteMarkerDragEnd("destination", event) }}
+              eventHandlers={{
+                dragend: (event) =>
+                  handleRouteMarkerDragEnd("destination", event),
+              }}
             />
           )}
 
           {reports.map((report) => {
             const position = getMarkerPosition(report);
-            if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) return null;
+
+            if (
+              !Number.isFinite(position.lat) ||
+              !Number.isFinite(position.lng)
+            ) {
+              return null;
+            }
 
             return (
-              <Marker key={report.id} position={toLeafletLatLng(position)} icon={getReportIcon(report)} eventHandlers={{ click: () => { setSelectedReport(report); setFocusPoint(position); } }} />
+              <Marker
+                key={report.id}
+                position={toLeafletLatLng(position)}
+                icon={getReportIcon(report)}
+                eventHandlers={{
+                  click: () => {
+                    setSelectedReport(report);
+                    setFocusPoint(position);
+                  },
+                }}
+              />
             );
           })}
 
           {selectedReport && (
-            <Popup position={toLeafletLatLng(getMarkerPosition(selectedReport))} eventHandlers={{ remove: () => setSelectedReport(null) }}>
+            <Popup
+              position={toLeafletLatLng(getMarkerPosition(selectedReport))}
+              eventHandlers={{
+                remove: () => setSelectedReport(null),
+              }}
+            >
               <article className="mapInfoCard">
                 <h2>{selectedReport.title || selectedReport.typeLabel}</h2>
+
                 <p>{selectedReport.description}</p>
-                {selectedReport.imageUrl && <img src={getImageUrl(selectedReport.imageUrl)} alt="Reporte de accesibilidad" />}
+
+                {selectedReport.imageUrl && (
+                  <img
+                    src={getImageUrl(selectedReport.imageUrl)}
+                    alt="Reporte de accesibilidad"
+                  />
+                )}
+
                 <div className="mapInfoMeta">
                   <span>Severidad: {selectedReport.severityLabel}</span>
                   <span>{selectedReport.statusLabel}</span>
@@ -555,9 +759,41 @@ function MapView() {
             </Popup>
           )}
 
-          {routePoints.origin && <CircleMarker center={toLeafletLatLng(routePoints.origin)} radius={8} pathOptions={{ color: "#2563eb" }} />}
-          {routePoints.destination && <CircleMarker center={toLeafletLatLng(routePoints.destination)} radius={8} pathOptions={{ color: "#dc2626" }} />}
+          {routePoints.origin && (
+            <CircleMarker
+              center={toLeafletLatLng(routePoints.origin)}
+              radius={8}
+              pathOptions={{ color: "#2563eb" }}
+            />
+          )}
+
+          {routePoints.destination && (
+            <CircleMarker
+              center={toLeafletLatLng(routePoints.destination)}
+              radius={8}
+              pathOptions={{ color: "#dc2626" }}
+            />
+          )}
         </MapContainer>
+
+        {routeScore && (
+          <section
+            className={`scoreCard mapScorePanel ${getLevelClass(
+              routeScore.level
+            )}`}
+          >
+            <div className="scoreOverview">
+              <div className="scorePercentBlock">
+                <strong>{routeAccessibilityPercent}%</strong>
+                <span>accesible</span>
+              </div>
+
+              <ul className="scoreBulletList">
+                <li>{routeImpactLabel}</li>
+              </ul>
+            </div>
+          </section>
+        )}
       </section>
     </main>
   );

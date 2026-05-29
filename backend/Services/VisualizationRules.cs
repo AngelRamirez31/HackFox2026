@@ -100,7 +100,7 @@ public static class VisualizationRules
         return score switch
         {
             >= 80 => "Ruta accesible",
-            >= 50 => "Ruta con precaución",
+            >= 50 => "Ruta intermedia",
             _ => "Ruta poco accesible"
         };
     }
@@ -109,14 +109,14 @@ public static class VisualizationRules
     {
         if (nearbyReports == 0)
         {
-            return "No se detectaron barreras reportadas cerca de esta ruta.";
+            return "Esta ruta no tiene barreras reportadas cerca. Accesibilidad 100/100.";
         }
 
         return score switch
         {
-            >= 80 => "La ruta tiene reportes cercanos, pero el nivel general de accesibilidad sigue siendo alto.",
-            >= 50 => "La ruta tiene barreras cercanas. Se recomienda avanzar con precaución.",
-            _ => "La ruta tiene varias barreras cercanas. Se recomienda buscar una alternativa si es posible."
+            >= 80 => $"Ruta accesible: se detectaron {nearbyReports} reportes cercanos. Accesibilidad {score}/100.",
+            >= 50 => $"Ruta intermedia: se detectaron {nearbyReports} reportes cercanos. Accesibilidad {score}/100.",
+            _ => $"Ruta poco accesible: se detectaron {nearbyReports} reportes cercanos. Accesibilidad {score}/100."
         };
     }
 
@@ -134,11 +134,11 @@ public static class VisualizationRules
             },
             >= 50 => new RouteStyleResponse
             {
-                StrokeColor = "#f59e0b",
+                StrokeColor = "#f97316",
                 StrokeOpacity = 0.9,
                 StrokeWeight = 6,
-                BadgeLabel = "Amarillo",
-                Description = "Ruta con precaución"
+                BadgeLabel = "Naranja",
+                Description = "Ruta intermedia"
             },
             _ => new RouteStyleResponse
             {
