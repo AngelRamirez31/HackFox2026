@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { DirectionsRenderer, GoogleMap, InfoWindow, Marker, useJsApiLoader } from "@react-google-maps/api";
 import api, { getApiErrorMessage, getImageUrl } from "../services/api";
 import "./MapView.css";
@@ -21,11 +22,11 @@ const defaultRoutePoints = [
 ];
 
 function getMarkerPosition(report) {
-  if (report.position?.lat && report.position?.lng) return report.position;
-  return {
-    lat: Number(report.latitude),
-    lng: Number(report.longitude),
-  };
+  const position = report.position || {};
+  const lat = Number(position.lat ?? report.latitude);
+  const lng = Number(position.lng ?? report.longitude);
+
+  return { lat, lng };
 }
 
 function getLevelClass(level) {
@@ -58,7 +59,30 @@ function getRoutePathPoints(directions) {
   );
 }
 
+function getRouteLineStyle(routeScore) {
+  const style = routeScore?.routeStyle;
+
+  return {
+    strokeColor: style?.strokeColor || "#2563eb",
+    strokeOpacity: style?.strokeOpacity ?? 0.9,
+    strokeWeight: style?.strokeWeight ?? 6,
+  };
+}
+
+function getLegDistanceMeters(leg) {
+  const value = leg?.distance?.value;
+  return Number.isFinite(value) ? value : undefined;
+}
+
+function getLegDurationSeconds(leg) {
+  const value = leg?.duration?.value;
+  return Number.isFinite(value) ? value : undefined;
+}
+
 function MapView() {
+  const [searchParams] = useSearchParams();
+  const mapRef = useRef(null);
+
   const [reports, setReports] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -71,6 +95,9 @@ function MapView() {
   const [routePoints, setRoutePoints] = useState({ origin: null, destination: null });
   const [directions, setDirections] = useState(null);
   const [routeSummary, setRouteSummary] = useState(null);
+  const [mapCenter, setMapCenter] = useState(center);
+
+  const reportIdParam = searchParams.get("reportId");
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
@@ -101,23 +128,39 @@ function MapView() {
     loadReports();
   }, [loadReports]);
 
+  useEffect(() => {
+    if (!reportIdParam || reports.length === 0) return;
+
+    const target = reports.find((report) => String(report.id) === String(reportIdParam));
+    if (!target) return;
+
+    const position = getMarkerPosition(target);
+    if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) return;
+
+    setSelectedReport(target);
+    setMapCenter(position);
+
+    if (mapRef.current) {
+      mapRef.current.panTo(position);
+      mapRef.current.setZoom(Math.max(mapRef.current.getZoom() || 14, 17));
+    }
+  }, [reportIdParam, reports]);
+
   const activeReports = useMemo(() => reports.filter((report) => report.status === "active"), [reports]);
   const highPriorityReports = useMemo(() => reports.filter((report) => Number(report.severity) >= 3), [reports]);
   const routeReady = Boolean(routePoints.origin && routePoints.destination);
+  const routePolylineOptions = useMemo(() => getRouteLineStyle(routeScore), [routeScore]);
 
-  const setRoutePoint = useCallback(
-    (pointType, point) => {
-      setRoutePoints((current) => ({
-        ...current,
-        [pointType]: point,
-      }));
-      setDirections(null);
-      setRouteSummary(null);
-      setRouteScore(null);
-      setRouteError("");
-    },
-    []
-  );
+  const setRoutePoint = useCallback((pointType, point) => {
+    setRoutePoints((current) => ({
+      ...current,
+      [pointType]: point,
+    }));
+    setDirections(null);
+    setRouteSummary(null);
+    setRouteScore(null);
+    setRouteError("");
+  }, []);
 
   const handleMapClick = useCallback(
     (event) => {
@@ -149,6 +192,35 @@ function MapView() {
     [setRoutePoint]
   );
 
+  async function analyzeRouteAccessibility(points, leg) {
+    if (points.length < 2) {
+      return null;
+    }
+
+    setLoadingScore(true);
+    setError("");
+
+    try {
+      const response = await api.post("/api/routes/accessibility", {
+        points,
+        radiusMeters: 50,
+        distanceMeters: getLegDistanceMeters(leg),
+        durationSeconds: getLegDurationSeconds(leg),
+        travelMode: "walking",
+        source: "google-directions",
+        includeReports: true,
+      });
+
+      setRouteScore(response.data);
+      return response.data;
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+      return null;
+    } finally {
+      setLoadingScore(false);
+    }
+  }
+
   async function calculateDemoScore() {
     setLoadingScore(true);
     setError("");
@@ -161,7 +233,7 @@ function MapView() {
         .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
 
       const points = routePathPoints.length > 0 ? routePathPoints : pointsFromReports.length >= 2 ? pointsFromReports : defaultRoutePoints;
-      const response = await api.post("/api/routes/score", { points });
+      const response = await api.post("/api/routes/accessibility", { points, source: "demo-or-existing-route", includeReports: true });
       setRouteScore(response.data);
     } catch (err) {
       setError(getApiErrorMessage(err));
@@ -191,17 +263,21 @@ function MapView() {
       });
 
       const leg = result.routes?.[0]?.legs?.[0];
+      const routePathPoints = getRoutePathPoints(result);
       setDirections(result);
+
+      const accessibility = await analyzeRouteAccessibility(routePathPoints, leg);
+
       setRouteSummary({
-        distance: leg?.distance?.text || "Distancia no disponible",
-        duration: leg?.duration?.text || "Tiempo no disponible",
+        distance: leg?.distance?.text || accessibility?.googleDistanceLabel || accessibility?.routeLengthLabel || "Distancia no disponible",
+        duration: leg?.duration?.text || accessibility?.durationLabel || "Tiempo no disponible",
         startAddress: leg?.start_address || "Punto A",
         endAddress: leg?.end_address || "Punto B",
       });
-    } catch (err) {
+    } catch {
       setDirections(null);
       setRouteSummary(null);
-      setRouteError("No se pudo calcular la ruta. Revisa que ambos puntos estén en una zona caminable.");
+      setRouteError("No se pudo calcular la ruta. Verifica que la API key tenga Directions habilitado y que ambos puntos estén en zona caminable.");
     } finally {
       setLoadingRoute(false);
     }
@@ -238,7 +314,7 @@ function MapView() {
         <span className="mapBadge">Mapa vivo</span>
         <h1>Reportes de accesibilidad</h1>
         <p>
-          Los marcadores vienen directamente del backend y Firestore. Selecciona un punto A y un punto B en el mapa para trazar una ruta peatonal básica.
+          Los marcadores vienen directamente del backend y Firestore. Selecciona un punto A y un punto B en el mapa para trazar una ruta peatonal y calcular su accesibilidad.
         </p>
 
         <div className="mapStatsGrid">
@@ -285,8 +361,8 @@ function MapView() {
           <p className="routeHint">Da clic en el mapa para colocar el punto activo. También puedes arrastrar los marcadores A y B.</p>
 
           <div className="routeButtonGrid">
-            <button type="button" className="mapPrimaryButton" onClick={calculateRoute} disabled={!routeReady || loadingRoute}>
-              {loadingRoute ? "Calculando..." : "Trazar ruta"}
+            <button type="button" className="mapPrimaryButton" onClick={calculateRoute} disabled={!routeReady || loadingRoute || loadingScore}>
+              {loadingRoute ? "Calculando..." : loadingScore ? "Analizando..." : "Trazar ruta"}
             </button>
             <button type="button" className="mapOutlineButton" onClick={clearRoute} disabled={!routePoints.origin && !routePoints.destination}>
               Limpiar
@@ -297,7 +373,7 @@ function MapView() {
             <div className="routeSummaryCard">
               <strong>{routeSummary.distance}</strong>
               <span>{routeSummary.duration}</span>
-              <p>Ruta calculada con Google Maps. El porcentaje de accesibilidad se agregará en la siguiente iteración.</p>
+              <p>{routeScore?.summary || routeScore?.message || "Ruta calculada con Google Maps."}</p>
             </div>
           )}
 
@@ -309,13 +385,13 @@ function MapView() {
         </button>
 
         <button type="button" className="mapSecondaryButton" onClick={calculateDemoScore} disabled={loadingScore || reports.length === 0}>
-          {loadingScore ? "Calculando..." : "Score demo"}
+          {loadingScore ? "Calculando..." : directions ? "Recalcular accesibilidad" : "Score demo"}
         </button>
 
         {routeScore && (
           <section className={`scoreCard ${getLevelClass(routeScore.level)}`}>
             <span>{routeScore.routeStyle?.badgeLabel || routeScore.levelLabel || "Score"}</span>
-            <strong>{routeScore.score}/100</strong>
+            <strong>{routeScore.accessibilityPercent ?? routeScore.score}/100</strong>
             <p>{routeScore.message || routeScore.routeStyle?.description}</p>
             {routeScore.warnings?.length > 0 && (
               <ul>
@@ -323,6 +399,18 @@ function MapView() {
                   <li key={warning}>{warning}</li>
                 ))}
               </ul>
+            )}
+            {routeScore.impactReports?.length > 0 && (
+              <div className="routeImpactList">
+                <h3>Reportes que afectan la ruta</h3>
+                {routeScore.impactReports.slice(0, 4).map((impact) => (
+                  <button type="button" key={impact.id} onClick={() => setSelectedReport(reports.find((report) => report.id === impact.id) || null)}>
+                    <span>{impact.markerIcon || "⚠"}</span>
+                    <strong>{impact.typeLabel}</strong>
+                    <small>{impact.distanceLabel}</small>
+                  </button>
+                ))}
+              </div>
             )}
           </section>
         )}
@@ -333,10 +421,16 @@ function MapView() {
       <section className="mapCanvasWrap">
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={center}
+          center={mapCenter}
           zoom={14}
           options={{ streetViewControl: false, mapTypeControl: false }}
           onClick={handleMapClick}
+          onLoad={(map) => {
+            mapRef.current = map;
+          }}
+          onUnmount={() => {
+            mapRef.current = null;
+          }}
         >
           {directions && (
             <DirectionsRenderer
@@ -344,11 +438,7 @@ function MapView() {
               options={{
                 suppressMarkers: true,
                 preserveViewport: false,
-                polylineOptions: {
-                  strokeColor: "#2563eb",
-                  strokeOpacity: 0.9,
-                  strokeWeight: 6,
-                },
+                polylineOptions: routePolylineOptions,
               }}
             />
           )}

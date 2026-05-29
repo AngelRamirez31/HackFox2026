@@ -1,7 +1,65 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../services/api";
 import "./Home.css";
 
+const fallbackReports = [
+  { id: "fallback-1", typeLabel: "Banqueta rota", severity: 3, severityLabel: "Alta", createdAtDisplay: "Reciente" },
+  { id: "fallback-2", typeLabel: "Rampa bloqueada", severity: 2, severityLabel: "Media", createdAtDisplay: "Reciente" },
+  { id: "fallback-3", typeLabel: "Sin rampa", severity: 3, severityLabel: "Alta", createdAtDisplay: "Reciente" },
+  { id: "fallback-4", typeLabel: "Obstáculo en paso", severity: 1, severityLabel: "Baja", createdAtDisplay: "Reciente" },
+  { id: "fallback-5", typeLabel: "Cruce inseguro", severity: 2, severityLabel: "Media", createdAtDisplay: "Reciente" },
+];
+
+function getSeverityClass(report) {
+  const severity = Number(report.severity);
+  if (severity === 3 || report.severityLabel?.toLowerCase() === "alta") return "high";
+  if (severity === 2 || report.severityLabel?.toLowerCase() === "media") return "medium";
+  return "low";
+}
+
 function Home() {
+  const [stats, setStats] = useState(null);
+  const [latestReports, setLatestReports] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+
+  const loadHomeData = useCallback(async () => {
+    setLoadingData(true);
+
+    try {
+      const [statsResponse, reportsResponse] = await Promise.all([
+        api.get("/api/stats"),
+        api.get("/api/reports", {
+          params: {
+            status: "active",
+            limit: 5,
+          },
+        }),
+      ]);
+
+      setStats(statsResponse.data);
+      setLatestReports(Array.isArray(reportsResponse.data) ? reportsResponse.data : []);
+    } catch {
+      setStats(null);
+      setLatestReports([]);
+    } finally {
+      setLoadingData(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadHomeData();
+  }, [loadHomeData]);
+
+  const tickerReports = useMemo(() => {
+    const reports = latestReports.length > 0 ? latestReports : fallbackReports;
+    return [...reports, ...reports];
+  }, [latestReports]);
+
+  const totalReports = stats?.totalReports ?? latestReports.length;
+  const highPriorityReports = stats?.highSeverityReports ?? latestReports.filter((report) => Number(report.severity) === 3).length;
+  const activeReports = stats?.activeReports ?? latestReports.length;
+
   return (
     <main className="home">
       <section className="hero">
@@ -37,93 +95,41 @@ function Home() {
 
             <span className="liveBadge">
               <span className="livePulse"></span>
-              En vivo
+              {loadingData ? "Cargando" : "En vivo"}
             </span>
           </div>
 
           <p className="tickerDescription">
-            Reportes ciudadanos actualizados para identificar barreras físicas y
-            planear trayectos más seguros.
+            Reportes ciudadanos actualizados desde el backend para identificar
+            barreras físicas y planear trayectos más seguros.
           </p>
 
           <div className="tickerWindow">
             <div className="tickerTrack">
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Banqueta rota</strong>
-                <p>Zona Río · hace 4 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Rampa bloqueada</strong>
-                <p>Centro · hace 12 min</p>
-              </div>
-
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Sin banqueta</strong>
-                <p>Otay · hace 20 min</p>
-              </div>
-
-              <div className="tickerItem low">
-                <span>Baja</span>
-                <strong>Obstáculo en paso</strong>
-                <p>Playas · hace 31 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Cruce inseguro</strong>
-                <p>La Mesa · hace 44 min</p>
-              </div>
-
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Banqueta rota</strong>
-                <p>Zona Río · hace 4 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Rampa bloqueada</strong>
-                <p>Centro · hace 12 min</p>
-              </div>
-
-              <div className="tickerItem high">
-                <span>Alta</span>
-                <strong>Sin banqueta</strong>
-                <p>Otay · hace 20 min</p>
-              </div>
-
-              <div className="tickerItem low">
-                <span>Baja</span>
-                <strong>Obstáculo en paso</strong>
-                <p>Playas · hace 31 min</p>
-              </div>
-
-              <div className="tickerItem medium">
-                <span>Media</span>
-                <strong>Cruce inseguro</strong>
-                <p>La Mesa · hace 44 min</p>
-              </div>
+              {tickerReports.map((report, index) => (
+                <div className={`tickerItem ${getSeverityClass(report)}`} key={`${report.id}-${index}`}>
+                  <span>{report.severityLabel || "Media"}</span>
+                  <strong>{report.typeLabel || report.title || "Reporte"}</strong>
+                  <p>{report.createdAtDisplay || "Reciente"}</p>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="tickerSummary">
             <div>
-              <strong>24</strong>
-              <span>reportes hoy</span>
+              <strong>{totalReports}</strong>
+              <span>reportes totales</span>
             </div>
 
             <div>
-              <strong>7</strong>
+              <strong>{highPriorityReports}</strong>
               <span>prioridad alta</span>
             </div>
 
             <div>
-              <strong>3</strong>
-              <span>zonas críticas</span>
+              <strong>{activeReports}</strong>
+              <span>reportes activos</span>
             </div>
           </div>
         </div>
