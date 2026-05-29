@@ -12,15 +12,18 @@ public class ReportsController : ControllerBase
     private readonly IReportRepository _reports;
     private readonly LocalFileStorageService _fileStorage;
     private readonly GeminiVisionService _geminiVisionService;
+    private readonly ReportAnalyticsService _analytics;
 
     public ReportsController(
         IReportRepository reports,
         LocalFileStorageService fileStorage,
-        GeminiVisionService geminiVisionService)
+        GeminiVisionService geminiVisionService,
+        ReportAnalyticsService analytics)
     {
         _reports = reports;
         _fileStorage = fileStorage;
         _geminiVisionService = geminiVisionService;
+        _analytics = analytics;
     }
 
     [HttpGet]
@@ -128,6 +131,27 @@ public class ReportsController : ControllerBase
             },
             geminiAssistedEndpoint = "/api/reports/analyze-and-create"
         });
+    }
+
+
+
+    [HttpGet("hotspots")]
+    public async Task<ActionResult<IEnumerable<HotspotResponse>>> GetHotspots(
+        [FromQuery] int limit = 5,
+        [FromQuery] double radiusMeters = 120)
+    {
+        if (limit is < 1 or > 50)
+        {
+            return BadRequest(new { message = "limit debe estar entre 1 y 50." });
+        }
+
+        if (radiusMeters is < 30 or > 500)
+        {
+            return BadRequest(new { message = "radiusMeters debe estar entre 30 y 500 metros." });
+        }
+
+        var reports = await _reports.GetAllAsync();
+        return Ok(_analytics.BuildHotspots(reports, limit, radiusMeters));
     }
 
     [HttpGet("nearby")]

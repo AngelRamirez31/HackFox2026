@@ -334,3 +334,17 @@ El frontend debe usar el campo `imageUrl` que devuelve el backend. En esta versi
 ```
 
 El helper `getImageUrl` en `frontend/src/services/api.js` convierte esa ruta relativa en URL completa usando `VITE_API_URL`.
+
+
+## Home / dashboard
+
+El frontend usa estos endpoints para llenar la pantalla de inicio con datos reales:
+
+```text
+GET /api/dashboard/summary?recentLimit=5&hotspotLimit=3
+GET /api/reports/hotspots?limit=3
+```
+
+`/api/dashboard/summary` devuelve totales, reportes activos, reportes con imagen, barrera más común, reportes recientes y hotspots principales.
+
+`/api/reports/hotspots` agrupa reportes activos cercanos para mostrar zonas críticas.
