@@ -444,14 +444,14 @@
 .submitButton {
   width: 100%;
   border: none;
+  border-radius: 18px;
+  padding: 16px;
   background-color: #2563eb;
   color: white;
-  padding: 16px;
-  border-radius: 18px;
-  font-size: 1.05rem;
-  font-weight: 900;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 

@@ -130,8 +130,7 @@ function Reportes() {
           <span className="reportsBadge">Mapa Actual</span>
           <h1>Reportes Globales</h1>
           <p>
-            Consulta las barreras físicas reportadas por la comunidad. Estos
-            datos vienen del backend y Firebase, y ayudan a identificar zonas de riesgo.
+            Consulta las barreras físicas reportadas por la comunidad, estas ayudan a identificar zonas de riesgo.
           </p>
         </div>
       </section>

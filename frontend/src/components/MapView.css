@@ -72,7 +72,7 @@
   line-height: 1.1;
   font-size: clamp(2rem, 4vw, 3rem);
   letter-spacing: -1px;
-  font-weight: 750;
+  font-weight: 550;
 }
 
 .mapPanel p {
