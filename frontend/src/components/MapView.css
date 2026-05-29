@@ -1,18 +1,16 @@
 .mapPageShell {
   min-height: calc(100vh - 74px);
   display: grid;
-  grid-template-columns: minmax(320px, 410px) 1fr;
-  gap: 28px;
+  grid-template-columns: 1fr;
+  gap: 22px;
   padding: 32px;
   background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 48%, #ffffff 100%);
 }
 
-/* Fondo grid reutilizable */
-
 .mapPanel,
 .mapCanvasWrap,
+.mapBottomPanel,
 .routePlannerCard,
-.scoreCard,
 .mapMessage {
   position: relative;
   isolation: isolate;
@@ -21,8 +19,8 @@
 
 .mapPanel::before,
 .mapCanvasWrap::before,
+.mapBottomPanel::before,
 .routePlannerCard::before,
-.scoreCard::before,
 .mapMessage::before {
   content: "";
   position: absolute;
@@ -45,15 +43,31 @@
   opacity: 0.75;
 }
 
-/* Panel lateral */
-
-.mapPanel {
-  padding: 28px;
+.mapPanel,
+.mapCanvasWrap,
+.mapBottomPanel {
   background-color: rgba(248, 250, 252, 0.9);
   border: 1px solid #dbeafe;
   border-radius: 28px;
   box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
-  z-index: 2;
+}
+
+.mapPanel {
+  padding: 30px 34px;
+}
+
+.mapOverviewPanel {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
+  align-items: center;
+  gap: 34px;
+}
+
+.mapOverviewContent {
+  justify-self: center;
+  max-width: 860px;
+  text-align: center;
 }
 
 .mapBadge {
@@ -70,29 +84,45 @@
   margin: 0 0 14px;
   color: #0f172a;
   line-height: 1.1;
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 4vw, 3.2rem);
   letter-spacing: -1px;
   font-weight: 750;
 }
 
 .mapPanel p {
+  max-width: 900px;
   color: #475569;
-  line-height: 1.7;
+  line-height: 1.75;
   margin: 0 0 20px;
+  font-size: 1.02rem;
+}
+
+.mapOverviewContent p {
+  margin-bottom: 0;
+}
+
+.mapOverviewAside {
+  display: grid;
+  gap: 18px;
+  justify-self: end;
+  width: min(420px, 100%);
 }
 
 .mapStatsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin: 22px 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  justify-self: end;
+  width: min(360px, 100%);
+  margin-top: 0;
 }
 
 .mapStatsGrid article {
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #dbeafe;
-  border-radius: 18px;
-  padding: 14px;
+  background: #dbeafe;
+  border: 0;
+  border-radius: 32px;
+  box-shadow: 12px 12px 32px #bebebe, -12px -12px 32px #ffffff;
+  padding: 16px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -117,7 +147,283 @@
   text-align: center;
 }
 
-/* Botones */
+.enhancedMapStatsGrid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  width: 100%;
+}
+
+.enhancedMapStatsGrid article {
+  min-height: 104px;
+}
+
+.enhancedMapStatsGrid article span {
+  line-height: 1.25;
+}
+
+.enhancedMapStatsGrid .statWarning strong {
+  color: #f97316;
+}
+
+.enhancedMapStatsGrid .statVerification strong {
+  color: #92400e;
+}
+
+.enhancedMapStatsGrid .statTrust strong {
+  color: #64748b;
+}
+
+.enhancedMapStatsGrid .statHotspots strong {
+  color: #dc2626;
+}
+
+.mapExecutiveSummary {
+  margin-top: 0;
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.08);
+}
+
+.mapExecutiveSummary strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 0.95rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.mapExecutiveSummary p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.mapCanvasWrap {
+  min-width: 0;
+  min-height: 620px;
+  padding: 18px;
+}
+
+.mapCanvasWrap .leaflet-container {
+  position: relative;
+  z-index: 1;
+  border-radius: 22px;
+  overflow: hidden;
+  min-height: 580px;
+}
+
+.mapBottomPanel {
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.routePlannerCard {
+  margin: 0;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #bfdbfe;
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.08);
+}
+
+.mapBottomActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.hotspotsPanel,
+.selectedHotspotCard {
+  border: 1px solid #bfdbfe;
+  border-radius: 22px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.08);
+}
+
+.hotspotsHeader,
+.selectedHotspotHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.hotspotsHeader > div > span,
+.selectedHotspotHeader > div > span {
+  display: block;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 850;
+  margin-bottom: 2px;
+}
+
+.hotspotsHeader h2,
+.selectedHotspotHeader h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.hotspotsHeader button {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.hotspotsHeader button:hover {
+  transform: translateY(-1px);
+  background: #dbeafe;
+}
+
+.hotspotsHeader button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.hotspotList {
+  display: grid;
+  gap: 10px;
+}
+
+.hotspotItem {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.hotspotItem:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.hotspotItem strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 900;
+  margin-bottom: 3px;
+}
+
+.hotspotItem span {
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.hotspotsEmpty,
+.hotspotsError {
+  margin: 0;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.hotspotsEmpty {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.hotspotsError {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.hotspotPopup {
+  max-width: 260px;
+  color: #0f172a;
+}
+
+.hotspotPopup h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.hotspotPopup p {
+  margin: 8px 0 0;
+  color: #475569;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.hotspotMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.hotspotMeta span {
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.hotspotRelatedReports {
+  display: grid;
+  gap: 10px;
+}
+
+.hotspotRelatedReport {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+  padding: 12px;
+}
+
+.hotspotRelatedReport strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.94rem;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.hotspotRelatedReport p {
+  margin: 0 0 10px;
+  color: #475569;
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.hotspotReportBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 
 .mapPrimaryButton,
 .mapSecondaryButton {
@@ -127,7 +433,6 @@
   padding: 14px 16px;
   font-weight: 800;
   cursor: pointer;
-  margin-bottom: 10px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -144,50 +449,28 @@
 }
 
 .mapPrimaryButton:hover,
-.mapSecondaryButton:hover {
+.mapSecondaryButton:hover,
+.mapOutlineButton:hover {
   transform: translateY(-2px);
 }
 
 .mapPrimaryButton:disabled,
-.mapSecondaryButton:disabled {
+.mapSecondaryButton:disabled,
+.mapOutlineButton:disabled {
   opacity: 0.65;
   cursor: not-allowed;
   transform: none;
 }
 
-/* Errores */
-
 .mapError,
 .errorBox {
-  margin-top: 14px;
+  margin-top: 0;
   background: #fee2e2;
   color: #991b1b;
   border: 1px solid #fecaca;
   padding: 14px 16px;
   border-radius: 16px;
   font-weight: 700;
-}
-
-/* Área del mapa */
-
-.mapCanvasWrap {
-  min-width: 0;
-  min-height: calc(100vh - 138px);
-  background-color: rgba(248, 250, 252, 0.88);
-  border: 1px solid #dbeafe;
-  border-radius: 28px;
-  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
-  padding: 18px;
-  display: grid;
-  grid-template-rows: minmax(440px, 1fr) auto;
-  gap: 18px;
-}
-
-.mapCanvasWrap .leaflet-container {
-  position: relative;
-  z-index: 1;
-  border-radius: 22px;
-  overflow: hidden;
 }
 
 .mapMessage {
@@ -202,176 +485,298 @@
   text-align: center;
 }
 
-/* Score de accesibilidad */
-
-.scoreCard {
-  border-radius: 24px;
-  border: 1px solid #dbeafe;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.08);
-}
-
-.mapScorePanel {
-  position: relative;
-  z-index: 1;
-  margin-top: 0;
-  padding: 28px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.scoreOverview {
-  width: min(100%, 560px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(248, 250, 252, 0.94);
-  border: 1px solid #e2e8f0;
-  border-radius: 24px;
-  padding: 44px 30px;
-  text-align: center;
-}
-
-.scorePercentBlock {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-}
-
-.scorePercentBlock strong {
-  display: block;
-  font-size: clamp(4.5rem, 8vw, 7rem);
-  line-height: 0.85;
-  letter-spacing: -5px;
-  font-weight: 850;
-}
-
-.scorePercentBlock span {
-  display: block;
-  color: #0f172a;
-  font-size: clamp(1.6rem, 2.6vw, 2.35rem);
-  font-weight: 850;
-  line-height: 1;
-}
-
-.scoreHigh .scorePercentBlock strong {
-  color: #16a34a;
-}
-
-.scoreMedium .scorePercentBlock strong {
-  color: #f97316;
-}
-
-.scoreLow .scorePercentBlock strong {
-  color: #dc2626;
-}
-
-.scoreBulletList {
-  width: fit-content;
-  margin: 24px auto 0;
-  padding-left: 20px;
-  color: #475569;
-  font-size: 1rem;
-  font-weight: 800;
-  line-height: 1.5;
-  text-align: left;
-}
-
-.scoreBulletList li::marker {
-  color: #64748b;
-}
-
-.scoreDetailsPanel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 18px;
-  min-width: 0;
-}
-
-.routeImpactList {
-  display: grid;
-  gap: 18px;
-  justify-items: center;
-}
-
-.routeImpactList h3 {
-  max-width: 360px;
-  margin: 0;
-  color: #0f172a;
-  font-size: clamp(1.3rem, 2vw, 1.8rem);
-  line-height: 1.15;
-  font-weight: 850;
-  text-align: center;
-}
-
-.routeImpactGrid {
+.routeExplanationCard {
   width: 100%;
+  border: 1px solid #bfdbfe;
+  border-radius: 22px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.08);
+}
+
+.routeExplanationHeader {
   display: flex;
-  justify-content: center;
-  align-items: stretch;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.routeExplanationLabel {
+  display: block;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 850;
+  margin-bottom: 4px;
+}
+
+.routeExplanationHeader strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 0.9;
+  font-weight: 900;
+  letter-spacing: -2px;
+}
+
+.routeLevelBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.routeProfileLabel {
+  margin: 0 0 12px;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 750;
+}
+
+.routeProfileLabel strong {
+  color: #1d4ed8;
+}
+
+.routeExplanationText {
+  margin: 0;
+  color: #334155;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.routeExplanationMeta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.routeExplanationMeta span {
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.beforeLeavingCard,
+.issueBreakdownCard,
+.impactReportsSection {
+  margin-top: 16px;
+  border: 1px solid #dbeafe;
+  border-radius: 20px;
+  padding: 18px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.beforeLeavingCard {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.beforeLeavingCard strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.beforeLeavingCard p {
+  margin: 0;
+  color: #334155;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.issueBreakdownCard h3,
+.impactReportsHeader h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.issueBreakdownList {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.issueBreakdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #e2e8f0;
+}
+
+.issueBreakdownItem span {
+  color: #334155;
+  font-weight: 800;
+}
+
+.issueBreakdownItem strong {
+  color: #1d4ed8;
+  font-weight: 900;
+}
+
+.impactReportsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.impactReportsHeader span {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.impactReportsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.impactReportCard {
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.impactReportCard img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+}
+
+.impactReportContent {
+  padding: 14px;
+}
+
+.impactReportContent strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.impactReportContent p {
+  margin: 0 0 10px;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.impactReportBadges,
+.impactReportMeta {
+  display: flex;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
-.routeImpactList button {
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 18px;
-  padding: 14px 16px;
-  min-width: 180px;
-  max-width: 240px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 10px;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease,
-    background 0.18s ease;
+.impactReportMeta {
+  margin-top: 10px;
 }
 
-.routeImpactList button:hover {
-  transform: translateY(-2px);
-  border-color: #bfdbfe;
-  background: #eff6ff;
-}
-
-.routeImpactList button span {
-  color: #1d4ed8;
-  font-size: 1rem;
-}
-
-.routeImpactList button strong {
-  color: #0f172a;
-  font-size: 0.95rem;
-  line-height: 1.25;
-  margin: 0;
-}
-
-.routeImpactList button small {
+.impactReportMeta span {
   color: #64748b;
-  font-weight: 850;
-}
-
-.routeImpactEmpty {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  padding: 16px;
-  border-radius: 16px;
+  font-size: 0.78rem;
   font-weight: 800;
-  text-align: center;
 }
 
-/* Info window */
+.priorityBadge,
+.trustBadge,
+.verificationBadge,
+.severityBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.priorityBadge.critical {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.priorityBadge.high {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+.priorityBadge.medium {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.priorityBadge.low {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.trustBadge.high {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.trustBadge.medium {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.trustBadge.low,
+.trustBadge.unknown {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.verificationBadge {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.severityBadge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
 
 .mapInfoCard {
-  max-width: 300px;
+  max-width: 320px;
   color: #0f172a;
 }
 
@@ -394,6 +799,13 @@
   margin-bottom: 10px;
 }
 
+.mapInfoBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
 .mapInfoMeta {
   display: flex;
   gap: 6px;
@@ -409,15 +821,43 @@
   border-radius: 999px;
 }
 
-/* Planeador de ruta */
+.mapInfoValidation {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
 
-.routePlannerCard {
-  margin: 20px 0 14px;
-  background: rgba(255, 255, 255, 0.9);
+.mapInfoValidation strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.mapInfoValidation p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.mapInfoMetaGrid {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.mapInfoMetaGrid span {
+  border-radius: 12px;
+  padding: 7px 9px;
+  background: #eff6ff;
+  color: #1d4ed8;
   border: 1px solid #bfdbfe;
-  border-radius: 22px;
-  padding: 18px;
-  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.08);
+  font-size: 0.76rem;
+  font-weight: 800;
 }
 
 .routePlannerHeader {
@@ -500,6 +940,41 @@
   line-height: 1.5 !important;
 }
 
+.mobilityProfileField {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0;
+}
+
+.mobilityProfileField label {
+  color: #334155;
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.mobilityProfileField select {
+  width: 100%;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 12px 14px;
+  font-weight: 800;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mobilityProfileField select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.mobilityProfileField select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .routeButtonGrid {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -514,19 +989,11 @@
   padding: 14px 16px;
   font-weight: 850;
   cursor: pointer;
-  margin-bottom: 10px;
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .mapOutlineButton:hover {
-  transform: translateY(-2px);
   background: #dbeafe;
-}
-
-.mapOutlineButton:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  transform: none;
 }
 
 .routeSummaryCard {
@@ -551,13 +1018,6 @@
   margin-bottom: 8px;
 }
 
-.routeSummaryCard p {
-  margin: 0 !important;
-  color: #475569 !important;
-  font-size: 0.9rem;
-  line-height: 1.5 !important;
-}
-
 .routeError {
   margin-top: 12px;
   background: #fef3c7;
@@ -568,48 +1028,53 @@
   font-weight: 800;
 }
 
-/* Responsive */
+.reportHero,
+.reportLayout,
+.reportForm,
+.reportTips {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
 
 @media (max-width: 900px) {
   .mapPageShell {
-    grid-template-columns: 1fr;
     padding: 22px;
   }
 
-  .mapPanel {
-    border-right: 1px solid #dbeafe;
-    border-bottom: 1px solid #dbeafe;
+  .mapOverviewPanel {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+    gap: 24px;
+  }
+
+  .mapStatsGrid {
+    width: min(300px, 100%);
+  }
+
+  .mapOverviewAside {
+    width: min(360px, 100%);
   }
 
   .mapCanvasWrap {
     min-height: 520px;
-    grid-template-rows: minmax(420px, auto) auto;
   }
 
-  .mapScorePanel {
-    grid-template-columns: 1fr;
+  .mapCanvasWrap .leaflet-container {
+    min-height: 480px;
   }
 
-  .routeImpactGrid {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .routeImpactList button {
-    max-width: 100%;
-  }
 }
 
 @media (max-width: 600px) {
   .mapPageShell {
     padding: 18px 14px 50px;
-    gap: 20px;
+    gap: 18px;
   }
 
   .mapPanel,
   .mapCanvasWrap,
+  .mapBottomPanel,
   .routePlannerCard,
-  .scoreCard,
   .mapMessage {
     border-radius: 22px;
   }
@@ -621,6 +1086,10 @@
   .mapPanel h1 {
     font-size: 2.2rem;
     text-align: center;
+  }
+
+  .mapOverviewPanel {
+    grid-template-columns: 1fr;
   }
 
   .mapBadge {
@@ -635,38 +1104,68 @@
 
   .mapStatsGrid {
     grid-template-columns: 1fr;
+    justify-self: stretch;
+    width: 100%;
   }
 
-  .routeButtonGrid {
+  .mapOverviewAside {
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .enhancedMapStatsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .mapExecutiveSummary {
+    text-align: center;
+  }
+
+  .mapBottomActions,
+  .routeButtonGrid,
+  .routeModeToggle {
+    grid-template-columns: 1fr;
+  }
+
+  .hotspotsHeader,
+  .selectedHotspotHeader,
+  .hotspotItem {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hotspotsHeader button {
+    width: 100%;
   }
 
   .mapCanvasWrap {
     padding: 12px;
-    min-height: 460px;
-    grid-template-rows: minmax(360px, auto) auto;
+    min-height: 420px;
   }
 
-  .mapScorePanel {
+  .mapCanvasWrap .leaflet-container {
+    min-height: 360px;
+  }
+
+  .mapBottomPanel {
     padding: 18px;
   }
 
-  .scoreOverview {
-    padding: 24px;
+  .routeExplanationHeader,
+  .impactReportsHeader {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .scorePercentBlock strong {
-    font-size: 4rem;
-    letter-spacing: -2px;
+  .routeExplanationHeader strong {
+    font-size: 3.2rem;
   }
 
-  .scorePercentBlock span {
-    font-size: 1.35rem;
+  .impactReportsGrid {
+    grid-template-columns: 1fr;
   }
 
-  .routeImpactList h3 {
-    font-size: 1.35rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -676,201 +1175,4 @@
     animation: none !important;
     transition: none !important;
   }
-}
-.routeProfileField {
-  display: grid;
-  gap: 8px;
-  margin: 12px 0 14px;
-}
-
-.routeProfileField span,
-.hotspotsHeader span {
-  color: #475569;
-  font-size: 0.85rem;
-  font-weight: 850;
-}
-
-.routeProfileField select {
-  width: 100%;
-  border: 1px solid #dbeafe;
-  border-radius: 14px;
-  background: #f8fafc;
-  color: #0f172a;
-  padding: 12px 14px;
-  font-weight: 800;
-  outline: none;
-}
-
-.hotspotsCard {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid #dbeafe;
-  border-radius: 22px;
-  padding: 18px;
-  margin: 0 0 18px;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
-}
-
-.hotspotsHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.hotspotsHeader strong {
-  color: #1d4ed8;
-  font-size: 1.2rem;
-}
-
-.hotspotItem {
-  display: grid;
-  gap: 4px;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  background: #f8fafc;
-  padding: 12px;
-  margin-top: 10px;
-}
-
-.hotspotItem strong {
-  color: #0f172a;
-}
-
-.hotspotItem span,
-.hotspotItem small {
-  color: #64748b;
-  font-weight: 750;
-}
-
-.routeExplanationBox,
-.routeRecommendationBox {
-  width: 100%;
-  margin-top: 18px;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  background: white;
-  padding: 16px;
-  text-align: left;
-}
-
-.routeExplanationBox strong,
-.routeRecommendationBox strong {
-  display: block;
-  color: #0f172a;
-  margin-bottom: 8px;
-}
-
-.routeExplanationBox p,
-.routeRecommendationBox p {
-  color: #475569;
-  line-height: 1.55;
-  margin: 0;
-}
-
-.routeImpactMiniList {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.routeImpactMiniList button {
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 12px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 8px;
-  align-items: center;
-  text-align: left;
-  cursor: pointer;
-}
-
-.routeImpactMiniList span {
-  grid-row: span 2;
-  font-size: 1.25rem;
-}
-
-.routeImpactMiniList strong {
-  color: #0f172a;
-  font-size: 0.92rem;
-}
-
-.routeImpactMiniList small {
-  color: #64748b;
-  font-weight: 750;
-}
-
-.essentialDestinationBox {
-  display: grid;
-  gap: 12px;
-  background: linear-gradient(135deg, #eff6ff, #ffffff);
-  border: 1px solid #bfdbfe;
-  border-radius: 18px;
-  padding: 16px;
-  margin: 14px 0 16px;
-}
-
-.essentialDestinationTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.essentialDestinationTop span {
-  color: #1d4ed8;
-  font-weight: 900;
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.essentialDestinationTop strong {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  background: white;
-  border: 1px solid #dbeafe;
-  border-radius: 14px;
-  font-size: 1.2rem;
-}
-
-.essentialDestinationBox select,
-.routeProfileField select {
-  width: 100%;
-  border: 1px solid #bfdbfe;
-  border-radius: 14px;
-  padding: 12px 14px;
-  color: #0f172a;
-  background: white;
-  font-weight: 800;
-  outline: none;
-}
-
-.essentialDestinationBox p {
-  margin: 0;
-  color: #475569;
-  font-size: 0.92rem;
-  line-height: 1.55;
-}
-
-.mapMiniButton {
-  border: none;
-  background: #1d4ed8;
-  color: white;
-  border-radius: 14px;
-  padding: 12px 14px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
-}
-
-.mapMiniButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.26);
 }

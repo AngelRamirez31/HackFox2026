@@ -63,6 +63,67 @@ function getLevelClass(level) {
   return "scoreLow";
 }
 
+function getHotspotColor(priorityLevel) {
+  if (priorityLevel === "critical") return "#dc2626";
+  if (priorityLevel === "high") return "#f97316";
+  if (priorityLevel === "medium") return "#facc15";
+  return "#2563eb";
+}
+
+function getHotspotRadius(reportCount) {
+  const count = Number(reportCount) || 1;
+  return Math.min(38, Math.max(16, 12 + count * 4));
+}
+
+function getPriorityClass(priorityLevel) {
+  if (priorityLevel === "critical") return "priorityBadge critical";
+  if (priorityLevel === "high") return "priorityBadge high";
+  if (priorityLevel === "medium") return "priorityBadge medium";
+  return "priorityBadge low";
+}
+
+function getTrustClass(trustLevel) {
+  if (trustLevel === "high") return "trustBadge high";
+  if (trustLevel === "medium") return "trustBadge medium";
+  if (trustLevel === "low") return "trustBadge low";
+  return "trustBadge unknown";
+}
+
+function formatBooleanLabel(value) {
+  return value ? "Sí" : "No";
+}
+
+function normalizeIssueBreakdown(issueBreakdown) {
+  if (!issueBreakdown) return [];
+
+  if (Array.isArray(issueBreakdown)) {
+    return issueBreakdown
+      .map((item) => ({
+        label: item.label || item.typeLabel || item.type || item.name || "Problema",
+        count: Number(item.count ?? item.total ?? item.value ?? 0),
+      }))
+      .filter((item) => item.count > 0 || item.label);
+  }
+
+  if (typeof issueBreakdown === "object") {
+    return Object.entries(issueBreakdown).map(([label, count]) => ({
+      label,
+      count: Number(count) || 0,
+    }));
+  }
+
+  return [];
+}
+
+function getRouteExplanation(routeScore, routeAccessibilityPercent) {
+  return (
+    routeScore?.explanation ||
+    routeScore?.message ||
+    routeScore?.summary ||
+    `Ruta calculada con ${routeAccessibilityPercent}% de accesibilidad.`
+  );
+}
+
 function formatCoordinate(value) {
   if (!Number.isFinite(value)) return "--";
   return value.toFixed(6);
@@ -219,13 +280,14 @@ function MapView() {
 
   const [reports, setReports] = useState([]);
   const [hotspots, setHotspots] = useState([]);
-  const [essentialDestinations, setEssentialDestinations] = useState([]);
-  const [selectedDestinationKey, setSelectedDestinationKey] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedHotspot, setSelectedHotspot] = useState(null);
   const [loadingReports, setLoadingReports] = useState(true);
+  const [loadingHotspots, setLoadingHotspots] = useState(false);
   const [loadingScore, setLoadingScore] = useState(false);
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [error, setError] = useState("");
+  const [hotspotsError, setHotspotsError] = useState("");
   const [routeError, setRouteError] = useState("");
   const [routeScore, setRouteScore] = useState(null);
   const [routeMode, setRouteMode] = useState("origin");
@@ -235,8 +297,8 @@ function MapView() {
   });
   const [routePath, setRoutePath] = useState([]);
   const [routeSummary, setRouteSummary] = useState(null);
-  const [focusPoint, setFocusPoint] = useState(null);
   const [mobilityProfile, setMobilityProfile] = useState("default");
+  const [focusPoint, setFocusPoint] = useState(null);
 
   const reportIdParam = searchParams.get("reportId");
   const geoapifyApiKey = import.meta.env.VITE_GEOAPIFY_API_KEY || "";
@@ -249,29 +311,40 @@ function MapView() {
     setError("");
 
     try {
-      const [reportsResponse, hotspotsResponse] = await Promise.all([
-        api.get("/api/reports/map", {
-          params: {
-            status: "active",
-            limit: 100,
-          },
-        }),
-        api.get("/api/reports/hotspots", {
-          params: {
-            limit: 3,
-            radiusMeters: 120,
-          },
-        }),
-      ]);
+      const response = await api.get("/api/reports/map", {
+        params: {
+          status: "active",
+          limit: 100,
+        },
+      });
 
-      const data = Array.isArray(reportsResponse.data) ? reportsResponse.data : [];
-      const hotspotData = Array.isArray(hotspotsResponse.data) ? hotspotsResponse.data : [];
+      const data = Array.isArray(response.data) ? response.data : [];
       setReports(data);
-      setHotspots(hotspotData);
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
       setLoadingReports(false);
+    }
+  }, []);
+
+  const loadHotspots = useCallback(async () => {
+    setLoadingHotspots(true);
+    setHotspotsError("");
+
+    try {
+      const response = await api.get("/api/reports/hotspots", {
+        params: {
+          limit: 5,
+          radiusMeters: 120,
+        },
+      });
+
+      const data = Array.isArray(response.data) ? response.data : [];
+      setHotspots(data);
+    } catch (err) {
+      setHotspotsError(getApiErrorMessage(err));
+    } finally {
+      setLoadingHotspots(false);
     }
   }, []);
 
@@ -284,32 +357,12 @@ function MapView() {
   }, [loadReports]);
 
   useEffect(() => {
-    let active = true;
+    const timer = setTimeout(() => {
+      loadHotspots();
+    }, 0);
 
-    async function loadEssentialDestinations() {
-      try {
-        const response = await api.get("/api/essential-destinations");
-        if (!active) return;
-
-        const destinations = Array.isArray(response.data) ? response.data : [];
-        setEssentialDestinations(destinations);
-
-        if (destinations.length > 0) {
-          setSelectedDestinationKey(destinations[0].key);
-        }
-      } catch {
-        if (active) {
-          setEssentialDestinations([]);
-        }
-      }
-    }
-
-    loadEssentialDestinations();
-
-    return () => {
-      active = false;
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [loadHotspots]);
 
   useEffect(() => {
     if (!reportIdParam || reports.length === 0) return;
@@ -339,18 +392,55 @@ function MapView() {
     [reports]
   );
 
-  const urgentReports = useMemo(
-    () => reports.filter((report) => Number(report.severity) >= 3),
+  const highPriorityReports = useMemo(
+    () =>
+      reports.filter((report) => {
+        if (report.priorityLevel) {
+          return (
+            report.priorityLevel === "high" ||
+            report.priorityLevel === "critical"
+          );
+        }
+
+        return Number(report.severity) >= 3;
+      }),
     [reports]
   );
 
-  const selectedEssentialDestination = useMemo(
+  const criticalReports = useMemo(
     () =>
-      essentialDestinations.find(
-        (destination) => destination.key === selectedDestinationKey
-      ) || null,
-    [essentialDestinations, selectedDestinationKey]
+      reports.filter((report) => {
+        if (report.priorityLevel) {
+          return report.priorityLevel === "critical";
+        }
+
+        return Number(report.severity) >= 3;
+      }),
+    [reports]
   );
+
+  const verificationReports = useMemo(
+    () => reports.filter((report) => report.requiresVerification === true),
+    [reports]
+  );
+
+  const lowTrustReports = useMemo(
+    () =>
+      reports.filter((report) => {
+        const trustScore = Number(report.trustScore);
+
+        return (
+          report.trustLevel === "low" ||
+          (report.trustScore != null &&
+            Number.isFinite(trustScore) &&
+            trustScore < 40)
+        );
+      }),
+    [reports]
+  );
+
+  const hasReports = reports.length > 0;
+  const hotspotCount = Array.isArray(hotspots) ? hotspots.length : 0;
 
   const routeReady = Boolean(routePoints.origin && routePoints.destination);
 
@@ -386,27 +476,10 @@ function MapView() {
       ? "1 reporte encontrado"
       : `${routeImpactCount} reportes encontrados`;
 
-  const routeScoreMessage = useMemo(() => {
-    const message =
-      routeScore?.summary ||
-      routeScore?.message ||
-      routeScore?.routeStyle?.description ||
-      "Ruta calculada correctamente.";
-
-    return String(message).replace(
-      /\b\d{1,3}\/100\b/g,
-      `${routeAccessibilityPercent}%`
-    );
-  }, [routeScore, routeAccessibilityPercent]);
-
-  const routeIssueText = useMemo(() => {
-    const issues = routeScore?.issueBreakdown || [];
-    if (!issues.length) return "Sin barreras cercanas";
-    return issues
-      .slice(0, 3)
-      .map((issue) => `${issue.count} ${issue.pluralLabel || issue.typeLabel}`)
-      .join(", ");
-  }, [routeScore]);
+  const issueItems = useMemo(
+    () => normalizeIssueBreakdown(routeScore?.issueBreakdown),
+    [routeScore]
+  );
 
   const setRoutePoint = useCallback((pointType, point) => {
     setRoutePoints((current) => ({
@@ -497,7 +570,7 @@ function MapView() {
       const response = await api.post("/api/routes/accessibility", {
         points,
         mobilityProfile,
-        source: "map-accessibility-review",
+        source: "demo-or-existing-route",
         includeReports: true,
       });
 
@@ -507,22 +580,6 @@ function MapView() {
     } finally {
       setLoadingScore(false);
     }
-  }
-
-  function applyEssentialDestination(destination = selectedEssentialDestination) {
-    if (!destination) return;
-
-    const point = {
-      lat: Number(destination.lat),
-      lng: Number(destination.lng),
-    };
-
-    if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) return;
-
-    setRoutePoint("destination", point);
-    setFocusPoint(point);
-    setMobilityProfile(destination.recommendedMobilityProfile || "default");
-    setRouteMode("origin");
   }
 
   async function calculateRoute() {
@@ -535,7 +592,7 @@ function MapView() {
 
     if (!geoapifyApiKey) {
       setRouteError(
-        "El mapa no está disponible en este momento."
+        "Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local."
       );
       return;
     }
@@ -556,7 +613,7 @@ function MapView() {
       );
 
       if (!response.ok) {
-        throw new Error("El servicio de rutas no respondió correctamente.");
+        throw new Error(`Geoapify respondió ${response.status}`);
       }
 
       const data = await response.json();
@@ -564,7 +621,7 @@ function MapView() {
       const properties = getGeoapifyProperties(data);
 
       if (points.length < 2) {
-        throw new Error("No se encontró una ruta válida entre los puntos seleccionados.");
+        throw new Error("Geoapify no devolvió una ruta válida.");
       }
 
       setRoutePath(points);
@@ -573,7 +630,6 @@ function MapView() {
 
       setRouteSummary({
         distance:
-          accessibility?.googleDistanceLabel ||
           accessibility?.routeLengthLabel ||
           formatDistance(properties.distance),
         duration: accessibility?.durationLabel || formatDuration(properties.time),
@@ -585,7 +641,7 @@ function MapView() {
       setRouteSummary(null);
       setRouteError(
         err.message ||
-          "No se pudo calcular la ruta. Revisa que ambos puntos estén en una zona caminable."
+          "No se pudo calcular la ruta con Geoapify. Revisa la API key y que ambos puntos estén en una zona caminable."
       );
     } finally {
       setLoadingRoute(false);
@@ -609,7 +665,7 @@ function MapView() {
     return (
       <main className="mapPageShell">
         <div className="mapMessage errorBox">
-          El mapa no está disponible en este momento.
+          Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local.
         </div>
       </main>
     );
@@ -617,205 +673,76 @@ function MapView() {
 
   return (
     <main className="mapPageShell">
-      <aside className="mapPanel">
-        <span className="mapBadge">Mapa Vivo</span>
+      <section className="mapPanel mapOverviewPanel">
+        <div className="mapOverviewContent">
+          <span className="mapBadge">Mapa en Vivo</span>
 
-        <h1>Reportes de Accesibilidad</h1>
+          <h1>Reportes de Accesibilidad</h1>
 
-        <p>
-          Consulta barreras reportadas por la comunidad. Selecciona un punto A
-          y un punto B en el mapa para trazar una ruta peatonal y calcular su
-          nivel de accesibilidad.
-        </p>
-
-        <div className="mapStatsGrid">
-          <article>
-            <span>Total</span>
-            <strong>{reports.length}</strong>
-          </article>
-
-          <article>
-            <span>Activos</span>
-            <strong>{activeReports.length}</strong>
-          </article>
-
-          <article>
-            <span>Urgente</span>
-            <strong>{urgentReports.length}</strong>
-          </article>
+          <p>
+            Los marcadores vienen directamente del backend.
+            Selecciona un punto A y un punto B en el mapa para trazar una ruta
+            peatonal con Geoapify y calcular su accesibilidad.
+          </p>
         </div>
 
-        {hotspots.length > 0 && (
-          <section className="hotspotsCard">
-            <div className="hotspotsHeader">
+        <div className="mapOverviewAside">
+          <div className="mapStatsGrid enhancedMapStatsGrid">
+            <article>
+              <span>Total</span>
+              <strong>{reports.length}</strong>
+            </article>
+
+            <article>
+              <span>Activos</span>
+              <strong>{activeReports.length}</strong>
+            </article>
+
+            <article className="statWarning">
+              <span>Alta prioridad</span>
+              <strong>{highPriorityReports.length}</strong>
+            </article>
+
+            <article className="statVerification">
+              <span>Requieren verificación</span>
+              <strong>{verificationReports.length}</strong>
+            </article>
+
+            <article className="statTrust">
+              <span>Baja confianza</span>
+              <strong>{lowTrustReports.length}</strong>
+            </article>
+
+            <article className="statHotspots">
               <span>Zonas críticas</span>
-              <strong>{hotspots.length}</strong>
-            </div>
-
-            {hotspots.map((hotspot) => (
-              <article className="hotspotItem" key={`${hotspot.centerLat}-${hotspot.centerLng}`}>
-                <strong>{hotspot.label}</strong>
-                <span>{hotspot.reportCount} reportes · {hotspot.mainIssueLabel}</span>
-                <small>Prioridad {hotspot.priorityLabel}</small>
-              </article>
-            ))}
-          </section>
-        )}
-
-        <section className="routePlannerCard">
-          <div className="routePlannerHeader">
-            <span>Ruta peatonal</span>
-            <strong>A → B</strong>
+              <strong>{hotspotCount}</strong>
+            </article>
           </div>
 
-          {essentialDestinations.length > 0 && (
-            <div className="essentialDestinationBox">
-              <div className="essentialDestinationTop">
-                <span>Destino esencial</span>
-                <strong>{selectedEssentialDestination?.icon || "📍"}</strong>
-              </div>
+          <div className="mapExecutiveSummary">
+            <strong>Resumen urbano</strong>
 
-              <select
-                value={selectedDestinationKey}
-                onChange={(event) => setSelectedDestinationKey(event.target.value)}
-              >
-                {essentialDestinations.map((destination) => (
-                  <option value={destination.key} key={destination.key}>
-                    {destination.name}
-                  </option>
-                ))}
-              </select>
-
-              {selectedEssentialDestination && (
-                <p>
-                  {selectedEssentialDestination.categoryLabel} · {selectedEssentialDestination.estimatedDemandLabel}. Perfil sugerido: {selectedEssentialDestination.recommendedMobilityProfileLabel}.
-                </p>
-              )}
-
-              <button
-                type="button"
-                className="mapMiniButton"
-                onClick={() => applyEssentialDestination()}
-              >
-                Usar como destino B
-              </button>
-            </div>
-          )}
-
-          <div
-            className="routeModeToggle"
-            aria-label="Seleccionar punto de ruta"
-          >
-            <button
-              type="button"
-              className={routeMode === "origin" ? "active" : ""}
-              onClick={() => setRouteMode("origin")}
-            >
-              Elegir punto A
-            </button>
-
-            <button
-              type="button"
-              className={routeMode === "destination" ? "active" : ""}
-              onClick={() => setRouteMode("destination")}
-            >
-              Elegir punto B
-            </button>
+            {hasReports ? (
+              <p>
+                Actualmente hay {activeReports.length} reportes activos,{" "}
+                {highPriorityReports.length} de alta prioridad
+                {criticalReports.length > 0
+                  ? `, ${criticalReports.length} críticos`
+                  : ""}{" "}
+                y {verificationReports.length} que requieren verificación
+                comunitaria.
+                {hotspotCount > 0
+                  ? ` También se detectaron ${hotspotCount} zonas críticas.`
+                  : " No se detectaron zonas críticas por ahora."}
+              </p>
+            ) : (
+              <p>
+                Aún no hay suficientes reportes para generar un resumen urbano.
+              </p>
+            )}
           </div>
-
-          <div className="routePointList">
-            <div>
-              <span>Punto A</span>
-              <strong>{formatPoint(routePoints.origin)}</strong>
-            </div>
-
-            <div>
-              <span>Punto B</span>
-              <strong>{formatPoint(routePoints.destination)}</strong>
-            </div>
-          </div>
-
-          <label className="routeProfileField">
-            <span>Perfil de movilidad</span>
-            <select
-              value={mobilityProfile}
-              onChange={(event) => {
-                setMobilityProfile(event.target.value);
-                setRouteScore(null);
-              }}
-            >
-              {mobilityProfiles.map((profile) => (
-                <option value={profile.value} key={profile.value}>
-                  {profile.label}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <p className="routeHint">
-            Da clic en el mapa para colocar el punto activo. También puedes
-            arrastrar los marcadores A y B.
-          </p>
-
-          <div className="routeButtonGrid">
-            <button
-              type="button"
-              className="mapPrimaryButton"
-              onClick={calculateRoute}
-              disabled={!routeReady || loadingRoute || loadingScore}
-            >
-              {loadingRoute
-                ? "Calculando..."
-                : loadingScore
-                ? "Analizando..."
-                : "Trazar ruta"}
-            </button>
-
-            <button
-              type="button"
-              className="mapOutlineButton"
-              onClick={clearRoute}
-              disabled={!routePoints.origin && !routePoints.destination}
-            >
-              Limpiar
-            </button>
-          </div>
-
-          {routeSummary && (
-            <div className="routeSummaryCard">
-              <strong>{routeSummary.distance}</strong>
-              <span>{routeSummary.duration}</span>
-              <p>{routeScoreMessage}</p>
-            </div>
-          )}
-
-          {routeError && <div className="routeError">{routeError}</div>}
-        </section>
-
-        <button
-          type="button"
-          className="mapSecondaryButton"
-          onClick={loadReports}
-          disabled={loadingReports}
-        >
-          {loadingReports ? "Actualizando..." : "Actualizar reportes"}
-        </button>
-
-        <button
-          type="button"
-          className="mapSecondaryButton"
-          onClick={calculateDemoScore}
-          disabled={loadingScore || reports.length === 0}
-        >
-          {loadingScore
-            ? "Calculando..."
-            : routePath.length > 0
-            ? "Recalcular accesibilidad"
-            : "Evaluar accesibilidad"}
-        </button>
-
-        {error && <div className="mapError">{error}</div>}
-      </aside>
+        </div>
+      </section>
 
       <section className="mapCanvasWrap">
         <MapContainer
@@ -867,82 +794,6 @@ function MapView() {
             />
           )}
 
-          {hotspots.map((hotspot) => {
-            const position = {
-              lat: Number(hotspot.centerLat),
-              lng: Number(hotspot.centerLng),
-            };
-
-            if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) {
-              return null;
-            }
-
-            return (
-              <CircleMarker
-                key={`hotspot-${hotspot.centerLat}-${hotspot.centerLng}`}
-                center={toLeafletLatLng(position)}
-                radius={Math.min(24, 10 + Number(hotspot.reportCount || 0) * 3)}
-                pathOptions={{
-                  color: hotspot.severityColor || "#f97316",
-                  fillColor: hotspot.severityColor || "#f97316",
-                  fillOpacity: 0.18,
-                  weight: 2,
-                }}
-                eventHandlers={{
-                  click: () => setFocusPoint(position),
-                }}
-              >
-                <Popup>
-                  <article className="mapInfoCard">
-                    <h2>{hotspot.label}</h2>
-                    <p>{hotspot.reportCount} reportes cercanos. Problema principal: {hotspot.mainIssueLabel}.</p>
-                    <div className="mapInfoMeta">
-                      <span>Prioridad {hotspot.priorityLabel}</span>
-                      <span>Severidad prom. {hotspot.averageSeverity}</span>
-                    </div>
-                  </article>
-                </Popup>
-              </CircleMarker>
-            );
-          })}
-
-          {essentialDestinations.map((destination) => {
-            const position = {
-              lat: Number(destination.lat),
-              lng: Number(destination.lng),
-            };
-
-            if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) {
-              return null;
-            }
-
-            return (
-              <Marker
-                key={`destination-${destination.key}`}
-                position={toLeafletLatLng(position)}
-                icon={getRoutePointIcon(destination.icon || "★")}
-                eventHandlers={{
-                  click: () => {
-                    setSelectedDestinationKey(destination.key);
-                    setFocusPoint(position);
-                  },
-                }}
-              >
-                <Popup>
-                  <article className="mapInfoCard">
-                    <h2>{destination.name}</h2>
-                    <p>{destination.whyImportant}</p>
-                    <div className="mapInfoMeta">
-                      <span>{destination.categoryLabel}</span>
-                      <span>{destination.estimatedDemandLabel}</span>
-                      <span>{destination.recommendedMobilityProfileLabel}</span>
-                    </div>
-                  </article>
-                </Popup>
-              </Marker>
-            );
-          })}
-
           {reports.map((report) => {
             const position = getMarkerPosition(report);
 
@@ -955,7 +806,7 @@ function MapView() {
 
             return (
               <Marker
-                key={report.id}
+                key={report.id || `${position.lat}-${position.lng}`}
                 position={toLeafletLatLng(position)}
                 icon={getReportIcon(report)}
                 eventHandlers={{
@@ -974,11 +825,44 @@ function MapView() {
               eventHandlers={{
                 remove: () => setSelectedReport(null),
               }}
-            >
-              <article className="mapInfoCard">
-                <h2>{selectedReport.title || selectedReport.typeLabel}</h2>
+          >
+            <article className="mapInfoCard">
+                <h2>{selectedReport.title || selectedReport.typeLabel || "Reporte"}</h2>
 
-                <p>{selectedReport.description}</p>
+                {selectedReport.description && (
+                  <p>{selectedReport.description}</p>
+                )}
+
+                {(selectedReport.priorityLabel ||
+                  selectedReport.trustLabel ||
+                  selectedReport.requiresVerification) && (
+                  <div className="mapInfoBadges">
+                    {selectedReport.priorityLabel && (
+                      <span
+                        className={getPriorityClass(
+                          selectedReport.priorityLevel
+                        )}
+                      >
+                        Prioridad: {selectedReport.priorityLabel}
+                      </span>
+                    )}
+
+                    {selectedReport.trustLabel && (
+                      <span
+                        className={getTrustClass(selectedReport.trustLevel)}
+                      >
+                        {selectedReport.trustLabel}
+                      </span>
+                    )}
+
+                    {selectedReport.requiresVerification && (
+                      <span className="verificationBadge">
+                        {selectedReport.verificationLabel ||
+                          "Requiere verificación"}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {selectedReport.imageUrl && (
                   <img
@@ -988,13 +872,48 @@ function MapView() {
                 )}
 
                 <div className="mapInfoMeta">
-                  {selectedReport.demoAreaLabel && <span>Área de interés: {selectedReport.demoAreaLabel}</span>}
-                  <span>Severidad: {selectedReport.severityLabel}</span>
-                  <span>{selectedReport.statusLabel}</span>
-                  <span>{selectedReport.trustLabel}</span>
-                  <span>Prioridad {selectedReport.priorityLabel}</span>
-                  {selectedReport.requiresVerification && <span>Requiere verificación</span>}
-                  <span>{selectedReport.createdAtDisplay}</span>
+                  {selectedReport.severityLabel && (
+                    <span>Severidad: {selectedReport.severityLabel}</span>
+                  )}
+                  {selectedReport.statusLabel && (
+                    <span>{selectedReport.statusLabel}</span>
+                  )}
+                  {selectedReport.createdAtDisplay && (
+                    <span>{selectedReport.createdAtDisplay}</span>
+                  )}
+                </div>
+
+                <div className="mapInfoValidation">
+                  <strong>Validación comunitaria</strong>
+
+                  {selectedReport.validationSummary ? (
+                    <p>{selectedReport.validationSummary}</p>
+                  ) : (
+                    <p>
+                      Confirmaciones: {selectedReport.confirmations ?? 0} ·
+                      Rechazos: {selectedReport.rejections ?? 0}
+                    </p>
+                  )}
+                </div>
+
+                <div className="mapInfoMetaGrid">
+                  <span>
+                    Imagen:{" "}
+                    {formatBooleanLabel(
+                      selectedReport.hasImage ||
+                        Boolean(selectedReport.imageUrl)
+                    )}
+                  </span>
+                  <span>
+                    Gemini: {formatBooleanLabel(selectedReport.geminiAnalyzed)}
+                  </span>
+
+                  {selectedReport.geminiConfidence !== undefined &&
+                    selectedReport.geminiConfidence !== null && (
+                      <span>
+                        Confianza Gemini: {selectedReport.geminiConfidence}
+                      </span>
+                    )}
                 </div>
               </article>
             </Popup>
@@ -1015,60 +934,453 @@ function MapView() {
               pathOptions={{ color: "#dc2626" }}
             />
           )}
+
+          {hotspots.map((hotspot) => {
+            const lat = Number(hotspot.centerLat);
+            const lng = Number(hotspot.centerLng);
+
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+            const color = getHotspotColor(hotspot.priorityLevel);
+
+            return (
+              <CircleMarker
+                key={`${lat}-${lng}-${hotspot.mainIssue || "hotspot"}`}
+                center={[lat, lng]}
+                radius={getHotspotRadius(hotspot.reportCount)}
+                pathOptions={{
+                  color,
+                  fillColor: color,
+                  fillOpacity: 0.28,
+                  opacity: 0.9,
+                  weight: 2,
+                }}
+                eventHandlers={{
+                  click: () => {
+                    setSelectedHotspot(hotspot);
+                    setFocusPoint({ lat, lng });
+                  },
+                }}
+              >
+                <Popup>
+                  <article className="hotspotPopup">
+                    <h3>{hotspot.mainIssueLabel || "Zona crítica"}</h3>
+
+                    <span className={getPriorityClass(hotspot.priorityLevel)}>
+                      {hotspot.priorityLabel || "Prioridad no disponible"}
+                    </span>
+
+                    <p>{hotspot.reportCount || 0} reportes relacionados</p>
+
+                    {Number.isFinite(Number(hotspot.averageSeverity)) && (
+                      <p>
+                        Severidad promedio:{" "}
+                        {Number(hotspot.averageSeverity).toFixed(1)}
+                      </p>
+                    )}
+                  </article>
+                </Popup>
+              </CircleMarker>
+            );
+          })}
         </MapContainer>
+      </section>
 
-        {routeScore && (
-          <section
-            className={`scoreCard mapScorePanel ${getLevelClass(
-              routeScore.level
-            )}`}
+      <section className="mapBottomPanel">
+        <section className="routePlannerCard">
+          <div className="routePlannerHeader">
+            <span>Ruta peatonal</span>
+            <strong>A → B</strong>
+          </div>
+
+          <div
+            className="routeModeToggle"
+            aria-label="Seleccionar punto de ruta"
           >
-            <div className="scoreOverview">
-              <div className="scorePercentBlock">
-                <strong>{routeAccessibilityPercent}%</strong>
-                <span>accesible</span>
+            <button
+              type="button"
+              className={routeMode === "origin" ? "active" : ""}
+              onClick={() => setRouteMode("origin")}
+            >
+              Elegir punto A
+            </button>
+
+            <button
+              type="button"
+              className={routeMode === "destination" ? "active" : ""}
+              onClick={() => setRouteMode("destination")}
+            >
+              Elegir punto B
+            </button>
+          </div>
+
+          <div className="routePointList">
+            <div>
+              <span>Punto A</span>
+              <strong>{formatPoint(routePoints.origin)}</strong>
+            </div>
+
+            <div>
+              <span>Punto B</span>
+              <strong>{formatPoint(routePoints.destination)}</strong>
+            </div>
+          </div>
+
+          <p className="routeHint">
+            Da clic en el mapa para colocar el punto activo. También puedes
+            arrastrar los marcadores A y B.
+          </p>
+
+          <div className="mobilityProfileField">
+            <label htmlFor="mobility-profile">Perfil de movilidad</label>
+
+            <select
+              id="mobility-profile"
+              value={mobilityProfile}
+              onChange={(e) => setMobilityProfile(e.target.value)}
+              disabled={loadingRoute || loadingScore}
+            >
+              {mobilityProfiles.map((profile) => (
+                <option value={profile.value} key={profile.value}>
+                  {profile.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="routeButtonGrid">
+            <button
+              type="button"
+              className="mapPrimaryButton"
+              onClick={calculateRoute}
+              disabled={!routeReady || loadingRoute || loadingScore}
+            >
+              {loadingRoute
+                ? "Calculando..."
+                : loadingScore
+                ? "Analizando..."
+                : "Trazar ruta"}
+            </button>
+
+            <button
+              type="button"
+              className="mapOutlineButton"
+              onClick={clearRoute}
+              disabled={!routePoints.origin && !routePoints.destination}
+            >
+              Limpiar
+            </button>
+          </div>
+
+          {routeSummary && (
+            <div className="routeSummaryCard">
+              <strong>{routeSummary.distance}</strong>
+              <span>{routeSummary.duration}</span>
+            </div>
+          )}
+
+          {routeError && <div className="routeError">{routeError}</div>}
+        </section>
+
+        <section className="hotspotsPanel">
+          <div className="hotspotsHeader">
+            <div>
+              <span>Zonas críticas</span>
+              <h2>Problemas detectados por concentración</h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={loadHotspots}
+              disabled={loadingHotspots}
+            >
+              {loadingHotspots ? "Actualizando..." : "Actualizar"}
+            </button>
+          </div>
+
+          {hotspotsError && <p className="hotspotsError">{hotspotsError}</p>}
+
+          {!loadingHotspots && hotspots.length === 0 && !hotspotsError && (
+            <p className="hotspotsEmpty">
+              No se detectaron zonas críticas por ahora.
+            </p>
+          )}
+
+          <div className="hotspotList">
+            {hotspots.map((hotspot) => {
+              const lat = Number(hotspot.centerLat);
+              const lng = Number(hotspot.centerLng);
+
+              return (
+                <button
+                  type="button"
+                  className="hotspotItem"
+                  key={`${lat}-${lng}-${
+                    hotspot.mainIssue || "hotspot-item"
+                  }`}
+                  onClick={() => {
+                    setSelectedHotspot(hotspot);
+
+                    if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                      setFocusPoint({ lat, lng });
+                    }
+                  }}
+                >
+                  <div>
+                    <strong>{hotspot.mainIssueLabel || "Zona crítica"}</strong>
+                    <span>
+                      {hotspot.reportCount || 0} reportes relacionados
+                    </span>
+                  </div>
+
+                  <span className={getPriorityClass(hotspot.priorityLevel)}>
+                    {hotspot.priorityLabel || "Sin prioridad"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {selectedHotspot && (
+          <section className="selectedHotspotCard">
+            <div className="selectedHotspotHeader">
+              <div>
+                <span>Zona seleccionada</span>
+                <h3>{selectedHotspot.mainIssueLabel || "Zona crítica"}</h3>
               </div>
 
-              <ul className="scoreBulletList">
-                <li>{routeImpactLabel}</li>
-                <li>{routeScore.mobilityProfileLabel || "Perfil general"}</li>
-                <li>{routeIssueText}</li>
-              </ul>
+              <span className={getPriorityClass(selectedHotspot.priorityLevel)}>
+                {selectedHotspot.priorityLabel || "Sin prioridad"}
+              </span>
+            </div>
 
-              <div className="routeExplanationBox">
-                <strong>Por qué recibió este score</strong>
-                <p>{routeScore.explanation || routeScoreMessage}</p>
-              </div>
+            <div className="hotspotMeta">
+              <span>{selectedHotspot.reportCount || 0} reportes</span>
 
-              <div className="routeRecommendationBox">
-                <strong>Antes de salir</strong>
-                <p>{routeScore.beforeLeavingRecommendation}</p>
-              </div>
+              {Number.isFinite(Number(selectedHotspot.averageSeverity)) && (
+                <span>
+                  Severidad promedio:{" "}
+                  {Number(selectedHotspot.averageSeverity).toFixed(1)}
+                </span>
+              )}
+            </div>
 
-              {routeScore.impactReports?.length > 0 && (
-                <div className="routeImpactMiniList">
-                  {routeScore.impactReports.slice(0, 4).map((impact) => (
-                    <button
-                      type="button"
-                      key={impact.id}
-                      onClick={() => {
-                        const report = reports.find((item) => item.id === impact.id);
-                        if (report) {
-                          setSelectedReport(report);
-                          setFocusPoint(getMarkerPosition(report));
-                        }
-                      }}
+            {Array.isArray(selectedHotspot.reports) &&
+              selectedHotspot.reports.length > 0 && (
+                <div className="hotspotRelatedReports">
+                  {selectedHotspot.reports.map((report, index) => (
+                    <article
+                      className="hotspotRelatedReport"
+                      key={report.id || `${report.typeLabel || "report"}-${index}`}
                     >
-                      <span>{impact.markerIcon}</span>
-                      <strong>{impact.typeLabel}</strong>
-                      <small>{impact.distanceLabel} · {impact.trustLabel}</small>
-                    </button>
+                      <strong>{report.title || report.typeLabel || "Reporte"}</strong>
+
+                      {report.description && <p>{report.description}</p>}
+
+                      <div className="hotspotReportBadges">
+                        {report.priorityLabel && (
+                          <span
+                            className={getPriorityClass(report.priorityLevel)}
+                          >
+                            {report.priorityLabel}
+                          </span>
+                        )}
+
+                        {report.trustLabel && (
+                          <span className={getTrustClass(report.trustLevel)}>
+                            {report.trustLabel}
+                          </span>
+                        )}
+
+                        {report.requiresVerification && (
+                          <span className="verificationBadge">
+                            {report.verificationLabel ||
+                              "Requiere verificación"}
+                          </span>
+                        )}
+                      </div>
+                    </article>
                   ))}
                 </div>
               )}
-            </div>
           </section>
         )}
+
+        <div className="mapBottomActions">
+          <button
+            type="button"
+            className="mapSecondaryButton"
+            onClick={loadReports}
+            disabled={loadingReports}
+          >
+            {loadingReports ? "Actualizando..." : "Actualizar reportes"}
+          </button>
+
+          <button
+            type="button"
+            className="mapSecondaryButton"
+            onClick={calculateDemoScore}
+            disabled={loadingScore || reports.length === 0}
+          >
+            {loadingScore
+              ? "Calculando..."
+              : routePath.length > 0
+              ? "Recalcular accesibilidad"
+              : "Score demo"}
+          </button>
+        </div>
+
+        {routeScore && (
+          <>
+            <section
+              className={`routeExplanationCard ${getLevelClass(
+                routeScore.level
+              )}`}
+            >
+              <div className="routeExplanationHeader">
+                <div>
+                  <span className="routeExplanationLabel">
+                    Accesibilidad de la ruta
+                  </span>
+                  <strong>{routeAccessibilityPercent}%</strong>
+                </div>
+
+                {routeScore.levelLabel && (
+                  <span className="routeLevelBadge">
+                    {routeScore.levelLabel}
+                  </span>
+                )}
+              </div>
+
+              {routeScore.mobilityProfileLabel && (
+                <p className="routeProfileLabel">
+                  Perfil evaluado:{" "}
+                  <strong>{routeScore.mobilityProfileLabel}</strong>
+                </p>
+              )}
+
+              <p className="routeExplanationText">
+                {getRouteExplanation(routeScore, routeAccessibilityPercent)}
+              </p>
+
+              <div className="routeExplanationMeta">
+                {routeScore.nearbyReports != null &&
+                  Number.isFinite(Number(routeScore.nearbyReports)) && (
+                    <span>{routeScore.nearbyReports} reportes cercanos</span>
+                  )}
+
+                {routeScore.penalizedReports != null &&
+                  Number.isFinite(Number(routeScore.penalizedReports)) && (
+                    <span>
+                      {routeScore.penalizedReports} reportes penalizan la ruta
+                    </span>
+                  )}
+
+                <span>{routeImpactLabel}</span>
+              </div>
+            </section>
+
+            {routeScore.beforeLeavingRecommendation && (
+              <section className="beforeLeavingCard">
+                <strong>Antes de salir</strong>
+                <p>{routeScore.beforeLeavingRecommendation}</p>
+              </section>
+            )}
+
+            {issueItems.length > 0 && (
+              <section className="issueBreakdownCard">
+                <h3>Problemas detectados</h3>
+
+                <ul className="issueBreakdownList">
+                  {issueItems.map((item, index) => (
+                    <li
+                      className="issueBreakdownItem"
+                      key={`${item.label}-${index}`}
+                    >
+                      <span>{item.label}</span>
+                      <strong>{item.count}</strong>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {Array.isArray(routeScore?.impactReports) &&
+              routeScore.impactReports.length > 0 && (
+                <section className="impactReportsSection">
+                  <div className="impactReportsHeader">
+                    <h3>Reportes que afectan esta ruta</h3>
+                    <span>{routeScore.impactReports.length} detectados</span>
+                  </div>
+
+                  <div className="impactReportsGrid">
+                    {routeScore.impactReports.map((report, index) => (
+                      <article
+                        className="impactReportCard"
+                        key={report.id || `${report.typeLabel || "report"}-${index}`}
+                      >
+                        {report.imageUrl && (
+                          <img
+                            src={getImageUrl(report.imageUrl)}
+                            alt="Reporte que afecta la ruta"
+                          />
+                        )}
+
+                        <div className="impactReportContent">
+                          <strong>
+                            {report.title || report.typeLabel || "Reporte"}
+                          </strong>
+
+                          {report.description && <p>{report.description}</p>}
+
+                          <div className="impactReportBadges">
+                            {report.severityLabel && (
+                              <span className="severityBadge">
+                                {report.severityLabel}
+                              </span>
+                            )}
+
+                            {report.priorityLabel && (
+                              <span
+                                className={getPriorityClass(
+                                  report.priorityLevel
+                                )}
+                              >
+                                {report.priorityLabel}
+                              </span>
+                            )}
+
+                            {report.trustLabel && (
+                              <span className={getTrustClass(report.trustLevel)}>
+                                {report.trustLabel}
+                              </span>
+                            )}
+
+                            {report.requiresVerification && (
+                              <span className="verificationBadge">
+                                {report.verificationLabel ||
+                                  "Requiere verificación"}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="impactReportMeta">
+                            <span>
+                              Confirmaciones: {report.confirmations ?? 0}
+                            </span>
+                            <span>Rechazos: {report.rejections ?? 0}</span>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+          </>
+        )}
+
+        {error && <div className="mapError">{error}</div>}
       </section>
     </main>
   );
