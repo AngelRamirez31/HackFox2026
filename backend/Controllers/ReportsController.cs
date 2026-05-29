@@ -129,7 +129,10 @@ public class ReportsController : ControllerBase
                 image = new[] { "image", "foto" },
                 useGemini = new[] { "useGemini", "usarGemini", "analyzeImage", "analizarImagen" }
             },
-            geminiAssistedEndpoint = "/api/reports/analyze-and-create"
+            geminiAssistedEndpoint = "/api/reports/analyze-and-create",
+            quickReportEndpoint = "/api/reports/quick",
+            authoritySummaryEndpointPattern = "/api/reports/{id}/authority-summary",
+            computedFields = new[] { "trustScore", "trustLabel", "requiresVerification", "validationSummary", "priorityScore", "priorityLabel", "authoritySummary" }
         });
     }
 
@@ -216,6 +219,45 @@ public class ReportsController : ControllerBase
         }
 
         return CreatedAtAction(nameof(GetReportById), new { id = result.Response!.Report.Id }, result.Response);
+    }
+
+    [HttpPost("quick")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(LocalFileStorageService.MaxImageSizeBytes + 1024 * 1024)]
+    public async Task<ActionResult<ReportCreationResponse>> CreateQuickReport([FromForm] CreateReportRequest request, CancellationToken cancellationToken)
+    {
+        var result = await CreateReportCoreAsync(request, useGemini: true, requireImageForGemini: true, cancellationToken);
+        if (!result.Success)
+        {
+            return StatusCode(result.StatusCode, new { message = result.Error });
+        }
+
+        return CreatedAtAction(nameof(GetReportById), new { id = result.Response!.Report.Id }, result.Response);
+    }
+
+    [HttpGet("{id:int}/authority-summary")]
+    public async Task<ActionResult> GetAuthoritySummary(int id)
+    {
+        var report = await _reports.GetByIdAsync(id);
+        if (report is null)
+        {
+            return NotFound(new { message = "Reporte no encontrado." });
+        }
+
+        var response = ReportMapper.ToResponse(report);
+        return Ok(new
+        {
+            response.Id,
+            response.Type,
+            response.TypeLabel,
+            response.PriorityScore,
+            response.PriorityLabel,
+            response.TrustScore,
+            response.TrustLabel,
+            response.RequiresVerification,
+            response.ValidationSummary,
+            response.AuthoritySummary
+        });
     }
 
     [HttpPut("{id:int}/status")]
@@ -370,7 +412,11 @@ public class ReportsController : ControllerBase
             ImageUrl = imageResult.ImageUrl,
             ImageStorageProvider = imageResult.StorageProvider,
             ImageStoragePath = imageResult.StoragePath,
-            ImageContentType = imageResult.ContentType
+            ImageContentType = imageResult.ContentType,
+            GeminiAnalyzed = analysis is not null,
+            GeminiConfidence = analysis?.Confidence,
+            GeminiSummary = analysis?.Summary,
+            GeminiAccessibilityImpact = analysis?.AccessibilityImpact
         };
 
         try

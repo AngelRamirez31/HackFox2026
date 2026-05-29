@@ -444,3 +444,86 @@
     padding: 24px;
   }
 }
+.statsGrid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.priorityBadge,
+.trustBadge,
+.verifyBadge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.priorityBadge.critical {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.priorityBadge.high {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.priorityBadge.medium {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.priorityBadge.low,
+.trustBadge {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.verifyBadge {
+  background-color: #f3e8ff;
+  color: #7e22ce;
+}
+
+.authoritySummaryBox {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+
+.authoritySummaryBox strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.authoritySummaryBox p {
+  color: #475569;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.reportActions a {
+  text-decoration: none;
+  background-color: #0f172a;
+  color: white;
+  border-radius: 14px;
+  padding: 11px 14px;
+  font-weight: 900;
+  transition: all 0.2s ease;
+}
+
+.reportActions a:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 1100px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}

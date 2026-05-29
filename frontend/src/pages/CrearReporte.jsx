@@ -64,6 +64,7 @@ function CrearReporte() {
   const [resultado, setResultado] = useState(null);
   const [config, setConfig] = useState(null);
   const [cargandoConfig, setCargandoConfig] = useState(true);
+  const [modoReporte, setModoReporte] = useState("rapido");
 
   const fotoInputRef = useRef(null);
 
@@ -191,6 +192,11 @@ function CrearReporte() {
       return;
     }
 
+    if (modoReporte === "rapido" && !foto) {
+      setMensaje("El reporte rápido necesita foto para que Gemini sugiera los datos.");
+      return;
+    }
+
     if (!foto && (!tipo || !descripcion)) {
       setMensaje("Sin foto debes completar el tipo de barrera y la descripción.");
       return;
@@ -213,7 +219,7 @@ function CrearReporte() {
     setMensaje(foto ? "Analizando imagen con Gemini y guardando reporte..." : "Guardando reporte...");
 
     try {
-      const endpoint = foto ? "/api/reports/analyze-and-create" : "/api/reports";
+      const endpoint = foto && modoReporte === "rapido" ? "/api/reports/quick" : foto ? "/api/reports/analyze-and-create" : "/api/reports";
       const response = await api.post(endpoint, formData);
       const payload = response.data;
       const report = payload.report || payload;
@@ -256,11 +262,38 @@ function CrearReporte() {
 
       <section className="reportLayout">
         <form className="reportForm" onSubmit={enviarReporte}>
+          <div className="reportModeSwitch" aria-label="Modo de reporte">
+            <button
+              type="button"
+              className={modoReporte === "rapido" ? "active" : ""}
+              onClick={() => setModoReporte("rapido")}
+              disabled={enviando}
+            >
+              Reporte rápido
+              <span>Foto + ubicación + Gemini</span>
+            </button>
+            <button
+              type="button"
+              className={modoReporte === "manual" ? "active" : ""}
+              onClick={() => setModoReporte("manual")}
+              disabled={enviando}
+            >
+              Reporte manual
+              <span>Completar datos a mano</span>
+            </button>
+          </div>
+
+          <div className="quickReportNotice">
+            {modoReporte === "rapido"
+              ? "Sube una foto y usa tu ubicación. Gemini propondrá tipo, severidad, descripción e impacto de accesibilidad desde el backend."
+              : "Puedes completar el reporte manualmente. Si también subes foto, Gemini puede complementar los datos sin reemplazar lo que escribas."}
+          </div>
+
           <div className="formGroup">
             <label>Tipo de barrera</label>
             <select value={tipo} onChange={(e) => setTipo(e.target.value)} disabled={enviando}>
               <option value="">
-                {cargandoConfig ? "Cargando opciones..." : "Selecciona una opción o deja que Gemini sugiera"}
+                {cargandoConfig ? "Cargando opciones..." : modoReporte === "rapido" ? "Opcional: Gemini puede sugerirlo" : "Selecciona una opción"}
               </option>
 
               {reportTypes.map((option) => (
@@ -299,7 +332,7 @@ function CrearReporte() {
             <textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="La banqueta está rota y una silla de ruedas no puede pasar. Si subes foto, Gemini puede sugerirla."
+              placeholder={modoReporte === "rapido" ? "Opcional. Gemini puede sugerir la descripción desde la foto." : "La banqueta está rota y una silla de ruedas no puede pasar."}
               rows="5"
               disabled={enviando}
             />
@@ -333,8 +366,8 @@ function CrearReporte() {
                   )}
 
                   <div className="photoUploadCopy">
-                    <strong>Subir o Tomar Foto</strong>
-                    <span>Máximo {maxImageSize} MB. Gemini puede sugerir el tipo de barrera.</span>
+                    <strong>{modoReporte === "rapido" ? "Tomar foto para reporte rápido" : "Subir o tomar foto"}</strong>
+                    <span>Máximo {maxImageSize} MB. Gemini sugiere tipo, severidad, descripción e impacto.</span>
                   </div>
 
                   <input
@@ -394,7 +427,7 @@ function CrearReporte() {
           {mensaje && <p className={mensajeEsError ? "message errorMessage" : "message"}>{mensaje}</p>}
 
           <button type="submit" className="submitButton" disabled={enviando}>
-            {enviando ? "Enviando..." : foto ? "Analizar y enviar reporte" : "Enviar reporte"}
+            {enviando ? "Enviando..." : modoReporte === "rapido" ? "Crear reporte rápido" : foto ? "Analizar y enviar reporte" : "Enviar reporte"}
           </button>
 
           {resultado && (
@@ -406,6 +439,8 @@ function CrearReporte() {
                 <span>ID: {resultado.report.id}</span>
                 <span>{resultado.report.typeLabel}</span>
                 <span>Severidad: {resultado.report.severityLabel}</span>
+                <span>{resultado.report.trustLabel}</span>
+                <span>Prioridad: {resultado.report.priorityLabel}</span>
               </div>
 
               {resultado.vision && (
@@ -413,6 +448,7 @@ function CrearReporte() {
                   <strong>Gemini detectó:</strong>
                   <p>{resultado.vision.summary}</p>
                   <small>{resultado.vision.accessibilityImpact}</small>
+                  <small>Confianza Gemini: {Math.round((resultado.vision.confidence || 0) * 100)}%</small>
                 </div>
               )}
 

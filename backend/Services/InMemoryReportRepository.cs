@@ -10,10 +10,10 @@ public class InMemoryReportRepository : IReportRepository
 
     public InMemoryReportRepository()
     {
-        Seed("sidewalk_damage", "Banqueta rota cerca del cruce peatonal.", 32.514947, -117.038247, 3);
-        Seed("blocked_ramp", "Rampa bloqueada por vehículo estacionado.", 32.515980, -117.034608, 3);
-        Seed("missing_ramp", "Cruce sin rampa visible para silla de ruedas.", 32.510182, -117.036537, 2);
-        Seed("construction", "Obra invadiendo parte de la banqueta.", 32.519156, -117.026355, 2);
+        Seed("sidewalk_damage", "Banqueta rota cerca del cruce peatonal.", 32.514947, -117.038247, 3, 2, 0, -2);
+        Seed("blocked_ramp", "Rampa bloqueada por vehículo estacionado.", 32.515980, -117.034608, 3, 3, 0, -1);
+        Seed("missing_ramp", "Cruce sin rampa visible para silla de ruedas.", 32.510182, -117.036537, 2, 1, 0, -5);
+        Seed("construction", "Obra invadiendo parte de la banqueta.", 32.519156, -117.026355, 2, 0, 0, -8);
     }
 
     public Task<IReadOnlyList<Report>> GetAllAsync()
@@ -58,6 +58,7 @@ public class InMemoryReportRepository : IReportRepository
         lock (report)
         {
             report.Confirmations++;
+            report.LastConfirmedAt = DateTime.UtcNow;
         }
 
         return Task.FromResult<Report?>(report);
@@ -73,14 +74,16 @@ public class InMemoryReportRepository : IReportRepository
         lock (report)
         {
             report.Rejections++;
+            report.LastRejectedAt = DateTime.UtcNow;
         }
 
         return Task.FromResult<Report?>(report);
     }
 
-    private void Seed(string type, string description, double latitude, double longitude, int severity)
+    private void Seed(string type, string description, double latitude, double longitude, int severity, int confirmations, int rejections, int daysOffset)
     {
         var id = Interlocked.Increment(ref _nextId);
+        var createdAt = DateTime.UtcNow.AddDays(daysOffset).AddHours(-id);
         _reports[id] = new Report
         {
             Id = id,
@@ -90,7 +93,11 @@ public class InMemoryReportRepository : IReportRepository
             Longitude = longitude,
             Severity = severity,
             Status = "active",
-            CreatedAt = DateTime.UtcNow.AddHours(-id)
+            Confirmations = confirmations,
+            Rejections = rejections,
+            CreatedAt = createdAt,
+            LastConfirmedAt = confirmations > 0 ? createdAt.AddHours(3) : null,
+            LastRejectedAt = rejections > 0 ? createdAt.AddHours(4) : null
         };
     }
 }

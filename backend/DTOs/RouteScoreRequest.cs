@@ -22,6 +22,9 @@ public class RouteScoreRequest
     public string? TravelMode { get; set; }
 
     [StringLength(40)]
+    public string? MobilityProfile { get; set; }
+
+    [StringLength(40)]
     public string? Source { get; set; }
 
     public bool IncludeReports { get; set; } = true;

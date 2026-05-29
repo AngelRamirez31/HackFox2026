@@ -32,15 +32,20 @@ public class StatsController : ControllerBase
             .Select(pair => pair.Key)
             .FirstOrDefault() ?? "none";
 
+        var activeReports = reports.Where(report => ReportRules.Normalize(report.Status) == "active").ToList();
+
         return Ok(new StatsResponse
         {
             TotalReports = reports.Count,
-            ActiveReports = reports.Count(report => report.Status == "active"),
-            ResolvedReports = reports.Count(report => report.Status == "resolved"),
-            RejectedReports = reports.Count(report => report.Status == "rejected"),
-            HighSeverityReports = reports.Count(report => report.Severity == 3 && report.Status == "active"),
-            MediumSeverityReports = reports.Count(report => report.Severity == 2 && report.Status == "active"),
-            LowSeverityReports = reports.Count(report => report.Severity == 1 && report.Status == "active"),
+            ActiveReports = activeReports.Count,
+            ResolvedReports = reports.Count(report => ReportRules.Normalize(report.Status) == "resolved"),
+            RejectedReports = reports.Count(report => ReportRules.Normalize(report.Status) == "rejected"),
+            HighSeverityReports = activeReports.Count(report => report.Severity == 3),
+            MediumSeverityReports = activeReports.Count(report => report.Severity == 2),
+            LowSeverityReports = activeReports.Count(report => report.Severity == 1),
+            RequiresVerificationReports = activeReports.Count(ReportIntelligenceRules.RequiresVerification),
+            HighTrustReports = activeReports.Count(report => ReportIntelligenceRules.CalculateTrustScore(report) >= 75),
+            CriticalPriorityReports = activeReports.Count(report => ReportIntelligenceRules.CalculatePriorityScore(report) >= 85),
             MostCommonType = mostCommonType,
             MostCommonTypeLabel = mostCommonType == "none" ? "Sin reportes" : ReportRules.GetTypeLabel(mostCommonType),
             ReportsByType = reportsByType,

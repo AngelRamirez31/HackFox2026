@@ -47,6 +47,7 @@ public class DemoReportSeeder
                 Severity = 3,
                 Status = "active",
                 Confirmations = 6,
+                LastConfirmedAt = DateTime.UtcNow.AddHours(-2),
                 CreatedAt = DateTime.UtcNow.AddHours(-8)
             },
             new Report
@@ -58,6 +59,7 @@ public class DemoReportSeeder
                 Severity = 3,
                 Status = "active",
                 Confirmations = 4,
+                LastConfirmedAt = DateTime.UtcNow.AddHours(-1),
                 CreatedAt = DateTime.UtcNow.AddHours(-6)
             },
             new Report
@@ -69,6 +71,7 @@ public class DemoReportSeeder
                 Severity = 2,
                 Status = "active",
                 Confirmations = 3,
+                LastConfirmedAt = DateTime.UtcNow.AddHours(-2),
                 CreatedAt = DateTime.UtcNow.AddHours(-5)
             },
             new Report
@@ -80,6 +83,7 @@ public class DemoReportSeeder
                 Severity = 2,
                 Status = "active",
                 Confirmations = 2,
+                LastConfirmedAt = DateTime.UtcNow.AddHours(-3),
                 CreatedAt = DateTime.UtcNow.AddHours(-4)
             },
             new Report
@@ -91,6 +95,7 @@ public class DemoReportSeeder
                 Severity = 3,
                 Status = "active",
                 Confirmations = 5,
+                LastConfirmedAt = DateTime.UtcNow.AddHours(-1),
                 CreatedAt = DateTime.UtcNow.AddHours(-3)
             },
             new Report
@@ -102,6 +107,7 @@ public class DemoReportSeeder
                 Severity = 1,
                 Status = "active",
                 Confirmations = 1,
+                LastConfirmedAt = DateTime.UtcNow.AddHours(-1),
                 CreatedAt = DateTime.UtcNow.AddHours(-2)
             }
         };

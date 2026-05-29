@@ -677,3 +677,128 @@
     transition: none !important;
   }
 }
+.routeProfileField {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+
+.routeProfileField span,
+.hotspotsHeader span {
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 850;
+}
+
+.routeProfileField select {
+  width: 100%;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 12px 14px;
+  font-weight: 800;
+  outline: none;
+}
+
+.hotspotsCard {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #dbeafe;
+  border-radius: 22px;
+  padding: 18px;
+  margin: 0 0 18px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+}
+
+.hotspotsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.hotspotsHeader strong {
+  color: #1d4ed8;
+  font-size: 1.2rem;
+}
+
+.hotspotItem {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #f8fafc;
+  padding: 12px;
+  margin-top: 10px;
+}
+
+.hotspotItem strong {
+  color: #0f172a;
+}
+
+.hotspotItem span,
+.hotspotItem small {
+  color: #64748b;
+  font-weight: 750;
+}
+
+.routeExplanationBox,
+.routeRecommendationBox {
+  width: 100%;
+  margin-top: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: white;
+  padding: 16px;
+  text-align: left;
+}
+
+.routeExplanationBox strong,
+.routeRecommendationBox strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.routeExplanationBox p,
+.routeRecommendationBox p {
+  color: #475569;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.routeImpactMiniList {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.routeImpactMiniList button {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 8px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+
+.routeImpactMiniList span {
+  grid-row: span 2;
+  font-size: 1.25rem;
+}
+
+.routeImpactMiniList strong {
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+.routeImpactMiniList small {
+  color: #64748b;
+  font-weight: 750;
+}

@@ -9,6 +9,9 @@ public class StatsResponse
     public int HighSeverityReports { get; set; }
     public int MediumSeverityReports { get; set; }
     public int LowSeverityReports { get; set; }
+    public int RequiresVerificationReports { get; set; }
+    public int HighTrustReports { get; set; }
+    public int CriticalPriorityReports { get; set; }
     public string MostCommonType { get; set; } = string.Empty;
     public string MostCommonTypeLabel { get; set; } = string.Empty;
     public Dictionary<string, int> ReportsByType { get; set; } = [];

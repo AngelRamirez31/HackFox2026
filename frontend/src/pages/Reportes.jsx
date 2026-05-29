@@ -22,6 +22,13 @@ function getStatusClass(status) {
   return "statusBadge new";
 }
 
+function getPriorityClass(priorityLevel) {
+  if (priorityLevel === "critical") return "priorityBadge critical";
+  if (priorityLevel === "high") return "priorityBadge high";
+  if (priorityLevel === "medium") return "priorityBadge medium";
+  return "priorityBadge low";
+}
+
 function formatCoordinates(report) {
   const lat = Number(report.latitude);
   const lng = Number(report.longitude);
@@ -120,8 +127,9 @@ function Reportes() {
   }
 
   const totalReportes = stats?.totalReports ?? reportes.length;
-  const reportesAltos = stats?.highSeverityReports ?? reportes.filter((reporte) => Number(reporte.severity) === 3).length;
+  const reportesAltos = stats?.criticalPriorityReports ?? reportes.filter((reporte) => reporte.priorityLevel === "critical").length;
   const reportesActivos = stats?.activeReports ?? reportes.filter((reporte) => reporte.status === "active").length;
+  const requierenVerificacion = stats?.requiresVerificationReports ?? reportes.filter((reporte) => reporte.requiresVerification).length;
 
   return (
     <main className="reportsPage">
@@ -152,6 +160,12 @@ function Reportes() {
           <span>Activos</span>
           <strong>{reportesActivos}</strong>
           <p>reportes pendientes</p>
+        </article>
+
+        <article className="statCard">
+          <span>Por verificar</span>
+          <strong>{requierenVerificacion}</strong>
+          <p>requieren validación reciente</p>
         </article>
       </section>
 
@@ -219,6 +233,18 @@ function Reportes() {
                     <span className={getStatusClass(reporte.status)}>
                       {reporte.statusLabel}
                     </span>
+
+                    <span className={getPriorityClass(reporte.priorityLevel)}>
+                      {reporte.priorityLabel}
+                    </span>
+
+                    <span className="trustBadge">
+                      {reporte.trustLabel}
+                    </span>
+
+                    {reporte.requiresVerification && (
+                      <span className="verifyBadge">Requiere verificación</span>
+                    )}
                   </div>
                 </div>
 
@@ -226,17 +252,24 @@ function Reportes() {
 
                 <div className="reportMeta">
                   <span>{reporte.createdAtDisplay || new Date(reporte.createdAt).toLocaleDateString()}</span>
+                  <span>{reporte.validationSummary}</span>
                   <span>Confirmaciones: {reporte.confirmations}</span>
                   <span>Rechazos: {reporte.rejections}</span>
+                  {reporte.geminiAnalyzed && <span>Gemini: {Math.round((reporte.geminiConfidence || 0) * 100)}%</span>}
                   <span>ID: {reporte.id}</span>
+                </div>
+
+                <div className="authoritySummaryBox">
+                  <strong>Resumen para autoridades</strong>
+                  <p>{reporte.authoritySummary}</p>
                 </div>
 
                 <div className="reportActions">
                   <button type="button" onClick={() => confirmarReporte(reporte.id)} disabled={accionandoId === reporte.id}>
-                    Sigue ahí
+                    Confirmar que sigue ahí
                   </button>
                   <button type="button" onClick={() => rechazarReporte(reporte.id)} disabled={accionandoId === reporte.id}>
-                    Ya no está
+                    Indicar que ya no está
                   </button>
                   <button type="button" onClick={() => marcarResuelto(reporte.id)} disabled={accionandoId === reporte.id || reporte.status === "resolved"}>
                     Marcar como resuelto

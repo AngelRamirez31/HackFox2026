@@ -26,11 +26,12 @@ public class RoutesController : ControllerBase
             aliases = new[] { "/api/routes/accessibility" },
             description = "Calcula el porcentaje de accesibilidad de una ruta real generada por Geoapify u otro proveedor de rutas.",
             requiredFields = new[] { "points" },
-            optionalFields = new[] { "radiusMeters", "distanceMeters", "durationSeconds", "travelMode", "source", "includeReports" },
+            optionalFields = new[] { "radiusMeters", "distanceMeters", "durationSeconds", "travelMode", "mobilityProfile", "source", "includeReports" },
             defaults = new
             {
                 radiusMeters = 50,
                 travelMode = "walking",
+                mobilityProfile = "default",
                 includeReports = true
             },
             limits = new
@@ -40,7 +41,15 @@ public class RoutesController : ControllerBase
                 minRadiusMeters = 10,
                 maxRadiusMeters = 300
             },
-            scoringFormula = "accessibilityPercent = max(0, 100 - nearbyReports * 10)",
+            scoringFormula = "accessibilityPercent = max(0, 100 - weighted penalties by severity, barrier type, mobility profile, trust and verification state)",
+            mobilityProfiles = new[]
+            {
+                new { value = "default", label = "General" },
+                new { value = "wheelchair", label = "Silla de ruedas" },
+                new { value = "walker", label = "Bastón o andadera" },
+                new { value = "elderly", label = "Adulto mayor" },
+                new { value = "stroller", label = "Carriola" }
+            },
             scoreLevels = new[]
             {
                 new { min = 80, max = 100, level = "high", label = "Ruta accesible", color = "green" },
@@ -90,6 +99,11 @@ public class RoutesController : ControllerBase
         if (request.RadiusMeters is < 10 or > 300)
         {
             return BadRequest(new { message = "El radio de análisis debe estar entre 10 y 300 metros." });
+        }
+
+        if (!ReportIntelligenceRules.IsValidMobilityProfile(request.MobilityProfile))
+        {
+            return BadRequest(new { message = "Perfil de movilidad inválido. Usa default, wheelchair, walker, elderly o stroller." });
         }
 
         var uniquePoints = request.Points

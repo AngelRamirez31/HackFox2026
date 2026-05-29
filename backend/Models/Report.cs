@@ -13,8 +13,14 @@ public class Report
     public string? ImageStorageProvider { get; set; }
     public string? ImageStoragePath { get; set; }
     public string? ImageContentType { get; set; }
+    public bool GeminiAnalyzed { get; set; }
+    public double? GeminiConfidence { get; set; }
+    public string? GeminiSummary { get; set; }
+    public string? GeminiAccessibilityImpact { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ResolvedAt { get; set; }
     public int Confirmations { get; set; }
     public int Rejections { get; set; }
+    public DateTime? LastConfirmedAt { get; set; }
+    public DateTime? LastRejectedAt { get; set; }
 }

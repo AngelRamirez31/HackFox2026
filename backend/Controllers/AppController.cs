@@ -36,7 +36,17 @@ public class AppController : ControllerBase
                 {
                     value = status,
                     label = VisualizationRules.GetStatusLabel(status)
-                })
+                }),
+                computedFields = new[]
+                {
+                    "trustScore",
+                    "trustLabel",
+                    "requiresVerification",
+                    "validationSummary",
+                    "priorityScore",
+                    "priorityLabel",
+                    "authoritySummary"
+                }
             },
             uploads = new
             {
@@ -51,6 +61,15 @@ public class AppController : ControllerBase
                 maxRadiusMeters = 300,
                 scoreEndpoint = "/api/routes/accessibility",
                 travelMode = "walking",
+                defaultMobilityProfile = "default",
+                mobilityProfiles = new[]
+                {
+                    new { value = "default", label = "General" },
+                    new { value = "wheelchair", label = "Silla de ruedas" },
+                    new { value = "walker", label = "Bastón o andadera" },
+                    new { value = "elderly", label = "Adulto mayor" },
+                    new { value = "stroller", label = "Carriola" }
+                },
                 levels = new[]
                 {
                     new { min = 80, max = 100, level = "high", label = "Ruta accesible", color = "green" },
@@ -64,6 +83,8 @@ public class AppController : ControllerBase
                 reportsMap = "/api/reports/map",
                 createReport = "/api/reports",
                 createGeminiReport = "/api/reports/analyze-and-create",
+                quickReport = "/api/reports/quick",
+                hotspots = "/api/reports/hotspots",
                 stats = "/api/stats",
                 routeAccessibility = "/api/routes/accessibility"
             }

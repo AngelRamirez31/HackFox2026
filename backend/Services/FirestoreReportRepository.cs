@@ -9,6 +9,7 @@ public class FirestoreReportRepository : IReportRepository
     private readonly FirestoreDb _db;
     private readonly CollectionReference _reportsCollection;
     private readonly DocumentReference _counterDocument;
+
     public FirestoreReportRepository(FirestoreDb db, IConfiguration configuration)
     {
         _db = db;
@@ -56,6 +57,8 @@ public class FirestoreReportRepository : IReportRepository
             report.Status = string.IsNullOrWhiteSpace(report.Status) ? "active" : ReportRules.Normalize(report.Status);
             report.CreatedAt = NormalizeUtc(report.CreatedAt == default ? DateTime.UtcNow : report.CreatedAt);
             report.ResolvedAt = report.ResolvedAt.HasValue ? NormalizeUtc(report.ResolvedAt.Value) : null;
+            report.LastConfirmedAt = report.LastConfirmedAt.HasValue ? NormalizeUtc(report.LastConfirmedAt.Value) : null;
+            report.LastRejectedAt = report.LastRejectedAt.HasValue ? NormalizeUtc(report.LastRejectedAt.Value) : null;
 
             var document = GetDocument(nextId);
 
@@ -114,10 +117,12 @@ public class FirestoreReportRepository : IReportRepository
 
             var report = ToReport(snapshot);
             report.Confirmations++;
+            report.LastConfirmedAt = DateTime.UtcNow;
 
             transaction.Set(document, new Dictionary<string, object>
             {
-                ["confirmations"] = report.Confirmations
+                ["confirmations"] = report.Confirmations,
+                ["lastConfirmedAt"] = Timestamp.FromDateTime(NormalizeUtc(report.LastConfirmedAt.Value))
             }, SetOptions.MergeAll);
 
             return report;
@@ -138,10 +143,12 @@ public class FirestoreReportRepository : IReportRepository
 
             var report = ToReport(snapshot);
             report.Rejections++;
+            report.LastRejectedAt = DateTime.UtcNow;
 
             transaction.Set(document, new Dictionary<string, object>
             {
-                ["rejections"] = report.Rejections
+                ["rejections"] = report.Rejections,
+                ["lastRejectedAt"] = Timestamp.FromDateTime(NormalizeUtc(report.LastRejectedAt.Value))
             }, SetOptions.MergeAll);
 
             return report;
@@ -168,10 +175,16 @@ public class FirestoreReportRepository : IReportRepository
             ["imageStorageProvider"] = report.ImageStorageProvider ?? null!,
             ["imageStoragePath"] = report.ImageStoragePath ?? null!,
             ["imageContentType"] = report.ImageContentType ?? null!,
+            ["geminiAnalyzed"] = report.GeminiAnalyzed,
+            ["geminiConfidence"] = report.GeminiConfidence.HasValue ? report.GeminiConfidence.Value : null!,
+            ["geminiSummary"] = report.GeminiSummary ?? null!,
+            ["geminiAccessibilityImpact"] = report.GeminiAccessibilityImpact ?? null!,
             ["createdAt"] = Timestamp.FromDateTime(NormalizeUtc(report.CreatedAt)),
             ["resolvedAt"] = report.ResolvedAt.HasValue ? Timestamp.FromDateTime(NormalizeUtc(report.ResolvedAt.Value)) : null!,
             ["confirmations"] = report.Confirmations,
-            ["rejections"] = report.Rejections
+            ["rejections"] = report.Rejections,
+            ["lastConfirmedAt"] = report.LastConfirmedAt.HasValue ? Timestamp.FromDateTime(NormalizeUtc(report.LastConfirmedAt.Value)) : null!,
+            ["lastRejectedAt"] = report.LastRejectedAt.HasValue ? Timestamp.FromDateTime(NormalizeUtc(report.LastRejectedAt.Value)) : null!
         };
     }
 
@@ -193,10 +206,16 @@ public class FirestoreReportRepository : IReportRepository
             ImageStorageProvider = GetNullableString(data, "imageStorageProvider"),
             ImageStoragePath = GetNullableString(data, "imageStoragePath"),
             ImageContentType = GetNullableString(data, "imageContentType"),
+            GeminiAnalyzed = GetBool(data, "geminiAnalyzed"),
+            GeminiConfidence = GetNullableDouble(data, "geminiConfidence"),
+            GeminiSummary = GetNullableString(data, "geminiSummary"),
+            GeminiAccessibilityImpact = GetNullableString(data, "geminiAccessibilityImpact"),
             CreatedAt = GetDateTime(data, "createdAt") ?? DateTime.UtcNow,
             ResolvedAt = GetDateTime(data, "resolvedAt"),
             Confirmations = Math.Max(0, GetInt(data, "confirmations")),
-            Rejections = Math.Max(0, GetInt(data, "rejections"))
+            Rejections = Math.Max(0, GetInt(data, "rejections")),
+            LastConfirmedAt = GetDateTime(data, "lastConfirmedAt"),
+            LastRejectedAt = GetDateTime(data, "lastRejectedAt")
         };
     }
 
@@ -215,10 +234,16 @@ public class FirestoreReportRepository : IReportRepository
             ImageStorageProvider = report.ImageStorageProvider,
             ImageStoragePath = report.ImageStoragePath,
             ImageContentType = report.ImageContentType,
+            GeminiAnalyzed = report.GeminiAnalyzed,
+            GeminiConfidence = report.GeminiConfidence,
+            GeminiSummary = report.GeminiSummary,
+            GeminiAccessibilityImpact = report.GeminiAccessibilityImpact,
             CreatedAt = report.CreatedAt,
             ResolvedAt = report.ResolvedAt,
             Confirmations = report.Confirmations,
-            Rejections = report.Rejections
+            Rejections = report.Rejections,
+            LastConfirmedAt = report.LastConfirmedAt,
+            LastRejectedAt = report.LastRejectedAt
         };
     }
 
@@ -276,6 +301,40 @@ public class FirestoreReportRepository : IReportRepository
         {
             return fallback;
         }
+    }
+
+    private static double? GetNullableDouble(IReadOnlyDictionary<string, object> data, string key)
+    {
+        if (!data.TryGetValue(key, out var value) || value is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return Convert.ToDouble(value, CultureInfo.InvariantCulture);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private static bool GetBool(IReadOnlyDictionary<string, object> data, string key)
+    {
+        if (!data.TryGetValue(key, out var value) || value is null)
+        {
+            return false;
+        }
+
+        return value switch
+        {
+            bool boolean => boolean,
+            string text when bool.TryParse(text, out var parsed) => parsed,
+            int integer => integer != 0,
+            long integer => integer != 0,
+            _ => false
+        };
     }
 
     private static DateTime? GetDateTime(IReadOnlyDictionary<string, object> data, string key)

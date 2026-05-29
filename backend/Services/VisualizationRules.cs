@@ -61,7 +61,8 @@ public static class VisualizationRules
 
     public static bool RequiresAttention(Report report)
     {
-        return ReportRules.Normalize(report.Status) == "active" && report.Severity >= 2;
+        return ReportRules.Normalize(report.Status) == "active" &&
+            (report.Severity >= 2 || ReportIntelligenceRules.CalculatePriorityScore(report) >= 65);
     }
 
     public static string GetCreatedAtDisplay(DateTime createdAt)

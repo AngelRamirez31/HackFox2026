@@ -32,6 +32,14 @@ const defaultRoutePoints = [
   { lat: 32.519156, lng: -117.026355 },
 ];
 
+const mobilityProfiles = [
+  { value: "default", label: "General" },
+  { value: "wheelchair", label: "Silla de ruedas" },
+  { value: "walker", label: "Bastón o andadera" },
+  { value: "elderly", label: "Adulto mayor" },
+  { value: "stroller", label: "Carriola" },
+];
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -210,6 +218,7 @@ function MapView() {
   const mapRef = useRef(null);
 
   const [reports, setReports] = useState([]);
+  const [hotspots, setHotspots] = useState([]);
   const [selectedReport, setSelectedReport] = useState(null);
   const [loadingReports, setLoadingReports] = useState(true);
   const [loadingScore, setLoadingScore] = useState(false);
@@ -225,6 +234,7 @@ function MapView() {
   const [routePath, setRoutePath] = useState([]);
   const [routeSummary, setRouteSummary] = useState(null);
   const [focusPoint, setFocusPoint] = useState(null);
+  const [mobilityProfile, setMobilityProfile] = useState("default");
 
   const reportIdParam = searchParams.get("reportId");
   const geoapifyApiKey = import.meta.env.VITE_GEOAPIFY_API_KEY || "";
@@ -237,15 +247,25 @@ function MapView() {
     setError("");
 
     try {
-      const response = await api.get("/api/reports/map", {
-        params: {
-          status: "active",
-          limit: 100,
-        },
-      });
+      const [reportsResponse, hotspotsResponse] = await Promise.all([
+        api.get("/api/reports/map", {
+          params: {
+            status: "active",
+            limit: 100,
+          },
+        }),
+        api.get("/api/reports/hotspots", {
+          params: {
+            limit: 3,
+            radiusMeters: 120,
+          },
+        }),
+      ]);
 
-      const data = Array.isArray(response.data) ? response.data : [];
+      const data = Array.isArray(reportsResponse.data) ? reportsResponse.data : [];
+      const hotspotData = Array.isArray(hotspotsResponse.data) ? hotspotsResponse.data : [];
       setReports(data);
+      setHotspots(hotspotData);
     } catch (err) {
       setError(getApiErrorMessage(err));
     } finally {
@@ -254,7 +274,11 @@ function MapView() {
   }, []);
 
   useEffect(() => {
-    loadReports();
+    const timer = setTimeout(() => {
+      loadReports();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [loadReports]);
 
   useEffect(() => {
@@ -272,8 +296,12 @@ function MapView() {
       return;
     }
 
-    setSelectedReport(target);
-    setFocusPoint(position);
+    const timer = setTimeout(() => {
+      setSelectedReport(target);
+      setFocusPoint(position);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [reportIdParam, reports]);
 
   const activeReports = useMemo(
@@ -333,6 +361,15 @@ function MapView() {
     );
   }, [routeScore, routeAccessibilityPercent]);
 
+  const routeIssueText = useMemo(() => {
+    const issues = routeScore?.issueBreakdown || [];
+    if (!issues.length) return "Sin barreras cercanas";
+    return issues
+      .slice(0, 3)
+      .map((issue) => `${issue.count} ${issue.pluralLabel || issue.typeLabel}`)
+      .join(", ");
+  }, [routeScore]);
+
   const setRoutePoint = useCallback((pointType, point) => {
     setRoutePoints((current) => ({
       ...current,
@@ -385,6 +422,7 @@ function MapView() {
           ? Math.round(routeProperties.time)
           : undefined,
         travelMode: geoapifyRouteMode,
+        mobilityProfile,
         source: "geoapify-routing",
         includeReports: true,
       });
@@ -420,6 +458,7 @@ function MapView() {
 
       const response = await api.post("/api/routes/accessibility", {
         points,
+        mobilityProfile,
         source: "demo-or-existing-route",
         includeReports: true,
       });
@@ -552,6 +591,23 @@ function MapView() {
           </article>
         </div>
 
+        {hotspots.length > 0 && (
+          <section className="hotspotsCard">
+            <div className="hotspotsHeader">
+              <span>Zonas críticas</span>
+              <strong>{hotspots.length}</strong>
+            </div>
+
+            {hotspots.map((hotspot) => (
+              <article className="hotspotItem" key={`${hotspot.centerLat}-${hotspot.centerLng}`}>
+                <strong>{hotspot.label}</strong>
+                <span>{hotspot.reportCount} reportes · {hotspot.mainIssueLabel}</span>
+                <small>Prioridad {hotspot.priorityLabel}</small>
+              </article>
+            ))}
+          </section>
+        )}
+
         <section className="routePlannerCard">
           <div className="routePlannerHeader">
             <span>Ruta peatonal</span>
@@ -590,6 +646,23 @@ function MapView() {
               <strong>{formatPoint(routePoints.destination)}</strong>
             </div>
           </div>
+
+          <label className="routeProfileField">
+            <span>Perfil de movilidad</span>
+            <select
+              value={mobilityProfile}
+              onChange={(event) => {
+                setMobilityProfile(event.target.value);
+                setRouteScore(null);
+              }}
+            >
+              {mobilityProfiles.map((profile) => (
+                <option value={profile.value} key={profile.value}>
+                  {profile.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <p className="routeHint">
             Da clic en el mapa para colocar el punto activo. También puedes
@@ -753,6 +826,9 @@ function MapView() {
                 <div className="mapInfoMeta">
                   <span>Severidad: {selectedReport.severityLabel}</span>
                   <span>{selectedReport.statusLabel}</span>
+                  <span>{selectedReport.trustLabel}</span>
+                  <span>Prioridad {selectedReport.priorityLabel}</span>
+                  {selectedReport.requiresVerification && <span>Requiere verificación</span>}
                   <span>{selectedReport.createdAtDisplay}</span>
                 </div>
               </article>
@@ -790,7 +866,41 @@ function MapView() {
 
               <ul className="scoreBulletList">
                 <li>{routeImpactLabel}</li>
+                <li>{routeScore.mobilityProfileLabel || "Perfil general"}</li>
+                <li>{routeIssueText}</li>
               </ul>
+
+              <div className="routeExplanationBox">
+                <strong>Por qué recibió este score</strong>
+                <p>{routeScore.explanation || routeScoreMessage}</p>
+              </div>
+
+              <div className="routeRecommendationBox">
+                <strong>Antes de salir</strong>
+                <p>{routeScore.beforeLeavingRecommendation}</p>
+              </div>
+
+              {routeScore.impactReports?.length > 0 && (
+                <div className="routeImpactMiniList">
+                  {routeScore.impactReports.slice(0, 4).map((impact) => (
+                    <button
+                      type="button"
+                      key={impact.id}
+                      onClick={() => {
+                        const report = reports.find((item) => item.id === impact.id);
+                        if (report) {
+                          setSelectedReport(report);
+                          setFocusPoint(getMarkerPosition(report));
+                        }
+                      }}
+                    >
+                      <span>{impact.markerIcon}</span>
+                      <strong>{impact.typeLabel}</strong>
+                      <small>{impact.distanceLabel} · {impact.trustLabel}</small>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         )}

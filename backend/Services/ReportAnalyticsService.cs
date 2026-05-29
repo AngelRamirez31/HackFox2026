@@ -41,9 +41,9 @@ public class ReportAnalyticsService
             ActiveReports = activeReports.Count,
             ResolvedReports = list.Count(report => ReportRules.Normalize(report.Status) == "resolved"),
             RejectedReports = list.Count(report => ReportRules.Normalize(report.Status) == "rejected"),
-            HighPriorityReports = activeReports.Count(report => report.Severity == 3),
-            MediumPriorityReports = activeReports.Count(report => report.Severity == 2),
-            LowPriorityReports = activeReports.Count(report => report.Severity == 1),
+            HighPriorityReports = activeReports.Count(report => ReportIntelligenceRules.CalculatePriorityScore(report) >= 65),
+            MediumPriorityReports = activeReports.Count(report => ReportIntelligenceRules.CalculatePriorityScore(report) is >= 40 and < 65),
+            LowPriorityReports = activeReports.Count(report => ReportIntelligenceRules.CalculatePriorityScore(report) < 40),
             ReportsWithImages = list.Count(report => !string.IsNullOrWhiteSpace(report.ImageUrl)),
             RecentReportsCount = list.Count(report => report.CreatedAt >= DateTime.UtcNow.AddDays(-7)),
             MostCommonBarrier = mostCommonBarrier,
@@ -103,6 +103,8 @@ public class ReportAnalyticsService
             }
 
             var averageSeverity = cluster.Average(report => report.Severity);
+            var averagePriority = cluster.Average(report => ReportIntelligenceRules.CalculatePriorityScore(report));
+            var hotspotPriorityScore = (int)Math.Clamp(Math.Round(averagePriority + Math.Min(15, cluster.Count * 3)), 0, 100);
             var mainIssue = cluster
                 .GroupBy(report => report.Type)
                 .OrderByDescending(group => group.Count())
@@ -120,13 +122,17 @@ public class ReportAnalyticsService
                 MainIssue = mainIssue,
                 MainIssueLabel = ReportRules.GetTypeLabel(mainIssue),
                 SeverityColor = VisualizationRules.GetSeverityColor((int)Math.Round(averageSeverity, MidpointRounding.AwayFromZero)),
+                PriorityScore = hotspotPriorityScore,
+                PriorityLevel = ReportIntelligenceRules.GetPriorityLevel(hotspotPriorityScore),
+                PriorityLabel = ReportIntelligenceRules.GetPriorityLabel(hotspotPriorityScore),
                 ReportIds = cluster.Select(report => report.Id).ToList(),
                 Reports = cluster.Select(ReportMapper.ToMapResponse).ToList()
             });
         }
 
         return hotspots
-            .OrderByDescending(hotspot => hotspot.ReportCount)
+            .OrderByDescending(hotspot => hotspot.PriorityScore)
+            .ThenByDescending(hotspot => hotspot.ReportCount)
             .ThenByDescending(hotspot => hotspot.AverageSeverity)
             .Take(limit)
             .ToList();
