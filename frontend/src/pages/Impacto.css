@@ -359,3 +359,863 @@
     flex-direction: column;
   }
 }
+
+
+
+/* Sección Impacto: datos reales desde reportes, hotspots y stats */
+.impactHeroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.impactHeroActions a {
+  text-decoration: none;
+  border-radius: 16px;
+  padding: 13px 16px;
+  font-weight: 900;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.impactHeroActions a:first-child {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+}
+
+.impactHeroActions a:last-child {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.impactHeroActions a:hover {
+  transform: translateY(-2px);
+}
+
+.impactReportList {
+  display: grid;
+  gap: 12px;
+}
+
+.impactReport {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 12px;
+}
+
+.impactReport img {
+  width: 100%;
+  height: 100%;
+  min-height: 96px;
+  max-height: 132px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+}
+
+.impactReportContent {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 8px;
+}
+
+.impactReportContent strong {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.impactReportContent p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.impactReportBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.priorityBadge,
+.trustBadge,
+.verificationBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.priorityBadge.critical {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.priorityBadge.high {
+  background: #ffedd5;
+  color: #9a3412;
+  border: 1px solid #fed7aa;
+}
+
+.priorityBadge.medium {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.priorityBadge.low {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.trustBadge.high {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.trustBadge.medium {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.trustBadge.low,
+.trustBadge.unknown {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.verificationBadge {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.impactZone .priorityBadge {
+  flex: 0 0 auto;
+  align-self: flex-start;
+}
+
+.impactZone > span.priorityBadge {
+  border-radius: 999px;
+}
+
+@media (max-width: 680px) {
+  .impactHeroActions,
+  .impactHeroActions a {
+    width: 100%;
+  }
+
+  .impactHeroActions a {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .impactReport {
+    grid-template-columns: 1fr;
+  }
+
+  .impactReport img {
+    max-height: 220px;
+  }
+}
+
+
+
+/* Acciones de impacto */
+.impactSummaryActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.impactSummaryActions button,
+.impactReportActions a,
+.impactZoneActions a {
+  border: none;
+  text-decoration: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #0f172a;
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.impactSummaryActions button:hover,
+.impactReportActions a:hover,
+.impactZoneActions a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.2);
+}
+
+.impactSummaryActions span {
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.impactZoneActions {
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.impactZoneActions .priorityBadge {
+  align-self: start;
+}
+
+.impactZoneActions a {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.impactReportActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.impactReportActions a:first-child {
+  background: #2563eb;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.impactReportActions a:last-child {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  box-shadow: none;
+}
+
+@media (max-width: 680px) {
+  .impactSummaryActions,
+  .impactSummaryActions button,
+  .impactReportActions,
+  .impactReportActions a,
+  .impactZoneActions,
+  .impactZoneActions a {
+    width: 100%;
+  }
+
+  .impactSummaryActions button,
+  .impactReportActions a,
+  .impactZoneActions a {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .impactZoneActions {
+    justify-items: stretch;
+  }
+}
+
+
+
+/* Validación comunitaria directa desde Impacto */
+.verificationAction {
+  align-items: stretch;
+}
+
+.impactVerificationSide {
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  gap: 10px;
+  min-width: 210px;
+}
+
+.impactValidationButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.impactValidationButtons button,
+.impactMapSmallLink {
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.impactValidationButtons button:last-child {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.impactValidationButtons button:hover,
+.impactMapSmallLink:hover {
+  transform: translateY(-1px);
+  background: #dbeafe;
+}
+
+.impactValidationButtons button:last-child:hover {
+  background: #fee2e2;
+}
+
+.impactValidationButtons button:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.impactValidationMessage {
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 10px;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+@media (max-width: 680px) {
+  .impactVerificationSide {
+    width: 100%;
+    min-width: 0;
+    justify-items: stretch;
+  }
+
+  .impactValidationButtons,
+  .impactValidationButtons button,
+  .impactMapSmallLink {
+    width: 100%;
+  }
+
+  .impactValidationButtons button,
+  .impactMapSmallLink {
+    text-align: center;
+  }
+}
+
+
+
+/* Patrones urbanos por tipo de problema */
+.impactBreakdownSection {
+  max-width: 1180px;
+  margin: 26px auto 0;
+}
+
+.impactBreakdownGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.impactBreakdownCard {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.05);
+}
+
+.impactBreakdownTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.impactBreakdownTop strong {
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.impactBreakdownTop span {
+  flex: 0 0 auto;
+  min-width: 42px;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.impactBreakdownBar {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #e2e8f0;
+  margin-bottom: 12px;
+}
+
+.impactBreakdownBar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+}
+
+.impactBreakdownMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.impactBreakdownMeta span {
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+@media (max-width: 680px) {
+  .impactBreakdownGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+/* Acciones sugeridas dinámicas */
+.recommendedAction {
+  border-left: 5px solid #bfdbfe;
+}
+
+.recommendedAction.critical {
+  border-left-color: #dc2626;
+}
+
+.recommendedAction.high {
+  border-left-color: #f97316;
+}
+
+.recommendedAction.medium {
+  border-left-color: #ca8a04;
+}
+
+.recommendedAction.low {
+  border-left-color: #2563eb;
+}
+
+.recommendedActionSide {
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  gap: 10px;
+  min-width: 140px;
+}
+
+.recommendedActionSide a {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #0f172a;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 900;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recommendedActionSide a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.2);
+}
+
+@media (max-width: 680px) {
+  .recommendedActionSide {
+    width: 100%;
+    justify-items: stretch;
+  }
+
+  .recommendedActionSide a {
+    text-align: center;
+  }
+}
+
+
+
+/* Ajustes de respiración visual y separación general */
+.impactPage {
+  padding: 40px 28px 56px;
+}
+
+.impactHero,
+.impactNarrative,
+.impactPanel,
+.impactLoading,
+.impactMessage {
+  border-radius: 28px;
+}
+
+.impactBadge,
+.impactNarrative > div:first-child > span:first-child,
+.impactPanelHeader > div > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 900;
+  padding: 9px 14px;
+  border-radius: 16px;
+  font-size: 0.84rem;
+  line-height: 1;
+}
+
+.impactHero {
+  padding: 52px 56px;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 44px;
+  align-items: center;
+}
+
+.impactHero > div:first-child {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
+.impactHero h1 {
+  margin: 0;
+  max-width: 10ch;
+  line-height: 1.08;
+}
+
+.impactHero p {
+  max-width: 56ch;
+}
+
+.impactHeroActions {
+  margin-top: 4px;
+}
+
+.impactHeroCard {
+  min-height: 208px;
+  padding: 32px 24px;
+  gap: 14px;
+}
+
+.impactHeroCard strong {
+  line-height: 1;
+}
+
+.impactHeroCard span {
+  display: block;
+  width: auto;
+  max-width: 18ch;
+  margin: 0 auto;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #64748b;
+  font-weight: 850;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.impactNarrative {
+  margin-top: 30px;
+  padding: 34px 38px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 34px;
+  align-items: stretch;
+}
+
+.impactNarrative > div:first-child {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.impactNarrative h2,
+.impactPanel h2 {
+  margin: 0;
+  line-height: 1.18;
+}
+
+.impactNarrative > div:first-child p {
+  max-width: 58ch;
+}
+
+.impactQuickStats {
+  gap: 16px;
+  align-self: stretch;
+}
+
+.impactQuickStats article {
+  min-height: 132px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 24px 18px;
+}
+
+.impactQuickStats strong {
+  line-height: 1;
+}
+
+.impactQuickStats span {
+  display: block;
+  width: auto;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  font-weight: 850;
+  text-align: center;
+}
+
+.impactMetricGrid {
+  margin-top: 30px;
+  gap: 20px;
+}
+
+.impactMetric {
+  min-height: 210px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 24px 22px;
+}
+
+.impactMetric > span {
+  display: block;
+  width: auto;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  font-weight: 900;
+}
+
+.impactMetric strong {
+  line-height: 1;
+}
+
+.impactMetric p {
+  margin-top: 2px;
+}
+
+.impactBreakdownSection,
+.impactTwoColumns {
+  margin-top: 30px;
+}
+
+.impactBreakdownGrid,
+.impactTwoColumns {
+  gap: 20px;
+}
+
+.impactPanel,
+.impactLoading,
+.impactMessage {
+  padding: 30px;
+}
+
+.impactPanelHeader {
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.impactPanelHeader > div {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.impactPanelHeader svg {
+  margin-top: 4px;
+}
+
+.impactZoneList,
+.impactActionList,
+.impactReportList {
+  gap: 16px;
+}
+
+.impactZone,
+.impactAction,
+.impactReport,
+.impactBreakdownCard {
+  padding: 20px;
+  gap: 16px;
+}
+
+.impactZone strong,
+.impactAction strong,
+.impactReportContent strong,
+.impactBreakdownTop strong {
+  line-height: 1.3;
+}
+
+.impactZone p,
+.impactAction p,
+.impactReportContent p {
+  margin-top: 4px;
+}
+
+.impactZoneActions,
+.recommendedActionSide,
+.impactVerificationSide {
+  gap: 12px;
+}
+
+.recommendedActionSide {
+  min-width: 160px;
+}
+
+.impactVerificationSide {
+  min-width: 220px;
+}
+
+.impactSummaryActions {
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.impactBreakdownCard {
+  padding: 22px;
+}
+
+.impactBreakdownTop {
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.impactBreakdownMeta {
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.impactZoneActions a,
+.impactReportActions a,
+.recommendedActionSide a,
+.impactMapSmallLink,
+.impactValidationButtons button,
+.impactSummaryActions button {
+  min-height: 40px;
+}
+
+@media (max-width: 1000px) {
+  .impactHero {
+    grid-template-columns: 1fr;
+    padding: 40px 34px;
+  }
+
+  .impactHeroCard {
+    width: 100%;
+    max-width: 300px;
+    justify-self: center;
+  }
+
+  .impactNarrative {
+    grid-template-columns: 1fr;
+    padding: 30px 32px;
+  }
+
+  .impactMetricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .impactQuickStats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .impactPage {
+    padding: 18px 14px 36px;
+  }
+
+  .impactHero,
+  .impactNarrative,
+  .impactPanel,
+  .impactLoading,
+  .impactMessage {
+    padding: 22px 20px;
+  }
+
+  .impactHero {
+    gap: 24px;
+  }
+
+  .impactHeroCard {
+    min-height: 164px;
+    max-width: none;
+  }
+
+  .impactQuickStats,
+  .impactMetricGrid,
+  .impactBreakdownGrid,
+  .impactTwoColumns {
+    grid-template-columns: 1fr;
+  }
+
+  .impactQuickStats article,
+  .impactMetric {
+    min-height: unset;
+  }
+
+  .impactPanelHeader {
+    margin-bottom: 18px;
+  }
+
+  .recommendedActionSide,
+  .impactVerificationSide,
+  .impactZoneActions {
+    min-width: 0;
+  }
+}
