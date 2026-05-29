@@ -9,45 +9,18 @@ namespace HackFox2026.Controllers;
 public class StatsController : ControllerBase
 {
     private readonly IReportRepository _reports;
+    private readonly ReportAnalyticsService _analytics;
 
-    public StatsController(IReportRepository reports)
+    public StatsController(IReportRepository reports, ReportAnalyticsService analytics)
     {
         _reports = reports;
+        _analytics = analytics;
     }
 
     [HttpGet]
     public async Task<ActionResult<StatsResponse>> GetStats()
     {
         var reports = await _reports.GetAllAsync();
-        var reportsByType = reports
-            .GroupBy(report => report.Type)
-            .ToDictionary(group => group.Key, group => group.Count());
-
-        var reportsByStatus = reports
-            .GroupBy(report => report.Status)
-            .ToDictionary(group => group.Key, group => group.Count());
-
-        var mostCommonType = reportsByType
-            .OrderByDescending(pair => pair.Value)
-            .Select(pair => pair.Key)
-            .FirstOrDefault() ?? "none";
-
-        return Ok(new StatsResponse
-        {
-            TotalReports = reports.Count,
-            ActiveReports = reports.Count(report => report.Status == "active"),
-            ResolvedReports = reports.Count(report => report.Status == "resolved"),
-            RejectedReports = reports.Count(report => report.Status == "rejected"),
-            HighSeverityReports = reports.Count(report => report.Severity == 3 && report.Status == "active"),
-            MediumSeverityReports = reports.Count(report => report.Severity == 2 && report.Status == "active"),
-            LowSeverityReports = reports.Count(report => report.Severity == 1 && report.Status == "active"),
-            MostCommonType = mostCommonType,
-            MostCommonTypeLabel = mostCommonType == "none" ? "Sin reportes" : ReportRules.GetTypeLabel(mostCommonType),
-            ReportsByType = reportsByType,
-            ReportTypeLabels = ReportRules.TypeLabels.ToDictionary(pair => pair.Key, pair => pair.Value),
-            ReportsByStatus = reportsByStatus,
-            StatusLabels = ReportRules.Statuses.ToDictionary(status => status, VisualizationRules.GetStatusLabel),
-            GeneratedAt = DateTime.UtcNow
-        });
+        return Ok(_analytics.BuildStats(reports));
     }
 }
