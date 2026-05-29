@@ -1,23 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 import "./Home.css";
 
-const fallbackReports = [
-  { id: "fallback-1", severity: 3, severityLabel: "Alta", typeLabel: "Banqueta rota", createdAtDisplay: "Demo" },
-  { id: "fallback-2", severity: 2, severityLabel: "Media", typeLabel: "Rampa bloqueada", createdAtDisplay: "Demo" },
-  { id: "fallback-3", severity: 3, severityLabel: "Alta", typeLabel: "Falta de rampa", createdAtDisplay: "Demo" },
-  { id: "fallback-4", severity: 1, severityLabel: "Baja", typeLabel: "Obstáculo en paso", createdAtDisplay: "Demo" },
-  { id: "fallback-5", severity: 2, severityLabel: "Media", typeLabel: "Cruce inseguro", createdAtDisplay: "Demo" },
-];
-
-function getTickerSeverityClass(report) {
-  if (Number(report.severity) >= 3) return "high";
-  if (Number(report.severity) === 2) return "medium";
-  return "low";
-}
-
 function Home() {
+  const [summary, setSummary] = useState(null);
+  const [hotspots, setHotspots] = useState([]);
+  const [loadingSummary, setLoadingSummary] = useState(true);
+
   const reviewItems = [
     {
       badge: "Acceso",
@@ -54,6 +44,53 @@ function Home() {
   ];
 
   const reviewLoop = [...reviewItems, ...reviewItems];
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadHomeData() {
+      setLoadingSummary(true);
+
+      try {
+        const [summaryResponse, hotspotsResponse] = await Promise.all([
+          api.get("/api/dashboard/summary", {
+            params: { recentLimit: 5, hotspotLimit: 3 },
+          }),
+          api.get("/api/reports/hotspots", {
+            params: { limit: 3 },
+          }),
+        ]);
+
+        if (!active) return;
+
+        setSummary(summaryResponse.data);
+        setHotspots(
+          Array.isArray(hotspotsResponse.data) ? hotspotsResponse.data : []
+        );
+      } catch {
+        if (!active) return;
+
+        setSummary(null);
+        setHotspots([]);
+      } finally {
+        if (active) setLoadingSummary(false);
+      }
+    }
+
+    loadHomeData();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const totalReports = loadingSummary ? "..." : summary?.totalReports ?? 24;
+  const highPriorityReports = loadingSummary
+    ? "..."
+    : summary?.highPriorityReports ?? 7;
+  const hotspotCount = loadingSummary
+    ? "..."
+    : hotspots.length || summary?.topHotspots?.length || 3;
 
   return (
     <main className="home">
@@ -116,9 +153,11 @@ function Home() {
 
           {summary && (
             <div className="homeLiveSummary">
-              <span>{summary.activeReports} activos</span>
-              <span>{summary.reportsWithImages} con foto</span>
-              <span>{summary.mostCommonBarrierLabel || "Sin barrera dominante"}</span>
+              <span>{summary.activeReports ?? 0} activos</span>
+              <span>{summary.reportsWithImages ?? 0} con foto</span>
+              <span>
+                {summary.mostCommonBarrierLabel || "Sin barrera dominante"}
+              </span>
             </div>
           )}
         </div>
