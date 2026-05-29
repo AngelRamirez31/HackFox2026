@@ -40,13 +40,11 @@
 .reportLayout {
   max-width: 1180px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 28px;
-  align-items: start;
+  display: block;
 }
 
 .reportForm {
+  width: 100%;
   background-color: white;
   border: 1px solid #dbeafe;
   border-radius: 28px;
@@ -114,6 +112,254 @@
   box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
 }
 
+.photoGuidedUpload {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(360px, 520px) minmax(220px, 1fr);
+  grid-template-rows: auto auto;
+  gap: 24px 28px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.photoUploader {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  width: 70%;
+  max-width: 520px;
+  margin: 0 auto;
+  align-self: center;
+  border-radius: 18px;
+  padding: 10px;
+  background: rgba(37, 99, 235, 0.05);
+  border: 1px solid #dbeafe;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.photoInlineTip {
+  width: min(285px, 100%);
+  min-height: 54px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: #232531;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.tipPosition1 {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+  align-self: start;
+  transform: translate(40px, 0px);
+}
+
+.tipPosition2 {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: end;
+  align-self: center;
+  transform: translate(20px, -70px);
+
+}
+
+.tipPosition3 {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: start;
+  align-self: start;
+  transform: translate(-40px, 40px);
+}
+
+.tipPosition4 {
+  grid-column: 3;
+  grid-row: 2;
+  justify-self: start;
+  align-self: center;
+  transform: translate(-20px, -30px);
+}
+
+.photoInlineTipNumber {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #0f172a;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.16);
+}
+
+.photoInlineTip p {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.photoInlineTip span {
+  display: block;
+  margin-top: 2px;
+  color: #cbd5e1;
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.photoUploadHeader {
+  min-height: 245px;
+  width: 100%;
+  border: 2px dashed #93c5fd;
+  border-radius: 16px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  text-align: center;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.photoUploadHeader:hover {
+  border-color: #2563eb;
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.photoUploadHeader input {
+  display: none;
+}
+
+.photoUploadIcon {
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  color: #2563eb;
+  font-size: 76px;
+  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 48;
+}
+
+.photoUploadCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: center;
+  max-width: 520px;
+  padding: 0 18px;
+}
+
+.photoUploadCopy strong {
+  color: #1d4ed8;
+  font-size: 1.12rem;
+  font-weight: 900;
+}
+
+.photoUploadCopy span {
+  color: #475569;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.photoUploadCopy small {
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.photoUploadPreview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.28;
+}
+
+.photoUploadHeader.hasFile .photoUploadCopy {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.12);
+}
+
+.photoUploadFooter {
+  min-height: 42px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 14px;
+  background: rgba(37, 99, 235, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #0f172a;
+}
+
+.photoUploadFooter p {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+  color: #475569;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileStatusIcon,
+.clearPhotoButton {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.08);
+  color: #2563eb;
+}
+
+.fileStatusIcon {
+  font-size: 21px;
+}
+
+.clearPhotoButton {
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.clearPhotoButton:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.clearPhotoButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.clearPhotoButton .material-symbols-outlined {
+  font-size: 20px;
+}
+
 .photoBox {
   min-height: 250px;
   border: 2px dashed #bfdbfe;
@@ -151,6 +397,10 @@
   width: 100%;
   height: 250px;
   object-fit: cover;
+}
+
+.legacyPhotoBox {
+  display: none;
 }
 
 .locationButton {
@@ -220,6 +470,10 @@
   top: 95px;
 }
 
+.oldReportTips {
+  display: none;
+}
+
 .reportTips h2 {
   margin: 0 0 20px;
   font-size: 1.6rem;
@@ -256,11 +510,31 @@
 
 @media (max-width: 900px) {
   .reportLayout {
-    grid-template-columns: 1fr;
+    display: block;
   }
 
-  .reportTips {
-    position: static;
+  .photoGuidedUpload {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .photoUploader {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+  }
+
+  .tipPosition1,
+  .tipPosition2,
+  .tipPosition3,
+  .tipPosition4 {
+    grid-column: auto;
+    grid-row: auto;
+    justify-self: stretch;
+  }
+
+  .photoInlineTip {
+    width: 100%;
   }
 }
 
@@ -306,6 +580,36 @@
 
   .photoBox img {
     height: 210px;
+  }
+
+  .photoUploader {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 8px;
+  }
+
+  .photoGuidedUpload {
+    grid-template-columns: 1fr;
+  }
+
+  .photoUploadHeader {
+    min-height: 220px;
+  }
+
+  .photoUploadIcon {
+    width: 68px;
+    height: 68px;
+    font-size: 62px;
+  }
+
+  .photoUploadCopy strong {
+    font-size: 1rem;
+  }
+
+  .photoUploadCopy span,
+  .photoUploadCopy small {
+    font-size: 0.9rem;
   }
 }
 .submitButton:disabled,
