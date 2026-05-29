@@ -18,7 +18,7 @@ export function getApiErrorMessage(error) {
   if (error.response?.data?.error) return error.response.data.error;
   if (typeof error.response?.data === "string") return error.response.data;
   if (error.code === "ERR_NETWORK") {
-    return "No se pudo conectar con el backend. Revisa que la API esté corriendo y que VITE_API_URL apunte al puerto correcto.";
+    return "No se pudo conectar con el servicio. Intenta nuevamente en unos minutos.";
   }
   return error.message || "Ocurrió un error inesperado.";
 }

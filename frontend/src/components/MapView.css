@@ -802,3 +802,75 @@
   color: #64748b;
   font-weight: 750;
 }
+
+.essentialDestinationBox {
+  display: grid;
+  gap: 12px;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  border: 1px solid #bfdbfe;
+  border-radius: 18px;
+  padding: 16px;
+  margin: 14px 0 16px;
+}
+
+.essentialDestinationTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.essentialDestinationTop span {
+  color: #1d4ed8;
+  font-weight: 900;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.essentialDestinationTop strong {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: white;
+  border: 1px solid #dbeafe;
+  border-radius: 14px;
+  font-size: 1.2rem;
+}
+
+.essentialDestinationBox select,
+.routeProfileField select {
+  width: 100%;
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #0f172a;
+  background: white;
+  font-weight: 800;
+  outline: none;
+}
+
+.essentialDestinationBox p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.mapMiniButton {
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+}
+
+.mapMiniButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.26);
+}

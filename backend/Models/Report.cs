@@ -17,6 +17,9 @@ public class Report
     public double? GeminiConfidence { get; set; }
     public string? GeminiSummary { get; set; }
     public string? GeminiAccessibilityImpact { get; set; }
+    public string? DemoSeedKey { get; set; }
+    public string? DemoAreaKey { get; set; }
+    public string? DemoAreaLabel { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ResolvedAt { get; set; }
     public int Confirmations { get; set; }

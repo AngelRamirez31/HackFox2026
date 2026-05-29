@@ -1,0 +1,361 @@
+.impactPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #eef6ff 0%, #f8fbff 50%, #ffffff 100%);
+  padding: 32px;
+  color: #0f172a;
+}
+
+.impactHero,
+.impactNarrative,
+.impactPanel,
+.essentialDestinationsSection,
+.impactLoading,
+.impactMessage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  background: rgba(248, 250, 252, 0.9);
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+}
+
+.impactHero::before,
+.impactNarrative::before,
+.impactPanel::before,
+.essentialDestinationsSection::before,
+.impactLoading::before,
+.impactMessage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #f8fafc;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 30px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+  opacity: 0.72;
+}
+
+.impactHero {
+  max-width: 1180px;
+  margin: 0 auto;
+  border-radius: 28px;
+  padding: 42px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
+  align-items: center;
+}
+
+.impactBadge,
+.impactNarrative span,
+.impactPanelHeader span {
+  display: inline-block;
+  width: fit-content;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 900;
+  padding: 9px 14px;
+  border-radius: 16px;
+  font-size: 0.86rem;
+}
+
+.impactHero h1,
+.impactNarrative h2,
+.impactPanel h2,
+.essentialDestinationsSection h2 {
+  margin: 14px 0 12px;
+  color: #0f172a;
+  letter-spacing: -1px;
+  line-height: 1.08;
+}
+
+.impactHero h1 {
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+}
+
+.impactHero p,
+.impactNarrative p,
+.destinationCard p,
+.impactAction p,
+.impactZone p {
+  color: #475569;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.impactHeroCard {
+  background: white;
+  border: 1px solid #bfdbfe;
+  border-radius: 24px;
+  padding: 28px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 10px;
+  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.1);
+}
+
+.impactHeroCard svg {
+  font-size: 2.2rem;
+  color: #2563eb;
+}
+
+.impactHeroCard strong {
+  font-size: 4rem;
+  color: #1d4ed8;
+  letter-spacing: -3px;
+}
+
+.impactHeroCard span {
+  color: #64748b;
+  font-weight: 850;
+}
+
+.impactNarrative {
+  max-width: 1180px;
+  margin: 26px auto 0;
+  border-radius: 24px;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.impactQuickStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.impactQuickStats article,
+.impactMetric,
+.destinationCard {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+}
+
+.impactQuickStats strong,
+.impactMetric strong {
+  display: block;
+  font-size: 2.35rem;
+  color: #1d4ed8;
+  letter-spacing: -1.5px;
+}
+
+.impactQuickStats span,
+.impactMetric span {
+  color: #64748b;
+  font-weight: 900;
+  font-size: 0.88rem;
+}
+
+.impactMetricGrid {
+  max-width: 1180px;
+  margin: 26px auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.impactMetric {
+  border-color: #dbeafe;
+  min-height: 168px;
+}
+
+.impactMetric p {
+  color: #64748b;
+  font-weight: 700;
+  line-height: 1.55;
+  margin: 8px 0 0;
+}
+
+.impactMetric.critical strong { color: #dc2626; }
+.impactMetric.high strong { color: #ea580c; }
+.impactMetric.medium strong { color: #ca8a04; }
+.impactMetric.low strong { color: #2563eb; }
+
+.impactTwoColumns {
+  max-width: 1180px;
+  margin: 26px auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.impactPanel,
+.essentialDestinationsSection,
+.impactLoading,
+.impactMessage {
+  border-radius: 24px;
+  padding: 28px;
+}
+
+.impactPanelHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.impactPanelHeader svg {
+  color: #2563eb;
+  font-size: 2rem;
+  margin-top: 6px;
+}
+
+.impactZoneList,
+.impactActionList {
+  display: grid;
+  gap: 12px;
+}
+
+.impactZone,
+.impactAction {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.impactZone strong,
+.impactAction strong,
+.destinationCard h3 {
+  color: #0f172a;
+}
+
+.impactZone span {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-weight: 900;
+}
+
+.impactAction small {
+  color: #1d4ed8;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.essentialDestinationsSection {
+  max-width: 1180px;
+  margin: 26px auto 0;
+}
+
+.destinationGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.destinationIcon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 16px;
+  font-size: 1.4rem;
+}
+
+.destinationCard h3 {
+  margin: 14px 0 8px;
+}
+
+.destinationCard div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.destinationCard div span {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 7px 9px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.impactCta {
+  display: inline-flex;
+  margin-top: 22px;
+  text-decoration: none;
+  background: #2563eb;
+  color: white;
+  font-weight: 900;
+  border-radius: 16px;
+  padding: 14px 18px;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+}
+
+.impactLoading,
+.impactMessage {
+  max-width: 1180px;
+  margin: 26px auto 0;
+  font-weight: 900;
+  color: #1d4ed8;
+  text-align: center;
+}
+
+.impactMessage.error {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+.impactEmpty {
+  color: #64748b;
+  font-weight: 800;
+}
+
+@media (max-width: 1000px) {
+  .impactHero,
+  .impactNarrative,
+  .impactTwoColumns {
+    grid-template-columns: 1fr;
+  }
+
+  .impactMetricGrid,
+  .destinationGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .impactPage {
+    padding: 18px;
+  }
+
+  .impactHero,
+  .impactNarrative,
+  .impactPanel,
+  .essentialDestinationsSection {
+    padding: 22px;
+  }
+
+  .impactMetricGrid,
+  .destinationGrid,
+  .impactQuickStats {
+    grid-template-columns: 1fr;
+  }
+
+  .impactZone,
+  .impactAction {
+    flex-direction: column;
+  }
+}

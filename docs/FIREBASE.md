@@ -103,21 +103,6 @@ En Cloud Run lo recomendado es usar la service account del servicio con permisos
 Si no se configura Firestore, el backend usa `InMemoryReportRepository`. Esto permite que cualquier integrante pueda correr la API sin credenciales y sin romper el frontend.
 
 
-## Datos demo en Firestore
-
-Cuando Firestore esté activo y la colección `reports` esté vacía, puedes sembrar reportes demo desde Visual Studio o Postman:
-
-```http
-POST /api/demo/seed-reports
-```
-
-En local funciona automáticamente porque Visual Studio y `dotnet run` suelen usar ambiente `Development`. En despliegue se mantiene desactivado salvo que agregues esta variable:
-
-```text
-Demo__EnableSeedEndpoint=true
-```
-
-Este endpoint no borra reportes reales. Solo agrega reportes demo que todavía no existan cerca de las coordenadas configuradas.
 
 ## Compatibilidad con frontend
 
@@ -127,4 +112,4 @@ El backend acepta campos en inglés y español para que el frontend pueda enviar
 
 Las fotos se guardan localmente en el backend dentro de `backend/wwwroot/uploads/reports/`. Firestore guarda la ruta relativa en el campo `imageUrl`.
 
-No se usa Firebase Storage en esta versión para evitar depender del plan Blaze durante la demo.
+No se usa Firebase Storage en esta versión para evitar depender del plan Blaze durante el uso local.

@@ -36,6 +36,9 @@ public class ReportResponse
     public double? GeminiConfidence { get; set; }
     public string? GeminiSummary { get; set; }
     public string? GeminiAccessibilityImpact { get; set; }
+    public string? DemoSeedKey { get; set; }
+    public string? DemoAreaKey { get; set; }
+    public string? DemoAreaLabel { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedAtDisplay { get; set; } = string.Empty;
     public DateTime? ResolvedAt { get; set; }

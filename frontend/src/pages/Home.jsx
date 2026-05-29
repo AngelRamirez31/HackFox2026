@@ -5,6 +5,8 @@ import {
   LuCamera,
   LuGlobe,
   LuMapPinned,
+  LuPresentation,
+  LuRoute,
 } from "react-icons/lu";
 import api from "../services/api";
 import "./Home.css";
@@ -225,6 +227,55 @@ function Home() {
               Pensado para adultos mayores, personas con discapacidad motriz y
               familias que necesitan trayectos más seguros.
             </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="hackfoxFocus">
+        <div className="hackfoxFocusHeader">
+          <span>Movilidad inteligente</span>
+          <h2>Herramientas para planear y mejorar la accesibilidad</h2>
+          <p>
+            Streets-H prioriza servicios públicos, muestra impacto social medible
+            y compara trayectos para elegir opciones más seguras.
+          </p>
+        </div>
+
+        <div className="hackfoxFocusGrid">
+          <article>
+            <div className="icon">
+              <LuRoute />
+            </div>
+            <h3>Destinos esenciales</h3>
+            <p>
+              El mapa permite seleccionar hospitales, gobierno, transporte y
+              zonas escolares para calcular rutas accesibles con un perfil recomendado.
+            </p>
+            <Link to="/mapa">Probar en mapa</Link>
+          </article>
+
+          <article>
+            <div className="icon">
+              <LuGlobe />
+            </div>
+            <h3>Impacto medible</h3>
+            <p>
+              Dashboard con zonas críticas, reportes confirmados, prioridad
+              urbana y casos listos para seguimiento municipal.
+            </p>
+            <Link to="/impacto">Ver impacto</Link>
+          </article>
+
+          <article>
+            <div className="icon">
+              <LuPresentation />
+            </div>
+            <h3>Escenario accesible</h3>
+            <p>
+              Compara una ruta directa con una alternativa Streets-H, mostrando
+              barreras cercanas, mejora de accesibilidad y recomendaciones.
+            </p>
+            <Link to="/escenario">Ver escenario</Link>
           </article>
         </div>
       </section>

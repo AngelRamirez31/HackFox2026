@@ -104,7 +104,6 @@ GET    /api/stats
 GET    /api/vision/status
 POST   /api/vision/analyze-report-image
 GET    /api/firebase/status
-POST   /api/demo/seed-reports
 ```
 
 
@@ -222,15 +221,6 @@ npm run dev
 ```
 
 
-## Sembrar reportes demo
-
-Para que el mapa no aparezca vacío durante pruebas con Firebase o memoria local, puedes usar:
-
-```text
-POST https://localhost:7271/api/demo/seed-reports
-```
-
-Este endpoint está habilitado en ambiente `Development`. No borra reportes existentes; solo agrega reportes demo si no detecta duplicados cercanos.
 
 ## Compatibilidad con el frontend actual
 

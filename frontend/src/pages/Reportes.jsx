@@ -126,6 +126,7 @@ function Reportes() {
     }
   }
 
+
   const totalReportes = stats?.totalReports ?? reportes.length;
   const reportesAltos = stats?.criticalPriorityReports ?? reportes.filter((reporte) => reporte.priorityLevel === "critical").length;
   const reportesActivos = stats?.activeReports ?? reportes.filter((reporte) => reporte.status === "active").length;
@@ -142,6 +143,8 @@ function Reportes() {
           </p>
         </div>
       </section>
+
+
 
       <section className="statsGrid">
         <article className="statCard">
@@ -200,7 +203,7 @@ function Reportes() {
         {cargando ? (
           <div className="emptyState">
             <h2>Cargando reportes</h2>
-            <p>Consultando información del backend...</p>
+            <p>Consultando información actualizada...</p>
           </div>
         ) : reportes.length === 0 ? (
           <div className="emptyState">
@@ -251,6 +254,7 @@ function Reportes() {
                 <p className="reportDescription">{reporte.description || "Sin descripción."}</p>
 
                 <div className="reportMeta">
+                  {reporte.demoAreaLabel && <span>Área de interés: {reporte.demoAreaLabel}</span>}
                   <span>{reporte.createdAtDisplay || new Date(reporte.createdAt).toLocaleDateString()}</span>
                   <span>{reporte.validationSummary}</span>
                   <span>Confirmaciones: {reporte.confirmations}</span>

@@ -43,7 +43,8 @@ else
 builder.Services.AddScoped<LocalFileStorageService>();
 builder.Services.AddScoped<AccessibilityScoringService>();
 builder.Services.AddScoped<ReportAnalyticsService>();
-builder.Services.AddScoped<DemoReportSeeder>();
+builder.Services.AddScoped<EssentialDestinationService>();
+builder.Services.AddScoped<ImpactSummaryService>();
 builder.Services.AddHttpClient<GeminiVisionService>();
 
 builder.Services.Configure<FormOptions>(options =>

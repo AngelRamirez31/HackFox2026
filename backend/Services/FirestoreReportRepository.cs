@@ -43,15 +43,19 @@ public class FirestoreReportRepository : IReportRepository
 
     public async Task<Report> AddAsync(Report report)
     {
+        var existingMaxId = await GetCurrentMaxReportIdAsync();
+
         return await _db.RunTransactionAsync(async transaction =>
         {
             var counterSnapshot = await transaction.GetSnapshotAsync(_counterDocument);
-            var nextId = 1;
+            var nextIdBase = existingMaxId;
 
             if (counterSnapshot.Exists && counterSnapshot.TryGetValue<int>("reportsLastId", out var lastId))
             {
-                nextId = lastId + 1;
+                nextIdBase = Math.Max(nextIdBase, lastId);
             }
+
+            var nextId = nextIdBase + 1;
 
             report.Id = nextId;
             report.Status = string.IsNullOrWhiteSpace(report.Status) ? "active" : ReportRules.Normalize(report.Status);
@@ -160,6 +164,24 @@ public class FirestoreReportRepository : IReportRepository
         return _reportsCollection.Document(id.ToString(CultureInfo.InvariantCulture));
     }
 
+    private async Task<int> GetCurrentMaxReportIdAsync()
+    {
+        var snapshot = await _reportsCollection.GetSnapshotAsync();
+        var maxId = 0;
+
+        foreach (var document in snapshot.Documents.Where(document => document.Exists))
+        {
+            var fallbackId = int.TryParse(document.Id, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedId)
+                ? parsedId
+                : 0;
+            var documentId = GetInt(document.ToDictionary(), "id", fallbackId);
+            maxId = Math.Max(maxId, documentId);
+        }
+
+        return maxId;
+    }
+
+
     private static Dictionary<string, object> ToDictionary(Report report)
     {
         return new Dictionary<string, object>
@@ -179,6 +201,9 @@ public class FirestoreReportRepository : IReportRepository
             ["geminiConfidence"] = report.GeminiConfidence.HasValue ? report.GeminiConfidence.Value : null!,
             ["geminiSummary"] = report.GeminiSummary ?? null!,
             ["geminiAccessibilityImpact"] = report.GeminiAccessibilityImpact ?? null!,
+            ["demoSeedKey"] = report.DemoSeedKey ?? null!,
+            ["demoAreaKey"] = report.DemoAreaKey ?? null!,
+            ["demoAreaLabel"] = report.DemoAreaLabel ?? null!,
             ["createdAt"] = Timestamp.FromDateTime(NormalizeUtc(report.CreatedAt)),
             ["resolvedAt"] = report.ResolvedAt.HasValue ? Timestamp.FromDateTime(NormalizeUtc(report.ResolvedAt.Value)) : null!,
             ["confirmations"] = report.Confirmations,
@@ -210,6 +235,9 @@ public class FirestoreReportRepository : IReportRepository
             GeminiConfidence = GetNullableDouble(data, "geminiConfidence"),
             GeminiSummary = GetNullableString(data, "geminiSummary"),
             GeminiAccessibilityImpact = GetNullableString(data, "geminiAccessibilityImpact"),
+            DemoSeedKey = GetNullableString(data, "demoSeedKey"),
+            DemoAreaKey = GetNullableString(data, "demoAreaKey"),
+            DemoAreaLabel = GetNullableString(data, "demoAreaLabel"),
             CreatedAt = GetDateTime(data, "createdAt") ?? DateTime.UtcNow,
             ResolvedAt = GetDateTime(data, "resolvedAt"),
             Confirmations = Math.Max(0, GetInt(data, "confirmations")),
@@ -238,6 +266,9 @@ public class FirestoreReportRepository : IReportRepository
             GeminiConfidence = report.GeminiConfidence,
             GeminiSummary = report.GeminiSummary,
             GeminiAccessibilityImpact = report.GeminiAccessibilityImpact,
+            DemoSeedKey = report.DemoSeedKey,
+            DemoAreaKey = report.DemoAreaKey,
+            DemoAreaLabel = report.DemoAreaLabel,
             CreatedAt = report.CreatedAt,
             ResolvedAt = report.ResolvedAt,
             Confirmations = report.Confirmations,

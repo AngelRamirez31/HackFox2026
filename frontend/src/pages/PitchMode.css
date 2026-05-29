@@ -1,0 +1,415 @@
+.pitchPage {
+  min-height: 100vh;
+  padding: 32px;
+  color: #0f172a;
+  background: radial-gradient(circle at top left, #dbeafe 0, transparent 32%),
+    linear-gradient(135deg, #eef6ff 0%, #f8fbff 45%, #ffffff 100%);
+}
+
+.pitchHero,
+.pitchStoryCard,
+.scenarioCard,
+.pitchPanel,
+.pitchMetrics article,
+.pitchMessage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  background: rgba(248, 250, 252, 0.92);
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+}
+
+.pitchHero::before,
+.pitchStoryCard::before,
+.scenarioCard::before,
+.pitchPanel::before,
+.pitchMetrics article::before,
+.pitchMessage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #f8fafc;
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+    linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 20px 30px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+  opacity: 0.72;
+}
+
+.pitchHero {
+  max-width: 1180px;
+  margin: 0 auto;
+  border-radius: 28px;
+  padding: 42px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: center;
+}
+
+.pitchBadge,
+.pitchStoryHeader span,
+.pitchPanelHeader span {
+  width: fit-content;
+  display: inline-block;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 16px;
+  padding: 9px 14px;
+  font-weight: 900;
+  font-size: 0.86rem;
+}
+
+.pitchHero h1,
+.pitchStoryCard h2,
+.pitchPanel h2,
+.scenarioCard h2 {
+  color: #0f172a;
+  letter-spacing: -1px;
+  line-height: 1.08;
+  margin: 14px 0 12px;
+}
+
+.pitchHero h1 {
+  font-size: clamp(2.4rem, 5vw, 4.8rem);
+}
+
+.pitchHero p,
+.pitchSubtitle,
+.pitchPersonaGrid p,
+.scenarioCard p,
+.pitchTimeline p,
+.talkingPoints article,
+.pitchMetrics p {
+  color: #475569;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.pitchControlCard {
+  background: white;
+  border: 1px solid #bfdbfe;
+  border-radius: 24px;
+  padding: 26px;
+  display: grid;
+  gap: 16px;
+  box-shadow: 0 18px 42px rgba(37, 99, 235, 0.1);
+}
+
+.pitchControlCard svg {
+  color: #2563eb;
+  font-size: 2.3rem;
+}
+
+.pitchControlCard label {
+  color: #64748b;
+  font-weight: 900;
+  display: grid;
+  gap: 8px;
+}
+
+.pitchControlCard select {
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #0f172a;
+  font-weight: 850;
+  background: white;
+}
+
+.pitchStoryCard,
+.scenarioCompare,
+.pitchScriptGrid,
+.pitchMetrics,
+.pitchActions,
+.pitchMessage {
+  max-width: 1180px;
+  margin: 26px auto 0;
+}
+
+.pitchStoryCard {
+  border-radius: 26px;
+  padding: 30px;
+}
+
+.pitchStoryHeader,
+.pitchPanelHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.pitchStoryHeader svg,
+.pitchPanelHeader svg {
+  color: #2563eb;
+  font-size: 2.1rem;
+  margin-top: 5px;
+}
+
+.pitchPersonaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.8fr;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.pitchPersonaGrid article {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.pitchPersonaGrid strong {
+  color: #1d4ed8;
+  font-weight: 900;
+}
+
+.scenarioCompare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.scenarioCard {
+  border-radius: 26px;
+  padding: 28px;
+}
+
+.scenarioCard.featured {
+  border-color: #93c5fd;
+  box-shadow: 0 24px 60px rgba(37, 99, 235, 0.13);
+}
+
+.scenarioTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.scenarioTop > span {
+  color: #1d4ed8;
+  background: #dbeafe;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 900;
+}
+
+.pitchScore {
+  font-size: 3.2rem;
+  letter-spacing: -3px;
+}
+
+.pitchScore.good { color: #16a34a; }
+.pitchScore.mid { color: #f97316; }
+.pitchScore.bad { color: #dc2626; }
+
+.scenarioStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.scenarioStats div {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+}
+
+.scenarioStats strong {
+  display: block;
+  color: #0f172a;
+  font-size: 1.08rem;
+}
+
+.scenarioStats span,
+.scenarioRisk span,
+.scenarioRisk small {
+  color: #64748b;
+  font-weight: 850;
+  font-size: 0.82rem;
+}
+
+.scenarioRisk {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 5px;
+}
+
+.scenarioRisk strong {
+  color: #0f172a;
+}
+
+.scenarioIssues {
+  margin: 16px 0 0;
+  padding-left: 20px;
+  color: #475569;
+  font-weight: 850;
+  line-height: 1.6;
+}
+
+.scenarioRecommendation {
+  margin-top: 16px !important;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 14px;
+  font-weight: 800;
+}
+
+.pitchScriptGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.pitchPanel {
+  border-radius: 24px;
+  padding: 28px;
+}
+
+.pitchTimeline {
+  display: grid;
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pitchTimeline li {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.pitchTimeline li span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #2563eb;
+  color: white;
+  font-weight: 900;
+}
+
+.talkingPoints {
+  display: grid;
+  gap: 12px;
+}
+
+.talkingPoints article {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  font-weight: 800;
+}
+
+.pitchMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.pitchMetrics article {
+  border-radius: 20px;
+  padding: 22px;
+}
+
+.pitchMetrics span {
+  color: #64748b;
+  font-weight: 900;
+}
+
+.pitchMetrics strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 2.2rem;
+  margin: 5px 0;
+}
+
+.pitchActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pitchPrimaryLink,
+.pitchSecondaryLink {
+  text-decoration: none;
+  border-radius: 16px;
+  padding: 14px 18px;
+  font-weight: 900;
+}
+
+.pitchPrimaryLink {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+}
+
+.pitchSecondaryLink {
+  background: white;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.pitchMessage {
+  border-radius: 22px;
+  padding: 24px;
+  color: #1d4ed8;
+  font-weight: 900;
+  text-align: center;
+}
+
+.pitchMessage.error {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+@media (max-width: 1000px) {
+  .pitchHero,
+  .scenarioCompare,
+  .pitchScriptGrid,
+  .pitchPersonaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pitchMetrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .pitchPage {
+    padding: 18px;
+  }
+
+  .pitchHero,
+  .pitchStoryCard,
+  .scenarioCard,
+  .pitchPanel {
+    padding: 22px;
+  }
+
+  .pitchMetrics,
+  .scenarioStats {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+

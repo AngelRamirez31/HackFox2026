@@ -141,7 +141,6 @@ La clave de Gemini o credenciales de Google Cloud no deben ir en React.
 - `GET /api/vision/status`
 - `POST /api/vision/analyze-report-image`
 - `GET /api/firebase/status`
-- `POST /api/demo/seed-reports`
 
 La primera iteración usaba almacenamiento en memoria. Esta versión ya incluye soporte opcional para Firebase Cloud Firestore desde backend, manteniendo memoria local como fallback seguro para desarrollo sin credenciales.
 
@@ -204,13 +203,6 @@ El frontend sigue estando separado en `frontend/` y se corre por terminal con `n
 
 Esta versión agrega compatibilidad directa con el frontend actual: el backend acepta campos de formulario tanto en español como en inglés (`tipo/type`, `descripcion/description`, `latitud/latitude`, `longitud/longitude`, `severidad/severity`, `foto/image`). También normaliza tipos visibles como `Banqueta rota` o `Rampa bloqueada` al formato interno usado por la API.
 
-Para demos con Firebase o memoria local, se agregó:
-
-```text
-POST /api/demo/seed-reports
-```
-
-Este endpoint agrega reportes demo de Tijuana sin borrar datos existentes y solo está habilitado en ambiente de desarrollo o cuando `Demo__EnableSeedEndpoint=true`.
 
 ## Iteración frontend-ready
 
@@ -288,4 +280,4 @@ Firestore guarda solamente la referencia `imageUrl`, por ejemplo:
 /uploads/reports/archivo.jpg
 ```
 
-Esta decisión evita requerir Firebase Storage/Blaze para la demo. No subas las imágenes generadas al repositorio.
+Esta decisión evita requerir Firebase Storage/Blaze. No subas imágenes generadas al repositorio.

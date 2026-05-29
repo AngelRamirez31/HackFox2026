@@ -32,6 +32,9 @@ public class MapReportResponse
     public bool HasImage { get; set; }
     public bool GeminiAnalyzed { get; set; }
     public double? GeminiConfidence { get; set; }
+    public string? DemoSeedKey { get; set; }
+    public string? DemoAreaKey { get; set; }
+    public string? DemoAreaLabel { get; set; }
     public DateTime CreatedAt { get; set; }
     public string CreatedAtDisplay { get; set; } = string.Empty;
     public int Confirmations { get; set; }

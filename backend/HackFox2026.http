@@ -179,11 +179,6 @@ Content-Type: image/jpeg
 
 ###
 
-POST {{HackFox2026_HostAddress}}/api/demo/seed-reports
-Accept: application/json
-
-###
-
 POST {{HackFox2026_HostAddress}}/api/reports/analyze-and-create
 Content-Type: multipart/form-data; boundary=HackFoxAnalyzeCreateBoundary
 

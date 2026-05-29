@@ -193,7 +193,7 @@ function CrearReporte() {
     }
 
     if (modoReporte === "rapido" && !foto) {
-      setMensaje("El reporte rápido necesita foto para que Gemini sugiera los datos.");
+      setMensaje("El reporte rápido necesita una foto para sugerir los datos automáticamente.");
       return;
     }
 
@@ -216,7 +216,7 @@ function CrearReporte() {
     }
 
     setEnviando(true);
-    setMensaje(foto ? "Analizando imagen con Gemini y guardando reporte..." : "Guardando reporte...");
+    setMensaje(foto ? "Analizando imagen y guardando reporte..." : "Guardando reporte...");
 
     try {
       const endpoint = foto && modoReporte === "rapido" ? "/api/reports/quick" : foto ? "/api/reports/analyze-and-create" : "/api/reports";
@@ -270,7 +270,7 @@ function CrearReporte() {
               disabled={enviando}
             >
               Reporte rápido
-              <span>Foto + ubicación + Gemini</span>
+              <span>Foto + ubicación + análisis inteligente</span>
             </button>
             <button
               type="button"
@@ -285,15 +285,15 @@ function CrearReporte() {
 
           <div className="quickReportNotice">
             {modoReporte === "rapido"
-              ? "Sube una foto y usa tu ubicación. Gemini propondrá tipo, severidad, descripción e impacto de accesibilidad desde el backend."
-              : "Puedes completar el reporte manualmente. Si también subes foto, Gemini puede complementar los datos sin reemplazar lo que escribas."}
+              ? "Sube una foto y usa tu ubicación. El sistema propondrá tipo, severidad, descripción e impacto de accesibilidad."
+              : "Puedes completar el reporte manualmente. Si también subes foto, el sistema puede complementar los datos sin reemplazar lo que escribas."}
           </div>
 
           <div className="formGroup">
             <label>Tipo de barrera</label>
             <select value={tipo} onChange={(e) => setTipo(e.target.value)} disabled={enviando}>
               <option value="">
-                {cargandoConfig ? "Cargando opciones..." : modoReporte === "rapido" ? "Opcional: Gemini puede sugerirlo" : "Selecciona una opción"}
+                {cargandoConfig ? "Cargando opciones..." : modoReporte === "rapido" ? "Opcional: el sistema puede sugerirlo" : "Selecciona una opción"}
               </option>
 
               {reportTypes.map((option) => (
@@ -332,7 +332,7 @@ function CrearReporte() {
             <textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              placeholder={modoReporte === "rapido" ? "Opcional. Gemini puede sugerir la descripción desde la foto." : "La banqueta está rota y una silla de ruedas no puede pasar."}
+              placeholder={modoReporte === "rapido" ? "Opcional. El sistema puede sugerir la descripción desde la foto." : "La banqueta está rota y una silla de ruedas no puede pasar."}
               rows="5"
               disabled={enviando}
             />
@@ -367,7 +367,7 @@ function CrearReporte() {
 
                   <div className="photoUploadCopy">
                     <strong>{modoReporte === "rapido" ? "Tomar foto para reporte rápido" : "Subir o tomar foto"}</strong>
-                    <span>Máximo {maxImageSize} MB. Gemini sugiere tipo, severidad, descripción e impacto.</span>
+                    <span>Máximo {maxImageSize} MB. El análisis de imagen puede sugerir tipo, severidad, descripción e impacto.</span>
                   </div>
 
                   <input
@@ -445,10 +445,10 @@ function CrearReporte() {
 
               {resultado.vision && (
                 <div className="geminiBox">
-                  <strong>Gemini detectó:</strong>
+                  <strong>Análisis detectado:</strong>
                   <p>{resultado.vision.summary}</p>
                   <small>{resultado.vision.accessibilityImpact}</small>
-                  <small>Confianza Gemini: {Math.round((resultado.vision.confidence || 0) * 100)}%</small>
+                  <small>Confianza del análisis: {Math.round((resultado.vision.confidence || 0) * 100)}%</small>
                 </div>
               )}
 

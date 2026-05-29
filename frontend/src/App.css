@@ -111,3 +111,15 @@ textarea {
     font-size: 0.95rem;
   }
 }
+
+@media (max-width: 920px) {
+  .navbarContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .navLinks {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

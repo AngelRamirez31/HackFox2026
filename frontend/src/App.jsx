@@ -2,6 +2,8 @@ import { Routes, Route, NavLink } from "react-router-dom";
 import Home from "./pages/Home";
 import CrearReporte from "./pages/CrearReporte";
 import Reportes from "./pages/Reportes";
+import Impacto from "./pages/Impacto";
+import PitchMode from "./pages/PitchMode";
 import MapView from "./components/MapView";
 import "./App.css";
 
@@ -30,6 +32,14 @@ function App() {
             <NavLink to="/reportes" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
               Reportes
             </NavLink>
+
+            <NavLink to="/impacto" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+              Impacto
+            </NavLink>
+
+            <NavLink to="/escenario" className={({ isActive }) => isActive ? "navItem active" : "navItem"}>
+              Escenario
+            </NavLink>
           </nav>
         </div>
       </header>
@@ -39,6 +49,9 @@ function App() {
         <Route path="/mapa" element={<MapView />} />
         <Route path="/crear-reporte" element={<CrearReporte />} />
         <Route path="/reportes" element={<Reportes />} />
+        <Route path="/impacto" element={<Impacto />} />
+        <Route path="/escenario" element={<PitchMode />} />
+        <Route path="/pitch" element={<PitchMode />} />
       </Routes>
     </>
   );

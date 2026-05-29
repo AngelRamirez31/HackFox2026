@@ -198,19 +198,6 @@ GET /api/stats
 
 Devuelve totales por estatus, tipo y reportes graves activos.
 
-## Datos demo
-
-```http
-POST /api/demo/seed-reports
-```
-
-Agrega reportes demo de Tijuana si todavía no existen. Está pensado para pruebas locales y demos rápidas con Firestore o memoria. Por seguridad, solo funciona cuando el backend corre en ambiente `Development` o cuando se activa explícitamente:
-
-```text
-Demo__EnableSeedEndpoint=true
-```
-
-El endpoint no borra datos existentes; solo agrega reportes que no encuentre cerca de los datos demo ya sembrados.
 
 ## Seguridad básica aplicada
 
@@ -489,4 +476,4 @@ El campo `imageUrl` queda como una ruta relativa, por ejemplo:
 /uploads/reports/archivo.jpg
 ```
 
-El backend sirve esas imágenes con `UseStaticFiles()`. Para la demo local esto es suficiente y evita depender de Firebase Storage/Blaze.
+El backend sirve esas imágenes con `UseStaticFiles()`. Para uso local esto es suficiente y evita depender de Firebase Storage/Blaze.

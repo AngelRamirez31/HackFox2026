@@ -219,6 +219,8 @@ function MapView() {
 
   const [reports, setReports] = useState([]);
   const [hotspots, setHotspots] = useState([]);
+  const [essentialDestinations, setEssentialDestinations] = useState([]);
+  const [selectedDestinationKey, setSelectedDestinationKey] = useState("");
   const [selectedReport, setSelectedReport] = useState(null);
   const [loadingReports, setLoadingReports] = useState(true);
   const [loadingScore, setLoadingScore] = useState(false);
@@ -282,6 +284,34 @@ function MapView() {
   }, [loadReports]);
 
   useEffect(() => {
+    let active = true;
+
+    async function loadEssentialDestinations() {
+      try {
+        const response = await api.get("/api/essential-destinations");
+        if (!active) return;
+
+        const destinations = Array.isArray(response.data) ? response.data : [];
+        setEssentialDestinations(destinations);
+
+        if (destinations.length > 0) {
+          setSelectedDestinationKey(destinations[0].key);
+        }
+      } catch {
+        if (active) {
+          setEssentialDestinations([]);
+        }
+      }
+    }
+
+    loadEssentialDestinations();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!reportIdParam || reports.length === 0) return;
 
     const target = reports.find(
@@ -312,6 +342,14 @@ function MapView() {
   const urgentReports = useMemo(
     () => reports.filter((report) => Number(report.severity) >= 3),
     [reports]
+  );
+
+  const selectedEssentialDestination = useMemo(
+    () =>
+      essentialDestinations.find(
+        (destination) => destination.key === selectedDestinationKey
+      ) || null,
+    [essentialDestinations, selectedDestinationKey]
   );
 
   const routeReady = Boolean(routePoints.origin && routePoints.destination);
@@ -353,7 +391,7 @@ function MapView() {
       routeScore?.summary ||
       routeScore?.message ||
       routeScore?.routeStyle?.description ||
-      "Ruta calculada con Geoapify.";
+      "Ruta calculada correctamente.";
 
     return String(message).replace(
       /\b\d{1,3}\/100\b/g,
@@ -459,7 +497,7 @@ function MapView() {
       const response = await api.post("/api/routes/accessibility", {
         points,
         mobilityProfile,
-        source: "demo-or-existing-route",
+        source: "map-accessibility-review",
         includeReports: true,
       });
 
@@ -469,6 +507,22 @@ function MapView() {
     } finally {
       setLoadingScore(false);
     }
+  }
+
+  function applyEssentialDestination(destination = selectedEssentialDestination) {
+    if (!destination) return;
+
+    const point = {
+      lat: Number(destination.lat),
+      lng: Number(destination.lng),
+    };
+
+    if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) return;
+
+    setRoutePoint("destination", point);
+    setFocusPoint(point);
+    setMobilityProfile(destination.recommendedMobilityProfile || "default");
+    setRouteMode("origin");
   }
 
   async function calculateRoute() {
@@ -481,7 +535,7 @@ function MapView() {
 
     if (!geoapifyApiKey) {
       setRouteError(
-        "Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local."
+        "El mapa no está disponible en este momento."
       );
       return;
     }
@@ -502,7 +556,7 @@ function MapView() {
       );
 
       if (!response.ok) {
-        throw new Error(`Geoapify respondió ${response.status}`);
+        throw new Error("El servicio de rutas no respondió correctamente.");
       }
 
       const data = await response.json();
@@ -510,7 +564,7 @@ function MapView() {
       const properties = getGeoapifyProperties(data);
 
       if (points.length < 2) {
-        throw new Error("Geoapify no devolvió una ruta válida.");
+        throw new Error("No se encontró una ruta válida entre los puntos seleccionados.");
       }
 
       setRoutePath(points);
@@ -531,7 +585,7 @@ function MapView() {
       setRouteSummary(null);
       setRouteError(
         err.message ||
-          "No se pudo calcular la ruta con Geoapify. Revisa la API key y que ambos puntos estén en una zona caminable."
+          "No se pudo calcular la ruta. Revisa que ambos puntos estén en una zona caminable."
       );
     } finally {
       setLoadingRoute(false);
@@ -555,7 +609,7 @@ function MapView() {
     return (
       <main className="mapPageShell">
         <div className="mapMessage errorBox">
-          Falta configurar VITE_GEOAPIFY_API_KEY en frontend/.env.local.
+          El mapa no está disponible en este momento.
         </div>
       </main>
     );
@@ -569,9 +623,9 @@ function MapView() {
         <h1>Reportes de Accesibilidad</h1>
 
         <p>
-          Los marcadores vienen directamente del backend y Firestore. Selecciona
-          un punto A y un punto B en el mapa para trazar una ruta peatonal con
-          Geoapify y calcular su accesibilidad.
+          Consulta barreras reportadas por la comunidad. Selecciona un punto A
+          y un punto B en el mapa para trazar una ruta peatonal y calcular su
+          nivel de accesibilidad.
         </p>
 
         <div className="mapStatsGrid">
@@ -613,6 +667,40 @@ function MapView() {
             <span>Ruta peatonal</span>
             <strong>A → B</strong>
           </div>
+
+          {essentialDestinations.length > 0 && (
+            <div className="essentialDestinationBox">
+              <div className="essentialDestinationTop">
+                <span>Destino esencial</span>
+                <strong>{selectedEssentialDestination?.icon || "📍"}</strong>
+              </div>
+
+              <select
+                value={selectedDestinationKey}
+                onChange={(event) => setSelectedDestinationKey(event.target.value)}
+              >
+                {essentialDestinations.map((destination) => (
+                  <option value={destination.key} key={destination.key}>
+                    {destination.name}
+                  </option>
+                ))}
+              </select>
+
+              {selectedEssentialDestination && (
+                <p>
+                  {selectedEssentialDestination.categoryLabel} · {selectedEssentialDestination.estimatedDemandLabel}. Perfil sugerido: {selectedEssentialDestination.recommendedMobilityProfileLabel}.
+                </p>
+              )}
+
+              <button
+                type="button"
+                className="mapMiniButton"
+                onClick={() => applyEssentialDestination()}
+              >
+                Usar como destino B
+              </button>
+            </div>
+          )}
 
           <div
             className="routeModeToggle"
@@ -723,7 +811,7 @@ function MapView() {
             ? "Calculando..."
             : routePath.length > 0
             ? "Recalcular accesibilidad"
-            : "Score demo"}
+            : "Evaluar accesibilidad"}
         </button>
 
         {error && <div className="mapError">{error}</div>}
@@ -779,6 +867,82 @@ function MapView() {
             />
           )}
 
+          {hotspots.map((hotspot) => {
+            const position = {
+              lat: Number(hotspot.centerLat),
+              lng: Number(hotspot.centerLng),
+            };
+
+            if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) {
+              return null;
+            }
+
+            return (
+              <CircleMarker
+                key={`hotspot-${hotspot.centerLat}-${hotspot.centerLng}`}
+                center={toLeafletLatLng(position)}
+                radius={Math.min(24, 10 + Number(hotspot.reportCount || 0) * 3)}
+                pathOptions={{
+                  color: hotspot.severityColor || "#f97316",
+                  fillColor: hotspot.severityColor || "#f97316",
+                  fillOpacity: 0.18,
+                  weight: 2,
+                }}
+                eventHandlers={{
+                  click: () => setFocusPoint(position),
+                }}
+              >
+                <Popup>
+                  <article className="mapInfoCard">
+                    <h2>{hotspot.label}</h2>
+                    <p>{hotspot.reportCount} reportes cercanos. Problema principal: {hotspot.mainIssueLabel}.</p>
+                    <div className="mapInfoMeta">
+                      <span>Prioridad {hotspot.priorityLabel}</span>
+                      <span>Severidad prom. {hotspot.averageSeverity}</span>
+                    </div>
+                  </article>
+                </Popup>
+              </CircleMarker>
+            );
+          })}
+
+          {essentialDestinations.map((destination) => {
+            const position = {
+              lat: Number(destination.lat),
+              lng: Number(destination.lng),
+            };
+
+            if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) {
+              return null;
+            }
+
+            return (
+              <Marker
+                key={`destination-${destination.key}`}
+                position={toLeafletLatLng(position)}
+                icon={getRoutePointIcon(destination.icon || "★")}
+                eventHandlers={{
+                  click: () => {
+                    setSelectedDestinationKey(destination.key);
+                    setFocusPoint(position);
+                  },
+                }}
+              >
+                <Popup>
+                  <article className="mapInfoCard">
+                    <h2>{destination.name}</h2>
+                    <p>{destination.whyImportant}</p>
+                    <div className="mapInfoMeta">
+                      <span>{destination.categoryLabel}</span>
+                      <span>{destination.estimatedDemandLabel}</span>
+                      <span>{destination.recommendedMobilityProfileLabel}</span>
+                    </div>
+                  </article>
+                </Popup>
+              </Marker>
+            );
+          })}
+
           {reports.map((report) => {
             const position = getMarkerPosition(report);
 
@@ -824,6 +988,7 @@ function MapView() {
                 )}
 
                 <div className="mapInfoMeta">
+                  {selectedReport.demoAreaLabel && <span>Área de interés: {selectedReport.demoAreaLabel}</span>}
                   <span>Severidad: {selectedReport.severityLabel}</span>
                   <span>{selectedReport.statusLabel}</span>
                   <span>{selectedReport.trustLabel}</span>
