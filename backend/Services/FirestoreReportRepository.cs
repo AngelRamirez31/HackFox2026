@@ -148,42 +148,6 @@ public class FirestoreReportRepository : IReportRepository
         });
     }
 
-
-    public async Task<int> DeleteAllAsync()
-    {
-        var snapshot = await _reportsCollection.GetSnapshotAsync();
-        var deleted = 0;
-
-        foreach (var chunk in snapshot.Documents.Chunk(450))
-        {
-            var batch = _db.StartBatch();
-            foreach (var document in chunk)
-            {
-                batch.Delete(document.Reference);
-                deleted++;
-            }
-
-            batch.Set(_counterDocument, new Dictionary<string, object>
-            {
-                ["reportsLastId"] = 0,
-                ["updatedAt"] = Timestamp.FromDateTime(DateTime.UtcNow)
-            }, SetOptions.MergeAll);
-
-            await batch.CommitAsync();
-        }
-
-        if (snapshot.Documents.Count == 0)
-        {
-            await _counterDocument.SetAsync(new Dictionary<string, object>
-            {
-                ["reportsLastId"] = 0,
-                ["updatedAt"] = Timestamp.FromDateTime(DateTime.UtcNow)
-            }, SetOptions.MergeAll);
-        }
-
-        return deleted;
-    }
-
     private DocumentReference GetDocument(int id)
     {
         return _reportsCollection.Document(id.ToString(CultureInfo.InvariantCulture));

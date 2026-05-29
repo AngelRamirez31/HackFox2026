@@ -78,15 +78,6 @@ public class InMemoryReportRepository : IReportRepository
         return Task.FromResult<Report?>(report);
     }
 
-
-    public Task<int> DeleteAllAsync()
-    {
-        var count = _reports.Count;
-        _reports.Clear();
-        _nextId = 0;
-        return Task.FromResult(count);
-    }
-
     private void Seed(string type, string description, double latitude, double longitude, int severity)
     {
         var id = Interlocked.Increment(ref _nextId);

@@ -25,19 +25,6 @@ public static class ReportRules
         "rejected"
     };
 
-    public static readonly object TijuanaBounds = new
-    {
-        north = 32.65,
-        south = 32.35,
-        east = -116.75,
-        west = -117.20
-    };
-
-    public static bool IsInsideTijuanaBounds(double latitude, double longitude)
-    {
-        return latitude >= 32.35 && latitude <= 32.65 && longitude >= -117.20 && longitude <= -116.75;
-    }
-
     private static readonly IReadOnlyDictionary<string, string> TypeAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
         ["banqueta_rota"] = "sidewalk_damage",

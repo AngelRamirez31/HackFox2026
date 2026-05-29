@@ -242,7 +242,7 @@ function Reportes() {
                   <button type="button" onClick={() => marcarResuelto(reporte.id)} disabled={accionandoId === reporte.id || reporte.status === "resolved"}>
                     Marcar como resuelto
                   </button>
-                  <Link to={`/mapa?reportId=${reporte.id}`}>Ver en mapa</Link>
+                  <Link to="/mapa">Ver en mapa</Link>
                 </div>
               </div>
             </article>

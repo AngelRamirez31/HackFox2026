@@ -12,21 +12,15 @@ public class ReportsController : ControllerBase
     private readonly IReportRepository _reports;
     private readonly LocalFileStorageService _fileStorage;
     private readonly GeminiVisionService _geminiVisionService;
-    private readonly IConfiguration _configuration;
-    private readonly ReportAnalyticsService _analytics;
 
     public ReportsController(
         IReportRepository reports,
         LocalFileStorageService fileStorage,
-        GeminiVisionService geminiVisionService,
-        IConfiguration configuration,
-        ReportAnalyticsService analytics)
+        GeminiVisionService geminiVisionService)
     {
         _reports = reports;
         _fileStorage = fileStorage;
         _geminiVisionService = geminiVisionService;
-        _configuration = configuration;
-        _analytics = analytics;
     }
 
     [HttpGet]
@@ -132,44 +126,8 @@ public class ReportsController : ControllerBase
                 image = new[] { "image", "foto" },
                 useGemini = new[] { "useGemini", "usarGemini", "analyzeImage", "analizarImagen" }
             },
-            duplicateCheck = new
-            {
-                enabled = _configuration.GetValue<bool>("Reports:PreventDuplicates"),
-                radiusMeters = GetDuplicateRadiusMeters()
-            },
-            geographicValidation = new
-            {
-                restrictToTijuana = _configuration.GetValue<bool>("Reports:RestrictToTijuana"),
-                bounds = ReportRules.TijuanaBounds
-            },
             geminiAssistedEndpoint = "/api/reports/analyze-and-create"
         });
-    }
-
-    [HttpGet("hotspots")]
-    public async Task<ActionResult<IEnumerable<HotspotResponse>>> GetHotspots(
-        [FromQuery] double radiusMeters = 140,
-        [FromQuery] int minReports = 2,
-        [FromQuery] int limit = 10,
-        [FromQuery] bool includeReports = true)
-    {
-        if (radiusMeters is < 30 or > 1000)
-        {
-            return BadRequest(new { message = "radiusMeters debe estar entre 30 y 1000 metros." });
-        }
-
-        if (minReports is < 1 or > 20)
-        {
-            return BadRequest(new { message = "minReports debe estar entre 1 y 20." });
-        }
-
-        if (limit is < 1 or > 50)
-        {
-            return BadRequest(new { message = "limit debe estar entre 1 y 50." });
-        }
-
-        var reports = await _reports.GetAllAsync();
-        return Ok(_analytics.BuildHotspots(reports, radiusMeters, minReports, limit, includeReports));
     }
 
     [HttpGet("nearby")]
@@ -355,17 +313,6 @@ public class ReportsController : ControllerBase
         if (latitude.Value is < -90 or > 90 || longitude.Value is < -180 or > 180)
         {
             return CreateReportCoreResult.Fail("Coordenadas inválidas.", 400);
-        }
-
-        if (_configuration.GetValue<bool>("Reports:RestrictToTijuana") && !ReportRules.IsInsideTijuanaBounds(latitude.Value, longitude.Value))
-        {
-            return CreateReportCoreResult.Fail("El reporte debe estar dentro del área de Tijuana configurada para este prototipo.", 400);
-        }
-
-        var duplicate = await FindDuplicateReportAsync(type, latitude.Value, longitude.Value);
-        if (duplicate is not null)
-        {
-            return CreateReportCoreResult.Fail($"Ya existe un reporte similar cerca de esta ubicación. Reporte existente: #{duplicate.Id}.", 409);
         }
 
         var description = request.GetDescriptionValue();
@@ -564,35 +511,6 @@ public class ReportsController : ControllerBase
             report.Latitude >= south.Value &&
             report.Longitude <= east.Value &&
             report.Longitude >= west.Value);
-    }
-
-    private async Task<Report?> FindDuplicateReportAsync(string type, double latitude, double longitude)
-    {
-        if (!_configuration.GetValue<bool>("Reports:PreventDuplicates"))
-        {
-            return null;
-        }
-
-        var radiusMeters = GetDuplicateRadiusMeters();
-        var reports = await _reports.GetAllAsync();
-
-        return reports
-            .Where(report => report.Status == "active" && report.Type == type)
-            .Select(report => new
-            {
-                Report = report,
-                Distance = GeoUtils.DistanceMeters(latitude, longitude, report.Latitude, report.Longitude)
-            })
-            .Where(item => item.Distance <= radiusMeters)
-            .OrderBy(item => item.Distance)
-            .Select(item => item.Report)
-            .FirstOrDefault();
-    }
-
-    private double GetDuplicateRadiusMeters()
-    {
-        var configured = _configuration.GetValue<double?>("Reports:DuplicateRadiusMeters") ?? 20;
-        return Math.Clamp(configured, 5, 100);
     }
 
     private record CreateReportCoreResult(bool Success, ReportCreationResponse? Response, string? Error, int StatusCode)

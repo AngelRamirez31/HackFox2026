@@ -1,109 +1,20 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import api from "../services/api";
 import "./Home.css";
 
 function Home() {
-  const [summary, setSummary] = useState(null);
-  const [hotspots, setHotspots] = useState([]);
-  const [loadingSummary, setLoadingSummary] = useState(true);
-
-  const reviewItems = [
-    {
-      badge: "Acceso",
-      badgeClass: "badge-primary",
-      icon: "♿",
-      time: "Hace 5 min",
-      title: "Rampa libre cerca de Zona Río",
-      user: "@carlos_tj",
-    },
-    {
-      badge: "Alerta",
-      badgeClass: "badge-warning",
-      icon: "⚠️",
-      time: "Hace 12 min",
-      title: "Banqueta dañada en cruce principal",
-      user: "@ana_verde",
-    },
-    {
-      badge: "Ruta",
-      badgeClass: "badge-success",
-      icon: "📍",
-      time: "Hace 25 min",
-      title: "Trayecto recomendado hacia el parque",
-      user: "@luis_m",
-    },
-    {
-      badge: "Reporte",
-      badgeClass: "badge-error",
-      icon: "🚧",
-      time: "Hace 1 h",
-      title: "Obstáculo bloqueando paso peatonal",
-      user: "@colectivo_sur",
-    },
-  ];
-
-  const reviewLoop = [...reviewItems, ...reviewItems];
-
-  useEffect(() => {
-    let active = true;
-
-    async function loadHomeData() {
-      setLoadingSummary(true);
-
-      try {
-        const [summaryResponse, hotspotsResponse] = await Promise.all([
-          api.get("/api/dashboard/summary", {
-            params: { recentLimit: 5, hotspotLimit: 3 },
-          }),
-          api.get("/api/reports/hotspots", {
-            params: { limit: 3 },
-          }),
-        ]);
-
-        if (!active) return;
-
-        setSummary(summaryResponse.data);
-        setHotspots(
-          Array.isArray(hotspotsResponse.data) ? hotspotsResponse.data : []
-        );
-      } catch {
-        if (!active) return;
-
-        setSummary(null);
-        setHotspots([]);
-      } finally {
-        if (active) setLoadingSummary(false);
-      }
-    }
-
-    loadHomeData();
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const totalReports = loadingSummary ? "..." : summary?.totalReports ?? 24;
-  const highPriorityReports = loadingSummary
-    ? "..."
-    : summary?.highPriorityReports ?? 7;
-  const hotspotCount = loadingSummary
-    ? "..."
-    : hotspots.length || summary?.topHotspots?.length || 3;
-
   return (
     <main className="home">
       <section className="hero">
         <div className="heroContent">
-          <span className="badge">Tijuana Sin Barreras</span>
+          <span className="badge">HackFox 2026 · Tijuana Sin Barreras</span>
 
           <h1>Planea tu camino, evita obstáculos</h1>
 
           <p className="heroText">
             Streets-H es una plataforma colaborativa que permite reportar
             barreras físicas como banquetas destruidas, rampas bloqueadas,
-            obstáculos y zonas difíciles de transitar.
+            obstáculos y zonas difíciles de transitar. Con estos reportes,
+            ayudamos a construir un mapa vivo de accesibilidad urbana.
           </p>
 
           <div className="heroButtons">
@@ -118,48 +29,103 @@ function Home() {
         </div>
 
         <div className="heroCard reportsTickerCard">
-          <div className="tickerTop">
-            <span className="tickerLabel">
+          <div className="tickerHeader">
+            <div>
+              <span className="tickerLabel">Actividad reciente</span>
+              <h2>Últimos reportes</h2>
+            </div>
+
+            <span className="liveBadge">
               <span className="livePulse"></span>
-              Actividad reciente
+              En vivo
             </span>
           </div>
 
-          <div className="tickerHeader">
-            <h2>Últimos reportes</h2>
-          </div>
-
           <p className="tickerDescription">
-            Reportes ciudadanos para identificar barreras físicas y planear
-            trayectos más seguros.
+            Reportes ciudadanos actualizados para identificar barreras físicas y
+            planear trayectos más seguros.
           </p>
+
+          <div className="tickerWindow">
+            <div className="tickerTrack">
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Banqueta rota</strong>
+                <p>Zona Río · hace 4 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Rampa bloqueada</strong>
+                <p>Centro · hace 12 min</p>
+              </div>
+
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Sin banqueta</strong>
+                <p>Otay · hace 20 min</p>
+              </div>
+
+              <div className="tickerItem low">
+                <span>Baja</span>
+                <strong>Obstáculo en paso</strong>
+                <p>Playas · hace 31 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Cruce inseguro</strong>
+                <p>La Mesa · hace 44 min</p>
+              </div>
+
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Banqueta rota</strong>
+                <p>Zona Río · hace 4 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Rampa bloqueada</strong>
+                <p>Centro · hace 12 min</p>
+              </div>
+
+              <div className="tickerItem high">
+                <span>Alta</span>
+                <strong>Sin banqueta</strong>
+                <p>Otay · hace 20 min</p>
+              </div>
+
+              <div className="tickerItem low">
+                <span>Baja</span>
+                <strong>Obstáculo en paso</strong>
+                <p>Playas · hace 31 min</p>
+              </div>
+
+              <div className="tickerItem medium">
+                <span>Media</span>
+                <strong>Cruce inseguro</strong>
+                <p>La Mesa · hace 44 min</p>
+              </div>
+            </div>
+          </div>
 
           <div className="tickerSummary">
             <div>
-              <strong>{totalReports}</strong>
-              <span>reportes totales</span>
+              <strong>24</strong>
+              <span>reportes hoy</span>
             </div>
 
             <div>
-              <strong>{highPriorityReports}</strong>
+              <strong>7</strong>
               <span>prioridad alta</span>
             </div>
 
             <div>
-              <strong>{hotspotCount}</strong>
+              <strong>3</strong>
               <span>zonas críticas</span>
             </div>
           </div>
-
-          {summary && (
-            <div className="homeLiveSummary">
-              <span>{summary.activeReports ?? 0} activos</span>
-              <span>{summary.reportsWithImages ?? 0} con foto</span>
-              <span>
-                {summary.mostCommonBarrierLabel || "Sin barrera dominante"}
-              </span>
-            </div>
-          )}
         </div>
       </section>
 
@@ -198,51 +164,11 @@ function Home() {
             <div className="icon">♿</div>
             <h3>Diseño accesible</h3>
             <p>
-              Pensado para adultos mayores, personas con discapacidad motriz y
-              familias que necesitan trayectos más seguros.
+              La plataforma está pensada para adultos mayores, personas con
+              discapacidad motriz y familias que necesitan trayectos más
+              seguros.
             </p>
           </article>
-        </div>
-      </section>
-
-      <section className="reviewsSection" aria-labelledby="reviews-title">
-        <div className="reviewsHeader">
-          <div>
-            <span>Comunidad activa</span>
-            <h2 id="reviews-title">Reviews más relevantes</h2>
-          </div>
-
-          <Link to="/mapa">Ver mapa</Link>
-        </div>
-
-        <div className="reviewsCarouselWrapper">
-          <div className="reviewsCarouselTrack">
-            {reviewLoop.map((item, index) => (
-              <article
-                className="reviewCard"
-                key={`${item.badge}-${index}`}
-                aria-hidden={index >= reviewItems.length}
-              >
-                <div className="reviewTop">
-                  <span className={`reviewBadge ${item.badgeClass}`}>
-                    <span>{item.icon}</span>
-                    {item.badge}
-                  </span>
-
-                  <span className="reviewTime">{item.time}</span>
-                </div>
-
-                <h4>{item.title}</h4>
-
-                <div className="reviewUser">
-                  <div className="reviewAvatar">
-                    {item.user.charAt(1).toUpperCase()}
-                  </div>
-                  <span>Por {item.user}</span>
-                </div>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
 

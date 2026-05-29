@@ -226,28 +226,3 @@ Content-Disposition: form-data; name="useGemini"
 true
 --HackFoxCreateWithGeminiBoundary--
 
-
-###
-
-GET {{HackFox2026_HostAddress}}/api/health?deep=true
-Accept: application/json
-
-###
-
-GET {{HackFox2026_HostAddress}}/api/app/config
-Accept: application/json
-
-###
-
-GET {{HackFox2026_HostAddress}}/api/dashboard/summary
-Accept: application/json
-
-###
-
-GET {{HackFox2026_HostAddress}}/api/reports/hotspots?radiusMeters=140&minReports=2&limit=10
-Accept: application/json
-
-###
-
-POST {{HackFox2026_HostAddress}}/api/demo/reset-reports?seed=true
-Accept: application/json
