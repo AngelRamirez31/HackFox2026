@@ -512,10 +512,6 @@ Streets-H actualmente cuenta con:
 
 ## Equipo
 
-Proyecto desarrollado para HackFox 2026.
+Proyecto desarrollado para HackFox 2026. Angel, Diego, Esteban y Elisa
 
-Nombre del producto:
 
-```text
-Streets-H
-```
