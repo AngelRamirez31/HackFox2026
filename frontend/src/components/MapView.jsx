@@ -966,7 +966,6 @@ function MapView() {
           <h1>Reportes de Accesibilidad</h1>
 
           <p>
-            Los marcadores vienen directamente del backend.
             Selecciona un punto A y un punto B en el mapa para trazar una ruta
             peatonal con Geoapify y calcular su accesibilidad.
           </p>

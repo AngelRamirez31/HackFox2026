@@ -59,7 +59,7 @@ function Impacto() {
           <span className="impactBadge">Impacto Social Medible</span>
           <h1>Dashboard de impacto urbano</h1>
           <p>
-            Convierte reportes ciudadanos en métricas claras para autoridades,
+            Convierte tus reportes en métricas claras para autoridades,
             comunidad y decisiones de accesibilidad en servicios públicos.
           </p>
         </div>
@@ -79,7 +79,7 @@ function Impacto() {
         <>
           <section className="impactNarrative">
             <div>
-              <span>Resumen ejecutivo</span>
+              <span>Resumen Ejecutivo</span>
               <h2>{summary.headline}</h2>
               <p>{summary.narrative}</p>
             </div>
@@ -87,15 +87,15 @@ function Impacto() {
             <div className="impactQuickStats">
               <article>
                 <strong>{summary.authorityReadyReports}</strong>
-                <span>casos listos para municipio</span>
+                <span>Casos Listos para Municipio</span>
               </article>
               <article>
                 <strong>{summary.criticalZonesDetected}</strong>
-                <span>zonas críticas</span>
+                <span>Zonas Críticas</span>
               </article>
               <article>
                 <strong>{summary.essentialDestinationCount}</strong>
-                <span>destinos esenciales</span>
+                <span>Destinos Esenciales</span>
               </article>
             </div>
           </section>
@@ -115,8 +115,8 @@ function Impacto() {
               <div className="impactPanelHeader">
                 <LuMapPinned />
                 <div>
-                  <span>Prioridad territorial</span>
-                  <h2>Zonas críticas principales</h2>
+                  <span>Prioridad Territorial</span>
+                  <h2>Zonas Críticas Principales</h2>
                 </div>
               </div>
 
@@ -141,8 +141,8 @@ function Impacto() {
               <div className="impactPanelHeader">
                 <LuClipboardCheck />
                 <div>
-                  <span>Acciones sugeridas</span>
-                  <h2>Qué hacer primero</h2>
+                  <span>Acciones Sugeridas</span>
+                  <h2>Qué Hacer Primero</h2>
                 </div>
               </div>
 
@@ -164,8 +164,8 @@ function Impacto() {
             <div className="impactPanelHeader">
               <LuRoute />
               <div>
-                <span>Modo destino esencial</span>
-                <h2>Servicios públicos priorizados</h2>
+                <span>Modo Destino Esencial</span>
+                <h2>Servicios Públicos Priorizados</h2>
               </div>
             </div>
 
@@ -185,7 +185,7 @@ function Impacto() {
             </div>
 
             <Link to="/mapa" className="impactCta">
-              Probar una ruta a destino esencial
+              Probar una Ruta a Destino Esencial
             </Link>
           </section>
         </>

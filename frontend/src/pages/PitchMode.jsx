@@ -129,7 +129,7 @@ function PitchMode() {
       <section className="pitchHero">
         <div>
           <span className="pitchBadge">Escenario accesible</span>
-          <h1>Compara una ruta directa con una ruta más segura</h1>
+          <h1>Comparación de Ruta Directa con Ruta más Segura</h1>
           <p>
             Evalúa trayectos hacia servicios esenciales con barreras cercanas,
             nivel de accesibilidad y recomendaciones claras antes de salir.

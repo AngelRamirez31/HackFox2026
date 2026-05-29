@@ -118,11 +118,11 @@ function Home() {
 
           <div className="heroButtons">
             <Link to="/mapa" className="primaryButton">
-              Ver mapa accesible
+              Ver Mapa Accesible
             </Link>
 
             <Link to="/crear-reporte" className="secondaryButton">
-              Reportar una barrera
+              Reportar una Barrera
             </Link>
           </div>
         </div>
@@ -131,12 +131,12 @@ function Home() {
           <div className="tickerTop">
             <span className="tickerLabel">
               <span className="livePulse"></span>
-              Actividad reciente
+              Actividad Reciente
             </span>
           </div>
 
           <div className="tickerHeader">
-            <h2>Últimos reportes</h2>
+            <h2>Últimos Reportes</h2>
           </div>
 
           <p className="tickerDescription">
@@ -147,17 +147,17 @@ function Home() {
           <div className="tickerSummary">
             <div>
               <strong>{totalReports}</strong>
-              <span>reportes totales</span>
+              <span>Reportes Totales</span>
             </div>
 
             <div>
               <strong>{highPriorityReports}</strong>
-              <span>prioridad alta</span>
+              <span>Prioridad Alta</span>
             </div>
 
             <div>
               <strong>{hotspotCount}</strong>
-              <span>zonas críticas</span>
+              <span>Zonas Críticas</span>
             </div>
           </div>
 
@@ -182,7 +182,7 @@ function Home() {
               <LuMapPinned />
             </div>
 
-            <h3>Planear trayectos</h3>
+            <h3>Planear Trayectos</h3>
 
             <p>
               Consulta el mapa para identificar rutas con menos obstáculos y
@@ -195,7 +195,7 @@ function Home() {
               <LuCamera />
             </div>
 
-            <h3>Reportar barreras</h3>
+            <h3>Reportar Barreras</h3>
 
             <p>
               Toma una fotografía, confirma la ubicación y registra el tipo de
@@ -208,7 +208,7 @@ function Home() {
               <LuGlobe />
             </div>
 
-            <h3>Ver reportes globales</h3>
+            <h3>Ver Reportes Globales</h3>
 
             <p>
               Explora los reportes realizados por la comunidad y ayuda a
@@ -221,7 +221,7 @@ function Home() {
               <LuAccessibility />
             </div>
 
-            <h3>Diseño accesible</h3>
+            <h3>Diseño Accesible</h3>
 
             <p>
               Pensado para adultos mayores, personas con discapacidad motriz y
@@ -233,7 +233,7 @@ function Home() {
 
       <section className="hackfoxFocus">
         <div className="hackfoxFocusHeader">
-          <span>Movilidad inteligente</span>
+          <span>Movilidad Inteligente</span>
           <h2>Herramientas para planear y mejorar la accesibilidad</h2>
           <p>
             Streets-H prioriza servicios públicos, muestra impacto social medible
@@ -246,36 +246,36 @@ function Home() {
             <div className="icon">
               <LuRoute />
             </div>
-            <h3>Destinos esenciales</h3>
+            <h3>Destinos Esenciales</h3>
             <p>
               El mapa permite seleccionar hospitales, gobierno, transporte y
               zonas escolares para calcular rutas accesibles con un perfil recomendado.
             </p>
-            <Link to="/mapa">Probar en mapa</Link>
+            <Link to="/mapa">Probar en Mapa</Link>
           </article>
 
           <article>
             <div className="icon">
               <LuGlobe />
             </div>
-            <h3>Impacto medible</h3>
+            <h3>Impacto Medible</h3>
             <p>
               Dashboard con zonas críticas, reportes confirmados, prioridad
               urbana y casos listos para seguimiento municipal.
             </p>
-            <Link to="/impacto">Ver impacto</Link>
+            <Link to="/impacto">Ver Impacto</Link>
           </article>
 
           <article>
             <div className="icon">
               <LuPresentation />
             </div>
-            <h3>Escenario accesible</h3>
+            <h3>Escenario Accesible</h3>
             <p>
               Compara una ruta directa con una alternativa Streets-H, mostrando
               barreras cercanas, mejora de accesibilidad y recomendaciones.
             </p>
-            <Link to="/escenario">Ver escenario</Link>
+            <Link to="/escenario">Ver Escenario</Link>
           </article>
         </div>
       </section>
@@ -283,11 +283,10 @@ function Home() {
       <section className="reviewsSection" aria-labelledby="reviews-title">
         <div className="reviewsHeader">
           <div>
-            <span>Comunidad activa</span>
-            <h2 id="reviews-title">Reviews más relevantes</h2>
+            <h2 id="reviews-title">Reviews Relevantes</h2>
           </div>
 
-          <Link to="/mapa">Ver mapa</Link>
+          <Link to="/mapa">Ver Mapa</Link>
         </div>
 
         <div className="reviewsCarouselWrapper">
@@ -334,7 +333,7 @@ function Home() {
         </div>
 
         <Link to="/crear-reporte" className="missionButton">
-          Crear primer reporte
+          Crear Primer Reporte
         </Link>
       </section>
     </main>
