@@ -9,8 +9,7 @@
 .pitchHero,
 .pitchStoryCard,
 .scenarioCard,
-.pitchPanel,
-.pitchMetrics article,
+.pitchControlCard,
 .pitchMessage {
   position: relative;
   isolation: isolate;
@@ -23,8 +22,7 @@
 .pitchHero::before,
 .pitchStoryCard::before,
 .scenarioCard::before,
-.pitchPanel::before,
-.pitchMetrics article::before,
+.pitchControlCard::before,
 .pitchMessage::before {
   content: "";
   position: absolute;
@@ -34,9 +32,28 @@
   background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px),
     linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
   background-size: 20px 30px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%);
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 60% at 50% 0%,
+    #000 60%,
+    transparent 100%
+  );
   opacity: 0.72;
 }
+
+.pitchStoryCard,
+.scenarioCompare,
+.pitchActions,
+.pitchMessage {
+  max-width: 1180px;
+  margin: 26px auto 0;
+}
+
+/* Hero */
 
 .pitchHero {
   max-width: 1180px;
@@ -44,14 +61,19 @@
   border-radius: 28px;
   padding: 42px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 28px;
   align-items: center;
 }
 
+.pitchHeroContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .pitchBadge,
-.pitchStoryHeader span,
-.pitchPanelHeader span {
+.pitchStoryHeader span {
   width: fit-content;
   display: inline-block;
   background: #dbeafe;
@@ -64,7 +86,6 @@
 
 .pitchHero h1,
 .pitchStoryCard h2,
-.pitchPanel h2,
 .scenarioCard h2 {
   color: #0f172a;
   letter-spacing: -1px;
@@ -77,96 +98,131 @@
 }
 
 .pitchHero p,
-.pitchSubtitle,
 .pitchPersonaGrid p,
-.scenarioCard p,
-.pitchTimeline p,
-.talkingPoints article,
-.pitchMetrics p {
+.scenarioCard p {
   color: #475569;
   line-height: 1.65;
   margin: 0;
 }
 
+/* Selector de destino */
+
 .pitchControlCard {
-  background: white;
-  border: 1px solid #bfdbfe;
   border-radius: 24px;
   padding: 26px;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 16px;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  justify-self: center;
+  text-align: center;
+  background: white;
   box-shadow: 0 18px 42px rgba(37, 99, 235, 0.1);
 }
 
 .pitchControlCard svg {
   color: #2563eb;
-  font-size: 2.3rem;
+  font-size: 2.4rem;
 }
 
 .pitchControlCard label {
+  width: 100%;
   color: #64748b;
   font-weight: 900;
-  display: grid;
-  gap: 8px;
+  text-align: center;
 }
 
 .pitchControlCard select {
+  width: 100%;
+  max-width: 100%;
   border: 1px solid #bfdbfe;
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   color: #0f172a;
   font-weight: 850;
   background: white;
+  text-align: center;
 }
 
-.pitchStoryCard,
-.scenarioCompare,
-.pitchScriptGrid,
-.pitchMetrics,
-.pitchActions,
-.pitchMessage {
-  max-width: 1180px;
-  margin: 26px auto 0;
-}
+/* Historia principal */
 
 .pitchStoryCard {
   border-radius: 26px;
   padding: 30px;
 }
 
-.pitchStoryHeader,
-.pitchPanelHeader {
+.pitchStoryHeader {
   display: flex;
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 14px;
-  margin-bottom: 16px;
+  margin-bottom: 28px;
+  width: 100%;
 }
 
-.pitchStoryHeader svg,
-.pitchPanelHeader svg {
+.pitchStoryHeader svg {
   color: #2563eb;
   font-size: 2.1rem;
-  margin-top: 5px;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+
+.pitchStoryHeader > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+}
+
+.pitchStoryHeader span {
+  margin: 0 0 10px 0;
+}
+
+.pitchStoryHeader h2 {
+  margin: 0;
+  text-align: left;
 }
 
 .pitchPersonaGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr 0.8fr;
-  gap: 14px;
-  margin-top: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+  align-items: stretch;
 }
 
 .pitchPersonaGrid article {
+  min-height: 220px;
+  padding: 22px;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 18px;
+  border: 1px solid #dbeafe;
+  border-radius: 22px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
 }
 
 .pitchPersonaGrid strong {
+  display: block;
   color: #1d4ed8;
   font-weight: 900;
+  font-size: 1.5rem;
+  margin-bottom: 14px;
 }
+
+.pitchPersonaGrid p {
+  font-size: 1.08rem;
+}
+
+/* Comparación de escenarios */
 
 .scenarioCompare {
   display: grid;
@@ -204,9 +260,17 @@
   letter-spacing: -3px;
 }
 
-.pitchScore.good { color: #16a34a; }
-.pitchScore.mid { color: #f97316; }
-.pitchScore.bad { color: #dc2626; }
+.pitchScore.good {
+  color: #16a34a;
+}
+
+.pitchScore.mid {
+  color: #f97316;
+}
+
+.pitchScore.bad {
+  color: #dc2626;
+}
 
 .scenarioStats {
   display: grid;
@@ -267,78 +331,7 @@
   font-weight: 800;
 }
 
-.pitchScriptGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-}
-
-.pitchPanel {
-  border-radius: 24px;
-  padding: 28px;
-}
-
-.pitchTimeline {
-  display: grid;
-  gap: 14px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.pitchTimeline li {
-  display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-.pitchTimeline li span {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: #2563eb;
-  color: white;
-  font-weight: 900;
-}
-
-.talkingPoints {
-  display: grid;
-  gap: 12px;
-}
-
-.talkingPoints article {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 16px;
-  font-weight: 800;
-}
-
-.pitchMetrics {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.pitchMetrics article {
-  border-radius: 20px;
-  padding: 22px;
-}
-
-.pitchMetrics span {
-  color: #64748b;
-  font-weight: 900;
-}
-
-.pitchMetrics strong {
-  display: block;
-  color: #1d4ed8;
-  font-size: 2.2rem;
-  margin: 5px 0;
-}
+/* Acciones */
 
 .pitchActions {
   display: flex;
@@ -366,6 +359,8 @@
   border: 1px solid #bfdbfe;
 }
 
+/* Mensajes */
+
 .pitchMessage {
   border-radius: 22px;
   padding: 24px;
@@ -380,16 +375,17 @@
   border-color: #fecaca;
 }
 
+/* Responsive */
+
 @media (max-width: 1000px) {
   .pitchHero,
   .scenarioCompare,
-  .pitchScriptGrid,
   .pitchPersonaGrid {
     grid-template-columns: 1fr;
   }
 
-  .pitchMetrics {
-    grid-template-columns: repeat(2, 1fr);
+  .pitchControlCard {
+    max-width: 100%;
   }
 }
 
@@ -401,15 +397,28 @@
   .pitchHero,
   .pitchStoryCard,
   .scenarioCard,
-  .pitchPanel {
+  .pitchControlCard {
     padding: 22px;
   }
 
-  .pitchMetrics,
+  .pitchHero h1 {
+    font-size: 2.4rem;
+  }
+
   .scenarioStats {
     grid-template-columns: 1fr;
   }
+
+  .pitchPersonaGrid article {
+    min-height: auto;
+  }
+
+  .pitchActions {
+    flex-direction: column;
+  }
+
+  .pitchPrimaryLink,
+  .pitchSecondaryLink {
+    text-align: center;
+  }
 }
-
-
-

@@ -37,6 +37,7 @@ function getPriorityRank(report) {
   if (report.priorityLevel === "low") return 2;
 
   const priorityScore = Number(report.priorityScore);
+
   if (Number.isFinite(priorityScore)) {
     if (priorityScore >= 85) return 5;
     if (priorityScore >= 65) return 4;
@@ -44,6 +45,7 @@ function getPriorityRank(report) {
   }
 
   const severity = Number(report.severity);
+
   if (Number.isFinite(severity)) {
     if (severity >= 4) return 5;
     if (severity >= 3) return 4;
@@ -95,12 +97,18 @@ function buildExecutiveSummary({
   ];
 
   if (hotspots.length > 0) {
-    parts.push(`${hotspots.length} zonas críticas fueron detectadas por concentración de reportes`);
+    parts.push(
+      `${hotspots.length} zonas críticas fueron detectadas por concentración de reportes`
+    );
   } else {
-    parts.push("todavía no se detectan zonas críticas por concentración de reportes");
+    parts.push(
+      "todavía no se detectan zonas críticas por concentración de reportes"
+    );
   }
 
-  return `${parts.join(", ")}. La prioridad operativa debe enfocarse en validar reportes pendientes, atender zonas con mayor concentración y resolver primero los casos de mayor riesgo peatonal.`;
+  return `${parts.join(
+    ", "
+  )}. La prioridad operativa debe enfocarse en validar reportes pendientes, atender zonas con mayor concentración y resolver primero los casos de mayor riesgo peatonal.`;
 }
 
 function Impacto() {
@@ -226,6 +234,7 @@ function Impacto() {
         report.category ||
         report.issueType ||
         "sin-clasificar";
+
       const label =
         report.typeLabel ||
         report.categoryLabel ||
@@ -409,28 +418,32 @@ function Impacto() {
       key: "verification",
       label: "Requieren Verificación",
       value: verificationReports.length,
-      detail: "Reportes que necesitan confirmación comunitaria para sostener su confianza.",
+      detail:
+        "Reportes que necesitan confirmación comunitaria para sostener su confianza.",
       level: verificationReports.length > 0 ? "medium" : "low",
     },
     {
       key: "criticalReports",
       label: "Reportes Críticos",
       value: criticalReports.length,
-      detail: "Casos con prioridad alta o crítica que deben revisarse antes que el resto.",
+      detail:
+        "Casos con prioridad alta o crítica que deben revisarse antes que el resto.",
       level: criticalReports.length > 0 ? "critical" : "low",
     },
     {
       key: "hotspots",
       label: "Zonas Críticas",
       value: sortedHotspots.length,
-      detail: "Agrupaciones de reportes cercanos que revelan puntos urbanos problemáticos.",
+      detail:
+        "Agrupaciones de reportes cercanos que revelan puntos urbanos problemáticos.",
       level: sortedHotspots.length > 0 ? "high" : "low",
     },
     {
       key: "lowTrust",
       label: "Baja Confianza",
       value: lowTrustReports.length,
-      detail: "Reportes que podrían requerir evidencia, imagen o validación adicional.",
+      detail:
+        "Reportes que podrían requerir evidencia, imagen o validación adicional.",
       level: lowTrustReports.length > 0 ? "medium" : "low",
     },
   ];
@@ -458,7 +471,9 @@ function Impacto() {
         owner: "Municipio",
         urgency: criticalReports.length >= 3 ? "Urgente" : "Alta",
         level: criticalReports.length >= 3 ? "critical" : "high",
-        to: criticalReports[0]?.id ? `/mapa?reportId=${criticalReports[0].id}` : "/mapa",
+        to: criticalReports[0]?.id
+          ? `/mapa?reportId=${criticalReports[0].id}`
+          : "/mapa",
       });
     }
 
@@ -532,7 +547,9 @@ function Impacto() {
       <section className="impactHero">
         <div>
           <span className="impactBadge">Impacto Urbano</span>
+
           <h1>Centro de Impacto y Accesibilidad</h1>
+
           <p>
             Esta sección concentra lo que antes iba en Inicio: resumen ejecutivo,
             verificación, reportes críticos y zonas críticas principales.
@@ -560,7 +577,9 @@ function Impacto() {
           <section className="impactNarrative">
             <div>
               <span>Resumen Ejecutivo</span>
+
               <h2>Estado Actual de Accesibilidad Urbana</h2>
+
               <p>{executiveSummary}</p>
 
               <div className="impactSummaryActions">
@@ -577,10 +596,12 @@ function Impacto() {
                 <strong>{reports.length}</strong>
                 <span>Reportes Totales</span>
               </article>
+
               <article>
                 <strong>{verificationReports.length}</strong>
                 <span>Requieren Verificación</span>
               </article>
+
               <article>
                 <strong>{criticalReports.length}</strong>
                 <span>Reportes Críticos</span>
@@ -601,6 +622,7 @@ function Impacto() {
           <section className="impactPanel impactBreakdownSection">
             <div className="impactPanelHeader">
               <LuActivity />
+
               <div>
                 <span>Patrones Urbanos</span>
                 <h2>Problemas Más Frecuentes</h2>
@@ -646,6 +668,7 @@ function Impacto() {
             <div className="impactPanel">
               <div className="impactPanelHeader">
                 <LuMapPinned />
+
                 <div>
                   <span>Prioridad Territorial</span>
                   <h2>Zonas Críticas Principales</h2>
@@ -665,6 +688,7 @@ function Impacto() {
                     >
                       <div>
                         <strong>{zone.mainIssueLabel || "Zona Crítica"}</strong>
+
                         <p>
                           {zone.reportCount || 0} reportes relacionados
                           {zone.averageSeverity
@@ -691,6 +715,7 @@ function Impacto() {
             <div className="impactPanel">
               <div className="impactPanelHeader">
                 <LuRoute />
+
                 <div>
                   <span>Atención Inmediata</span>
                   <h2>Reportes Críticos</h2>
@@ -704,7 +729,12 @@ function Impacto() {
                   </p>
                 ) : (
                   topCriticalReports.map((report) => (
-                    <article className="impactReport" key={report.id}>
+                    <article
+                      className={
+                        report.imageUrl ? "impactReport" : "impactReport noImage"
+                      }
+                      key={report.id}
+                    >
                       {report.imageUrl && (
                         <img
                           src={getImageUrl(report.imageUrl)}
@@ -714,7 +744,9 @@ function Impacto() {
 
                       <div className="impactReportContent">
                         <strong>
-                          {report.title || report.typeLabel || "Reporte Crítico"}
+                          {report.title ||
+                            report.typeLabel ||
+                            "Reporte Crítico"}
                         </strong>
 
                         {report.description && <p>{report.description}</p>}
@@ -763,6 +795,7 @@ function Impacto() {
             <div className="impactPanel">
               <div className="impactPanelHeader">
                 <LuClipboardCheck />
+
                 <div>
                   <span>Validación Comunitaria</span>
                   <h2>Reportes por Verificar</h2>
@@ -776,11 +809,15 @@ function Impacto() {
                   </p>
                 ) : (
                   verificationReports.slice(0, 4).map((report) => (
-                    <article className="impactAction verificationAction" key={report.id}>
+                    <article
+                      className="impactAction verificationAction"
+                      key={report.id}
+                    >
                       <div>
                         <strong>
                           {report.title || report.typeLabel || "Reporte"}
                         </strong>
+
                         <p>
                           {report.validationSummary ||
                             "Este reporte necesita confirmación comunitaria."}
@@ -850,6 +887,7 @@ function Impacto() {
             <div className="impactPanel">
               <div className="impactPanelHeader">
                 <LuClipboardCheck />
+
                 <div>
                   <span>Acciones Sugeridas</span>
                   <h2>Qué Hacer Primero</h2>

@@ -446,7 +446,7 @@ function Reportes() {
         <div>
           <span className="reportsBadge">Mapa actual</span>
 
-          <h1>Reportes globales</h1>
+          <h1>Reportes Globales</h1>
 
           <p>
             Consulta las barreras físicas reportadas por la comunidad. Estos
@@ -460,31 +460,31 @@ function Reportes() {
         <article className="statCard">
           <span>Total</span>
           <strong>{totalReportes}</strong>
-          <p>reportes registrados</p>
+          <p>Reportes Registrados</p>
         </article>
 
         <article className="statCard">
-          <span>Prioridad alta</span>
+          <span>Prioridad Alta</span>
           <strong>{reportesAltaPrioridad}</strong>
-          <p>barreras críticas</p>
+          <p>Barreras Críticas</p>
         </article>
 
         <article className="statCard">
           <span>Activos</span>
           <strong>{reportesActivos}</strong>
-          <p>reportes pendientes</p>
+          <p>Reportes Pendientes</p>
         </article>
 
         <article className="statCard">
-          <span>Por verificar</span>
+          <span>Por Verificar</span>
           <strong>{requierenVerificacion}</strong>
-          <p>requieren validación</p>
+          <p>Requieren Validación</p>
         </article>
       </section>
 
       <section className="reportsControls">
         <div className="searchBox">
-          <label>Buscar reporte</label>
+          <label>Buscar Reporte</label>
 
           <input
             type="text"
@@ -503,8 +503,8 @@ function Reportes() {
           >
             <option value="todos">Todos</option>
             <option value="activos">Activos</option>
-            <option value="verificacion">Requieren verificación</option>
-            <option value="altaPrioridad">Alta prioridad</option>
+            <option value="verificacion">Requieren Verificación</option>
+            <option value="altaPrioridad">Alta Prioridad</option>
           </select>
         </div>
 
@@ -552,17 +552,17 @@ function Reportes() {
         </div>
 
         <div className="filterBox">
-          <label>Ordenar por</label>
+          <label>Ordenar Por</label>
 
           <select
             value={ordenamiento}
             onChange={(e) => setOrdenamiento(e.target.value)}
           >
-            <option value="recientes">Más recientes</option>
-            <option value="prioridad">Mayor prioridad</option>
-            <option value="severidad">Mayor severidad</option>
-            <option value="confianzaBaja">Menor confianza</option>
-            <option value="verificacion">Requiere verificación</option>
+            <option value="recientes">Más Recientes</option>
+            <option value="prioridad">Mayor Prioridad</option>
+            <option value="severidad">Mayor Severidad</option>
+            <option value="confianzaBaja">Menor Confianza</option>
+            <option value="verificacion">Requiere Verificación</option>
           </select>
         </div>
       </section>
@@ -734,7 +734,7 @@ function Reportes() {
                   </div>
 
                   <div className="communityValidationBox">
-                    <strong>Validación comunitaria</strong>
+                    <strong>Validación Comunitaria</strong>
 
                     <p>
                       {reporte.confirmations ?? 0} usuarios confirmaron que
@@ -748,7 +748,7 @@ function Reportes() {
                         onClick={() => confirmarReporte(reporte.id)}
                         disabled={accionandoId === reporte.id}
                       >
-                        Sigue ahí
+                        Sigue Ahí
                       </button>
 
                       <button
@@ -756,11 +756,11 @@ function Reportes() {
                         onClick={() => rechazarReporte(reporte.id)}
                         disabled={accionandoId === reporte.id}
                       >
-                        Ya no está
+                        Ya no Está
                       </button>
 
                       <Link to={`/mapa?reportId=${reporte.id}`}>
-                        Ver en mapa
+                        Ver en Mapa
                       </Link>
                     </div>
                   </div>
