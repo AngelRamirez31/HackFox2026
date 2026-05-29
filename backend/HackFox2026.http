@@ -119,6 +119,11 @@ Accept: application/json
 
 ###
 
+GET {{HackFox2026_HostAddress}}/api/routes/options
+Accept: application/json
+
+###
+
 POST {{HackFox2026_HostAddress}}/api/routes/score
 Content-Type: application/json
 
@@ -128,7 +133,26 @@ Content-Type: application/json
     { "lat": 32.515980, "lng": -117.034608 },
     { "lat": 32.510182, "lng": -117.036537 }
   ],
-  "radiusMeters": 80
+  "radiusMeters": 80,
+  "distanceMeters": 1200,
+  "durationSeconds": 900,
+  "travelMode": "walking",
+  "source": "google-directions",
+  "includeReports": true
+}
+
+###
+
+POST {{HackFox2026_HostAddress}}/api/routes/accessibility
+Content-Type: application/json
+
+{
+  "points": [
+    { "lat": 32.514947, "lng": -117.038247 },
+    { "lat": 32.515980, "lng": -117.034608 },
+    { "lat": 32.510182, "lng": -117.036537 }
+  ],
+  "radiusMeters": 50
 }
 
 ###
@@ -202,7 +226,3 @@ Content-Disposition: form-data; name="useGemini"
 true
 --HackFoxCreateWithGeminiBoundary--
 
-###
-
-GET {{HackFox2026_HostAddress}}/api/storage/status
-Accept: application/json

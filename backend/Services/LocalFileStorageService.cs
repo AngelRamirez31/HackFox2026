@@ -92,7 +92,7 @@ public class LocalFileStorageService
         };
     }
 
-    private FileStorageResult ValidateImage(IFormFile? image)
+    private static FileStorageResult ValidateImage(IFormFile? image)
     {
         if (image is null || image.Length == 0)
         {

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import "./Home.css";
 
 function Home() {
+<<<<<<< HEAD
   const reviewItems = [
     {
       badge: "Acceso",
@@ -39,6 +40,8 @@ function Home() {
 
   const reviewLoop = [...reviewItems, ...reviewItems];
 
+=======
+>>>>>>> 969d0f43773b86fecb53aa78984a4427ceae8cb0
   return (
     <main className="home">
       <section className="hero">
@@ -140,6 +143,7 @@ function Home() {
             </p>
           </article>
         </div>
+<<<<<<< HEAD
       </section>
 
       <section className="reviewsSection" aria-labelledby="reviews-title">
@@ -181,6 +185,8 @@ function Home() {
             ))}
           </div>
         </div>
+=======
+>>>>>>> 969d0f43773b86fecb53aa78984a4427ceae8cb0
       </section>
 
       <section className="mission">
