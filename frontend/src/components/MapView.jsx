@@ -40,6 +40,15 @@ const mobilityProfiles = [
   { value: "stroller", label: "Carriola" },
 ];
 
+const reportMapFilters = [
+  { value: "todos", label: "Todos" },
+  { value: "activos", label: "Activos" },
+  { value: "verificacion", label: "Requieren verificación" },
+  { value: "prioridad", label: "Alta prioridad" },
+  { value: "baja-confianza", label: "Baja confianza" },
+];
+
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -91,6 +100,45 @@ function getTrustClass(trustLevel) {
 
 function formatBooleanLabel(value) {
   return value ? "Sí" : "No";
+}
+
+
+function matchesReportFilter(report, filter) {
+  if (filter === "activos") {
+    return report.status === "active";
+  }
+
+  if (filter === "verificacion") {
+    return report.requiresVerification === true;
+  }
+
+  if (filter === "prioridad") {
+    if (report.priorityLevel) {
+      return (
+        report.priorityLevel === "high" ||
+        report.priorityLevel === "critical"
+      );
+    }
+
+    return Number(report.severity) >= 3;
+  }
+
+  if (filter === "baja-confianza") {
+    const trustScore = Number(report.trustScore);
+
+    return (
+      report.trustLevel === "low" ||
+      (report.trustScore != null && Number.isFinite(trustScore) && trustScore < 40)
+    );
+  }
+
+  return true;
+}
+
+
+function getReportFromResponse(payload) {
+  if (!payload) return null;
+  return payload.report || payload.updatedReport || payload;
 }
 
 function normalizeIssueBreakdown(issueBreakdown) {
@@ -280,10 +328,13 @@ function MapView() {
 
   const [reports, setReports] = useState([]);
   const [hotspots, setHotspots] = useState([]);
+  const [reportFilter, setReportFilter] = useState("todos");
   const [selectedReport, setSelectedReport] = useState(null);
   const [selectedHotspot, setSelectedHotspot] = useState(null);
   const [loadingReports, setLoadingReports] = useState(true);
   const [loadingHotspots, setLoadingHotspots] = useState(false);
+  const [validatingReportId, setValidatingReportId] = useState(null);
+  const [validationMessage, setValidationMessage] = useState("");
   const [loadingScore, setLoadingScore] = useState(false);
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [error, setError] = useState("");
@@ -313,7 +364,6 @@ function MapView() {
     try {
       const response = await api.get("/api/reports/map", {
         params: {
-          status: "active",
           limit: 100,
         },
       });
@@ -381,11 +431,105 @@ function MapView() {
 
     const timer = setTimeout(() => {
       setSelectedReport(target);
+      setValidationMessage("");
       setFocusPoint(position);
     }, 0);
 
     return () => clearTimeout(timer);
   }, [reportIdParam, reports]);
+
+  const updateReportReferences = useCallback((updatedReport) => {
+    if (!updatedReport?.id) return;
+
+    setReports((currentReports) =>
+      currentReports.map((report) =>
+        String(report.id) === String(updatedReport.id)
+          ? { ...report, ...updatedReport }
+          : report
+      )
+    );
+
+    setSelectedReport((currentReport) =>
+      currentReport && String(currentReport.id) === String(updatedReport.id)
+        ? { ...currentReport, ...updatedReport }
+        : currentReport
+    );
+
+    setSelectedHotspot((currentHotspot) => {
+      if (!currentHotspot || !Array.isArray(currentHotspot.reports)) {
+        return currentHotspot;
+      }
+
+      return {
+        ...currentHotspot,
+        reports: currentHotspot.reports.map((report) =>
+          String(report.id) === String(updatedReport.id)
+            ? { ...report, ...updatedReport }
+            : report
+        ),
+      };
+    });
+
+    setRouteScore((currentScore) => {
+      if (!currentScore || !Array.isArray(currentScore.impactReports)) {
+        return currentScore;
+      }
+
+      return {
+        ...currentScore,
+        impactReports: currentScore.impactReports.map((report) =>
+          String(report.id) === String(updatedReport.id)
+            ? { ...report, ...updatedReport }
+            : report
+        ),
+      };
+    });
+  }, []);
+
+  const handleCommunityValidation = useCallback(
+    async (reportId, action) => {
+      if (!reportId) return;
+
+      const endpointAction = action === "reject" ? "reject" : "confirm";
+
+      setValidatingReportId(reportId);
+      setValidationMessage("");
+
+      try {
+        const response = await api.post(
+          `/api/reports/${reportId}/${endpointAction}`
+        );
+        const updatedReport = getReportFromResponse(response.data);
+
+        if (updatedReport) {
+          updateReportReferences(updatedReport);
+        }
+
+        setValidationMessage(
+          endpointAction === "confirm"
+            ? "Validación registrada: el reporte sigue ahí."
+            : "Validación registrada: el reporte ya no está."
+        );
+      } catch (err) {
+        setValidationMessage(getApiErrorMessage(err));
+      } finally {
+        setValidatingReportId(null);
+      }
+    },
+    [updateReportReferences]
+  );
+
+  const handleFocusReportOnMap = useCallback((report) => {
+    const position = getMarkerPosition(report);
+
+    if (!Number.isFinite(position.lat) || !Number.isFinite(position.lng)) {
+      return;
+    }
+
+    setSelectedReport(report);
+    setValidationMessage("");
+    setFocusPoint(position);
+  }, []);
 
   const activeReports = useMemo(
     () => reports.filter((report) => report.status === "active"),
@@ -439,7 +583,13 @@ function MapView() {
     [reports]
   );
 
+  const visibleReports = useMemo(
+    () => reports.filter((report) => matchesReportFilter(report, reportFilter)),
+    [reports, reportFilter]
+  );
+
   const hasReports = reports.length > 0;
+  const visibleReportCount = visibleReports.length;
   const hotspotCount = Array.isArray(hotspots) ? hotspots.length : 0;
 
   const routeReady = Boolean(routePoints.origin && routePoints.destination);
@@ -479,6 +629,17 @@ function MapView() {
   const issueItems = useMemo(
     () => normalizeIssueBreakdown(routeScore?.issueBreakdown),
     [routeScore]
+  );
+
+  const selectedReportPosition = useMemo(
+    () => (selectedReport ? getMarkerPosition(selectedReport) : null),
+    [selectedReport]
+  );
+
+  const selectedReportHasPosition = Boolean(
+    selectedReportPosition &&
+      Number.isFinite(selectedReportPosition.lat) &&
+      Number.isFinite(selectedReportPosition.lng)
   );
 
   const setRoutePoint = useCallback((pointType, point) => {
@@ -661,6 +822,25 @@ function MapView() {
     setRouteMode("origin");
   }
 
+  async function refreshMapData() {
+    await Promise.all([loadReports(), loadHotspots()]);
+  }
+
+  function clearMapSelection() {
+    setSelectedReport(null);
+    setSelectedHotspot(null);
+    setValidationMessage("");
+  }
+
+  function resetMapView() {
+    clearRoute();
+    clearMapSelection();
+    setReportFilter("todos");
+    setError("");
+    setHotspotsError("");
+    setRouteError("");
+  }
+
   if (!geoapifyApiKey) {
     return (
       <main className="mapPageShell">
@@ -691,6 +871,11 @@ function MapView() {
             <article>
               <span>Total</span>
               <strong>{reports.length}</strong>
+            </article>
+
+            <article className="statVisible">
+              <span>Visibles</span>
+              <strong>{visibleReportCount}</strong>
             </article>
 
             <article>
@@ -741,6 +926,32 @@ function MapView() {
               </p>
             )}
           </div>
+
+          <section className="mapFilterPanel" aria-label="Filtros de reportes en mapa">
+            <div>
+              <strong>Filtrar marcadores</strong>
+              <p>
+                Mostrando {visibleReportCount} de {reports.length} reportes en el mapa.
+              </p>
+            </div>
+
+            <div className="mapFilterButtons">
+              {reportMapFilters.map((filter) => (
+                <button
+                  type="button"
+                  className={
+                    reportFilter === filter.value
+                      ? "mapFilterButton active"
+                      : "mapFilterButton"
+                  }
+                  onClick={() => setReportFilter(filter.value)}
+                  key={filter.value}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </section>
         </div>
       </section>
 
@@ -794,7 +1005,7 @@ function MapView() {
             />
           )}
 
-          {reports.map((report) => {
+          {visibleReports.map((report) => {
             const position = getMarkerPosition(report);
 
             if (
@@ -812,6 +1023,7 @@ function MapView() {
                 eventHandlers={{
                   click: () => {
                     setSelectedReport(report);
+                    setValidationMessage("");
                     setFocusPoint(position);
                   },
                 }}
@@ -823,7 +1035,10 @@ function MapView() {
             <Popup
               position={toLeafletLatLng(getMarkerPosition(selectedReport))}
               eventHandlers={{
-                remove: () => setSelectedReport(null),
+                remove: () => {
+                  setSelectedReport(null);
+                  setValidationMessage("");
+                },
               }}
           >
             <article className="mapInfoCard">
@@ -892,6 +1107,36 @@ function MapView() {
                     <p>
                       Confirmaciones: {selectedReport.confirmations ?? 0} ·
                       Rechazos: {selectedReport.rejections ?? 0}
+                    </p>
+                  )}
+
+                  {selectedReport.id && (
+                    <div className="mapInfoActions">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCommunityValidation(selectedReport.id, "confirm")
+                        }
+                        disabled={validatingReportId === selectedReport.id}
+                      >
+                        Sigue ahí
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleCommunityValidation(selectedReport.id, "reject")
+                        }
+                        disabled={validatingReportId === selectedReport.id}
+                      >
+                        Ya no está
+                      </button>
+                    </div>
+                  )}
+
+                  {validationMessage && (
+                    <p className="mapInfoValidationMessage">
+                      {validationMessage}
                     </p>
                   )}
                 </div>
@@ -987,6 +1232,248 @@ function MapView() {
       </section>
 
       <section className="mapBottomPanel">
+
+        {selectedReport && (
+          <section className="selectedReportPanel">
+            <div className="selectedReportHeader">
+              <div>
+                <span>Reporte seleccionado</span>
+                <h2>{selectedReport.title || selectedReport.typeLabel || "Reporte"}</h2>
+              </div>
+
+              <button
+                type="button"
+                className="selectedReportCloseButton"
+                onClick={() => {
+                  setSelectedReport(null);
+                  setValidationMessage("");
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div className="selectedReportBody">
+              {selectedReport.imageUrl && (
+                <img
+                  className="selectedReportImage"
+                  src={getImageUrl(selectedReport.imageUrl)}
+                  alt="Reporte seleccionado"
+                />
+              )}
+
+              <div className="selectedReportContent">
+                {selectedReport.description && (
+                  <p className="selectedReportDescription">
+                    {selectedReport.description}
+                  </p>
+                )}
+
+                <div className="selectedReportBadges">
+                  {selectedReport.severityLabel && (
+                    <span className="severityBadge">
+                      Severidad: {selectedReport.severityLabel}
+                    </span>
+                  )}
+
+                  {selectedReport.priorityLabel && (
+                    <span
+                      className={getPriorityClass(selectedReport.priorityLevel)}
+                    >
+                      Prioridad: {selectedReport.priorityLabel}
+                    </span>
+                  )}
+
+                  {selectedReport.trustLabel && (
+                    <span className={getTrustClass(selectedReport.trustLevel)}>
+                      {selectedReport.trustLabel}
+                    </span>
+                  )}
+
+                  {selectedReport.requiresVerification && (
+                    <span className="verificationBadge">
+                      {selectedReport.verificationLabel ||
+                        "Requiere verificación"}
+                    </span>
+                  )}
+
+                  {selectedReport.statusLabel && (
+                    <span className="severityBadge">
+                      {selectedReport.statusLabel}
+                    </span>
+                  )}
+                </div>
+
+                <div className="selectedReportMetaGrid">
+                  {selectedReport.createdAtDisplay && (
+                    <article>
+                      <span>Fecha</span>
+                      <strong>{selectedReport.createdAtDisplay}</strong>
+                    </article>
+                  )}
+
+                  <article>
+                    <span>Confirmaciones</span>
+                    <strong>{selectedReport.confirmations ?? 0}</strong>
+                  </article>
+
+                  <article>
+                    <span>Rechazos</span>
+                    <strong>{selectedReport.rejections ?? 0}</strong>
+                  </article>
+
+                  <article>
+                    <span>Imagen</span>
+                    <strong>
+                      {formatBooleanLabel(
+                        selectedReport.hasImage ||
+                          Boolean(selectedReport.imageUrl)
+                      )}
+                    </strong>
+                  </article>
+
+                  <article>
+                    <span>Gemini</span>
+                    <strong>
+                      {formatBooleanLabel(selectedReport.geminiAnalyzed)}
+                    </strong>
+                  </article>
+
+                  {selectedReport.geminiConfidence !== undefined &&
+                    selectedReport.geminiConfidence !== null && (
+                      <article>
+                        <span>Confianza Gemini</span>
+                        <strong>{selectedReport.geminiConfidence}</strong>
+                      </article>
+                    )}
+
+                  {selectedReportHasPosition && (
+                    <article>
+                      <span>Coordenadas</span>
+                      <strong>
+                        {formatCoordinate(selectedReportPosition.lat)},{" "}
+                        {formatCoordinate(selectedReportPosition.lng)}
+                      </strong>
+                    </article>
+                  )}
+                </div>
+
+                <div className="selectedReportValidation">
+                  <strong>Validación comunitaria</strong>
+                  <p>
+                    {selectedReport.validationSummary ||
+                      `Confirmaciones: ${
+                        selectedReport.confirmations ?? 0
+                      } · Rechazos: ${selectedReport.rejections ?? 0}`}
+                  </p>
+                </div>
+
+                {validationMessage && (
+                  <p className="mapInfoValidationMessage">{validationMessage}</p>
+                )}
+
+                <div className="selectedReportActions">
+                  {selectedReportHasPosition && (
+                    <button
+                      type="button"
+                      className="reportFocusButton"
+                      onClick={() => handleFocusReportOnMap(selectedReport)}
+                    >
+                      Centrar en mapa
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    className="communityConfirmButton"
+                    onClick={() =>
+                      handleCommunityValidation(selectedReport.id, "confirm")
+                    }
+                    disabled={
+                      !selectedReport.id ||
+                      String(validatingReportId) === String(selectedReport.id)
+                    }
+                  >
+                    {String(validatingReportId) === String(selectedReport.id)
+                      ? "Guardando..."
+                      : "Sigue ahí"}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="communityRejectButton"
+                    onClick={() =>
+                      handleCommunityValidation(selectedReport.id, "reject")
+                    }
+                    disabled={
+                      !selectedReport.id ||
+                      String(validatingReportId) === String(selectedReport.id)
+                    }
+                  >
+                    {String(validatingReportId) === String(selectedReport.id)
+                      ? "Guardando..."
+                      : "Ya no está"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+
+        <section className="mapQuickActionsPanel">
+          <div className="mapQuickActionsHeader">
+            <div>
+              <span>Acciones rápidas</span>
+              <h2>Control del mapa</h2>
+            </div>
+
+            <p>
+              Actualiza datos, limpia selección o restablece la vista sin salir
+              del mapa.
+            </p>
+          </div>
+
+          <div className="mapQuickActionsGrid">
+            <button
+              type="button"
+              className="quickActionButton primary"
+              onClick={refreshMapData}
+              disabled={loadingReports || loadingHotspots}
+            >
+              {loadingReports || loadingHotspots
+                ? "Actualizando..."
+                : "Actualizar mapa"}
+            </button>
+
+            <button
+              type="button"
+              className="quickActionButton"
+              onClick={resetMapView}
+            >
+              Restablecer vista
+            </button>
+
+            <button
+              type="button"
+              className="quickActionButton"
+              onClick={clearRoute}
+              disabled={!routePoints.origin && !routePoints.destination && routePath.length === 0}
+            >
+              Limpiar ruta
+            </button>
+
+            <button
+              type="button"
+              className="quickActionButton"
+              onClick={clearMapSelection}
+              disabled={!selectedReport && !selectedHotspot}
+            >
+              Quitar selección
+            </button>
+          </div>
+        </section>
+
         <section className="routePlannerCard">
           <div className="routePlannerHeader">
             <span>Ruta peatonal</span>
@@ -1082,6 +1569,93 @@ function MapView() {
           {routeError && <div className="routeError">{routeError}</div>}
         </section>
 
+
+        <section className="mapLegendPanel" aria-labelledby="map-legend-title">
+          <div className="mapLegendHeader">
+            <div>
+              <span>Guía visual</span>
+              <h2 id="map-legend-title">Leyenda del mapa</h2>
+            </div>
+
+            <p>
+              Usa esta guía para interpretar marcadores, rutas y zonas críticas
+              sin depender solo del color.
+            </p>
+          </div>
+
+          <div className="mapLegendGrid">
+            <article className="mapLegendItem">
+              <span className="legendMarker reportMarkerIcon" aria-hidden="true">
+                ⚠
+              </span>
+              <div>
+                <strong>Reporte ciudadano</strong>
+                <p>Marcador individual de una barrera o problema reportado.</p>
+              </div>
+            </article>
+
+            <article className="mapLegendItem">
+              <span className="legendMarker routePointA" aria-hidden="true">
+                A
+              </span>
+              <div>
+                <strong>Punto A</strong>
+                <p>Inicio de la ruta peatonal seleccionada.</p>
+              </div>
+            </article>
+
+            <article className="mapLegendItem">
+              <span className="legendMarker routePointB" aria-hidden="true">
+                B
+              </span>
+              <div>
+                <strong>Punto B</strong>
+                <p>Destino de la ruta peatonal seleccionada.</p>
+              </div>
+            </article>
+
+            <article className="mapLegendItem">
+              <span className="legendLine" aria-hidden="true"></span>
+              <div>
+                <strong>Ruta calculada</strong>
+                <p>Trayecto generado con Geoapify y evaluado por accesibilidad.</p>
+              </div>
+            </article>
+
+            <article className="mapLegendItem">
+              <span className="legendHotspot" aria-hidden="true"></span>
+              <div>
+                <strong>Zona crítica</strong>
+                <p>Concentración de reportes cercanos detectada por backend.</p>
+              </div>
+            </article>
+
+            <article className="mapLegendItem">
+              <span className="priorityBadge critical">Crítica</span>
+              <div>
+                <strong>Prioridad</strong>
+                <p>Indica urgencia de atención. Puede ser baja, media, alta o crítica.</p>
+              </div>
+            </article>
+
+            <article className="mapLegendItem">
+              <span className="trustBadge high">Alta confianza</span>
+              <div>
+                <strong>Confianza</strong>
+                <p>Resume señales como imagen, Gemini y validación comunitaria.</p>
+              </div>
+            </article>
+
+            <article className="mapLegendItem">
+              <span className="verificationBadge">Requiere verificación</span>
+              <div>
+                <strong>Verificación</strong>
+                <p>El reporte necesita confirmación de la comunidad.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
         <section className="hotspotsPanel">
           <div className="hotspotsHeader">
             <div>
@@ -1169,39 +1743,58 @@ function MapView() {
             {Array.isArray(selectedHotspot.reports) &&
               selectedHotspot.reports.length > 0 && (
                 <div className="hotspotRelatedReports">
-                  {selectedHotspot.reports.map((report, index) => (
-                    <article
-                      className="hotspotRelatedReport"
-                      key={report.id || `${report.typeLabel || "report"}-${index}`}
-                    >
-                      <strong>{report.title || report.typeLabel || "Reporte"}</strong>
+                  {selectedHotspot.reports.map((report, index) => {
+                    const reportPosition = getMarkerPosition(report);
+                    const canFocusReport =
+                      Number.isFinite(reportPosition.lat) &&
+                      Number.isFinite(reportPosition.lng);
 
-                      {report.description && <p>{report.description}</p>}
+                    return (
+                      <article
+                        className="hotspotRelatedReport"
+                        key={report.id || `${report.typeLabel || "report"}-${index}`}
+                      >
+                        <strong>{report.title || report.typeLabel || "Reporte"}</strong>
 
-                      <div className="hotspotReportBadges">
-                        {report.priorityLabel && (
-                          <span
-                            className={getPriorityClass(report.priorityLevel)}
-                          >
-                            {report.priorityLabel}
-                          </span>
+                        {report.description && <p>{report.description}</p>}
+
+                        <div className="hotspotReportBadges">
+                          {report.priorityLabel && (
+                            <span
+                              className={getPriorityClass(report.priorityLevel)}
+                            >
+                              {report.priorityLabel}
+                            </span>
+                          )}
+
+                          {report.trustLabel && (
+                            <span className={getTrustClass(report.trustLevel)}>
+                              {report.trustLabel}
+                            </span>
+                          )}
+
+                          {report.requiresVerification && (
+                            <span className="verificationBadge">
+                              {report.verificationLabel ||
+                                "Requiere verificación"}
+                            </span>
+                          )}
+                        </div>
+
+                        {canFocusReport && (
+                          <div className="hotspotReportActions">
+                            <button
+                              type="button"
+                              className="reportFocusButton"
+                              onClick={() => handleFocusReportOnMap(report)}
+                            >
+                              Ver en mapa
+                            </button>
+                          </div>
                         )}
-
-                        {report.trustLabel && (
-                          <span className={getTrustClass(report.trustLevel)}>
-                            {report.trustLabel}
-                          </span>
-                        )}
-
-                        {report.requiresVerification && (
-                          <span className="verificationBadge">
-                            {report.verificationLabel ||
-                              "Requiere verificación"}
-                          </span>
-                        )}
-                      </div>
-                    </article>
-                  ))}
+                      </article>
+                    );
+                  })}
                 </div>
               )}
           </section>
@@ -1315,65 +1908,84 @@ function MapView() {
                   </div>
 
                   <div className="impactReportsGrid">
-                    {routeScore.impactReports.map((report, index) => (
-                      <article
-                        className="impactReportCard"
-                        key={report.id || `${report.typeLabel || "report"}-${index}`}
-                      >
-                        {report.imageUrl && (
-                          <img
-                            src={getImageUrl(report.imageUrl)}
-                            alt="Reporte que afecta la ruta"
-                          />
-                        )}
+                    {routeScore.impactReports.map((report, index) => {
+                      const reportPosition = getMarkerPosition(report);
+                      const canFocusReport =
+                        Number.isFinite(reportPosition.lat) &&
+                        Number.isFinite(reportPosition.lng);
 
-                        <div className="impactReportContent">
-                          <strong>
-                            {report.title || report.typeLabel || "Reporte"}
-                          </strong>
+                      return (
+                        <article
+                          className="impactReportCard"
+                          key={report.id || `${report.typeLabel || "report"}-${index}`}
+                        >
+                          {report.imageUrl && (
+                            <img
+                              src={getImageUrl(report.imageUrl)}
+                              alt="Reporte que afecta la ruta"
+                            />
+                          )}
 
-                          {report.description && <p>{report.description}</p>}
+                          <div className="impactReportContent">
+                            <strong>
+                              {report.title || report.typeLabel || "Reporte"}
+                            </strong>
 
-                          <div className="impactReportBadges">
-                            {report.severityLabel && (
-                              <span className="severityBadge">
-                                {report.severityLabel}
+                            {report.description && <p>{report.description}</p>}
+
+                            <div className="impactReportBadges">
+                              {report.severityLabel && (
+                                <span className="severityBadge">
+                                  {report.severityLabel}
+                                </span>
+                              )}
+
+                              {report.priorityLabel && (
+                                <span
+                                  className={getPriorityClass(
+                                    report.priorityLevel
+                                  )}
+                                >
+                                  {report.priorityLabel}
+                                </span>
+                              )}
+
+                              {report.trustLabel && (
+                                <span className={getTrustClass(report.trustLevel)}>
+                                  {report.trustLabel}
+                                </span>
+                              )}
+
+                              {report.requiresVerification && (
+                                <span className="verificationBadge">
+                                  {report.verificationLabel ||
+                                    "Requiere verificación"}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="impactReportMeta">
+                              <span>
+                                Confirmaciones: {report.confirmations ?? 0}
                               </span>
-                            )}
+                              <span>Rechazos: {report.rejections ?? 0}</span>
+                            </div>
 
-                            {report.priorityLabel && (
-                              <span
-                                className={getPriorityClass(
-                                  report.priorityLevel
-                                )}
-                              >
-                                {report.priorityLabel}
-                              </span>
-                            )}
-
-                            {report.trustLabel && (
-                              <span className={getTrustClass(report.trustLevel)}>
-                                {report.trustLabel}
-                              </span>
-                            )}
-
-                            {report.requiresVerification && (
-                              <span className="verificationBadge">
-                                {report.verificationLabel ||
-                                  "Requiere verificación"}
-                              </span>
+                            {canFocusReport && (
+                              <div className="impactReportActions">
+                                <button
+                                  type="button"
+                                  className="reportFocusButton"
+                                  onClick={() => handleFocusReportOnMap(report)}
+                                >
+                                  Ver en mapa
+                                </button>
+                              </div>
                             )}
                           </div>
-
-                          <div className="impactReportMeta">
-                            <span>
-                              Confirmaciones: {report.confirmations ?? 0}
-                            </span>
-                            <span>Rechazos: {report.rejections ?? 0}</span>
-                          </div>
-                        </div>
-                      </article>
-                    ))}
+                        </article>
+                      );
+                    })}
                   </div>
                 </section>
               )}
