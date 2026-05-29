@@ -12,8 +12,9 @@
   min-height: 520px;
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  align-items: center;
+  align-items: start;
   gap: 40px;
+  padding-top: 42px;
 }
 
 .heroContent {
@@ -21,6 +22,7 @@
   flex-direction: column;
   gap: 22px;
   animation: slideFromLeft 0.8s ease both;
+  padding-top: 36px;
 }
 
 .badge {
@@ -29,9 +31,8 @@
   color: #1d4ed8;
   font-weight: 700;
   padding: 10px 16px;
-  border-radius: 999px;
+  border-radius: 18px;
   font-size: 0.95rem;
-  animation: fadeUp 0.7s ease both;
 }
 
 .hero h1 {
@@ -40,8 +41,6 @@
   margin: 0;
   color: #0f172a;
   letter-spacing: -1.5px;
-  animation: fadeUp 0.8s ease both;
-  animation-delay: 0.1s;
 }
 
 .heroText {
@@ -50,8 +49,6 @@
   line-height: 1.8;
   color: #475569;
   margin: 0;
-  animation: fadeUp 0.8s ease both;
-  animation-delay: 0.2s;
 }
 
 .heroButtons {
@@ -59,15 +56,13 @@
   gap: 16px;
   flex-wrap: wrap;
   margin-top: 8px;
-  animation: fadeUp 0.8s ease both;
-  animation-delay: 0.3s;
 }
 
 .primaryButton,
 .secondaryButton,
 .missionButton {
   text-decoration: none;
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 14px 22px;
   font-weight: 800;
   transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
@@ -103,182 +98,90 @@
 .heroCard {
   background: rgba(255, 255, 255, 0.86);
   border: 1px solid #dbeafe;
-  border-radius: 30px;
+  border-radius: 22px;
   padding: 32px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
   backdrop-filter: blur(12px);
   animation: slideFromRight 0.9s ease both, softFloat 5s ease-in-out infinite;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.heroCard:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 30px 70px rgba(15, 23, 42, 0.16);
-}
-
-/* Últimos reportes */
-
-.reportsTickerCard {
   overflow: hidden;
 }
 
-.tickerHeader {
+/* Tarjeta de últimos reportes */
+
+.reportsTickerCard {
+  text-align: left;
+}
+
+.tickerTop {
+  width: 100%;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 18px;
-  margin-bottom: 18px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 24px;
 }
 
 .tickerLabel {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: #1d4ed8;
   background-color: #dbeafe;
   border: 1px solid #bfdbfe;
-  padding: 7px 12px;
-  border-radius: 999px;
-  font-size: 0.85rem;
+  padding: 10px 18px;
+  border-radius: 16px;
+  font-size: 0.95rem;
   font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.tickerHeader h2 {
-  font-size: 2rem;
-  margin: 0;
-  color: #0f172a;
-  letter-spacing: -0.6px;
-}
-
-.liveBadge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-weight: 900;
-  font-size: 0.85rem;
-  white-space: nowrap;
 }
 
 .livePulse {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background-color: #22c55e;
   border-radius: 50%;
   animation: pulseLive 1.4s ease-in-out infinite;
 }
 
-.tickerDescription {
-  color: #475569;
-  line-height: 1.7;
-  margin: 0 0 24px;
-}
-
-.tickerWindow {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #eff6ff, #f8fbff);
-  border: 1px solid #dbeafe;
-  padding: 18px 0;
-}
-
-.tickerWindow::before,
-.tickerWindow::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 70px;
-  height: 100%;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.tickerWindow::before {
-  left: 0;
-  background: linear-gradient(90deg, #eff6ff, transparent);
-}
-
-.tickerWindow::after {
-  right: 0;
-  background: linear-gradient(270deg, #eff6ff, transparent);
-}
-
-.tickerTrack {
+.tickerHeader {
   display: flex;
-  gap: 14px;
-  width: max-content;
-  animation: tickerMove 24s linear infinite;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: left;
+  margin-bottom: 18px;
+  width: 100%;
 }
 
-.tickerWindow:hover .tickerTrack {
-  animation-play-state: paused;
-}
-
-.tickerItem {
-  min-width: 190px;
-  background-color: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-}
-
-.tickerItem span {
-  display: inline-block;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 900;
-  margin-bottom: 12px;
-}
-
-.tickerItem.high span {
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
-
-.tickerItem.medium span {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.tickerItem.low span {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.tickerItem strong {
-  display: block;
-  color: #0f172a;
-  font-size: 1rem;
-  margin-bottom: 6px;
-}
-
-.tickerItem p {
+.tickerHeader h2 {
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
   margin: 0;
-  color: #64748b;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  color: #0f172a;
+  letter-spacing: -0.8px;
+  line-height: 1.08;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tickerDescription {
+  max-width: 420px;
+  margin: 0 0 32px 0;
+  color: #475569;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  text-align: left;
 }
 
 .tickerSummary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
-  margin-top: 20px;
+  margin-top: 8px;
 }
 
 .tickerSummary div {
   background-color: #eff6ff;
   border: 1px solid #dbeafe;
-  border-radius: 18px;
-  padding: 16px;
-  text-align: center;
+  border-radius: 16px;
+  padding: 22px 12px;
+  text-align: left;
   transition: transform 0.22s ease, background-color 0.22s ease;
 }
 
@@ -290,14 +193,33 @@
 .tickerSummary strong {
   display: block;
   color: #1d4ed8;
-  font-size: 1.35rem;
-  margin-bottom: 4px;
+  font-size: 1.9rem;
+  margin-bottom: 6px;
 }
 
 .tickerSummary span {
+  display: block;
   color: #64748b;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.homeLiveSummary {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.homeLiveSummary span {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 800;
 }
 
 /* Features */
@@ -306,7 +228,6 @@
   max-width: 1180px;
   margin: 60px auto 0;
   animation: fadeUp 0.9s ease both;
-  animation-delay: 0.2s;
 }
 
 .features h2,
@@ -326,27 +247,10 @@
 .featureCard {
   background-color: white;
   border: 1px solid #e2e8f0;
-  border-radius: 24px;
+  border-radius: 18px;
   padding: 24px;
   box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-  animation: fadeUp 0.8s ease both;
-}
-
-.featureCard:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.featureCard:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.featureCard:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.featureCard:nth-child(4) {
-  animation-delay: 0.4s;
 }
 
 .featureCard:hover {
@@ -361,7 +265,7 @@
   display: grid;
   place-items: center;
   background-color: #eff6ff;
-  border-radius: 18px;
+  border-radius: 14px;
   font-size: 1.7rem;
   margin-bottom: 16px;
   transition: transform 0.22s ease, background-color 0.22s ease;
@@ -384,6 +288,167 @@
   line-height: 1.7;
 }
 
+/* Reviews */
+
+.reviewsSection {
+  max-width: 1180px;
+  margin: 60px auto 0;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid #dbeafe;
+  border-radius: 22px;
+  padding: 30px;
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.reviewsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.reviewsHeader span {
+  color: #1d4ed8;
+  font-weight: 900;
+}
+
+.reviewsHeader h2 {
+  margin: 6px 0 0;
+  color: #0f172a;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: -0.8px;
+}
+
+.reviewsHeader a {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: 900;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 12px 16px;
+  border-radius: 14px;
+}
+
+.reviewsCarouselWrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.reviewsCarouselWrapper::before,
+.reviewsCarouselWrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 80px;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.reviewsCarouselWrapper::before {
+  left: 0;
+  background: linear-gradient(90deg, white, transparent);
+}
+
+.reviewsCarouselWrapper::after {
+  right: 0;
+  background: linear-gradient(270deg, white, transparent);
+}
+
+.reviewsCarouselTrack {
+  display: flex;
+  gap: 18px;
+  width: max-content;
+  animation: reviewsMove 30s linear infinite;
+}
+
+.reviewsCarouselWrapper:hover .reviewsCarouselTrack {
+  animation-play-state: paused;
+}
+
+.reviewCard {
+  width: 280px;
+  min-height: 185px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.07);
+}
+
+.reviewTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.reviewBadge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 14px;
+  padding: 7px 11px;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.badge-primary {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badge-error {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.reviewTime {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.reviewCard h4 {
+  color: #0f172a;
+  font-size: 1.08rem;
+  line-height: 1.35;
+  margin: 0 0 18px;
+}
+
+.reviewUser {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #64748b;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.reviewAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: linear-gradient(135deg, #2563eb, #93c5fd);
+  font-weight: 900;
+}
+
 /* Mission */
 
 .mission {
@@ -391,7 +456,7 @@
   margin: 60px auto 0;
   background-color: #0f172a;
   color: white;
-  border-radius: 30px;
+  border-radius: 22px;
   padding: 36px;
   display: flex;
   justify-content: space-between;
@@ -477,7 +542,8 @@
 }
 
 @keyframes softFloat {
-  0%, 100% {
+  0%,
+  100% {
     translate: 0 0;
   }
 
@@ -486,7 +552,7 @@
   }
 }
 
-@keyframes tickerMove {
+@keyframes reviewsMove {
   from {
     transform: translateX(0);
   }
@@ -497,7 +563,8 @@
 }
 
 @keyframes pulseLive {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
@@ -508,7 +575,7 @@
   }
 }
 
-/* Responsivo */
+/* Responsive */
 
 @media (max-width: 950px) {
   .home {
@@ -519,6 +586,16 @@
     grid-template-columns: 1fr;
     min-height: auto;
     padding-top: 20px;
+  }
+
+  .heroContent {
+    text-align: center;
+    align-items: center;
+    padding-top: 0;
+  }
+
+  .reportsTickerCard {
+    text-align: left;
   }
 
   .featureGrid {
@@ -538,11 +615,6 @@
 
   .hero {
     gap: 28px;
-  }
-
-  .heroContent {
-    text-align: center;
-    align-items: center;
   }
 
   .badge {
@@ -573,30 +645,57 @@
   }
 
   .heroCard,
-  .mission {
-    border-radius: 22px;
+  .mission,
+  .reviewsSection {
+    border-radius: 18px;
     padding: 24px;
     animation-name: fadeUp;
     animation-duration: 0.8s;
     animation-iteration-count: 1;
   }
 
+  .tickerTop {
+    justify-content: flex-start;
+  }
+
+  .tickerLabel {
+    font-size: 0.88rem;
+    padding: 9px 14px;
+  }
+
   .tickerHeader {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .tickerHeader h2 {
+    text-align: left;
+    font-size: 1.85rem;
+    white-space: nowrap;
   }
 
   .tickerDescription {
-    text-align: center;
+    text-align: left;
+    margin: 0 0 22px 0;
+    font-size: 1rem;
   }
 
   .tickerSummary {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 
-  .tickerItem {
-    min-width: 175px;
+  .tickerSummary div {
+    padding: 14px 8px;
+    text-align: left;
+  }
+
+  .tickerSummary strong {
+    font-size: 1.45rem;
+  }
+
+  .tickerSummary span {
+    font-size: 0.85rem;
   }
 
   .features {
@@ -613,8 +712,28 @@
     grid-template-columns: 1fr;
   }
 
+  .reviewsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reviewCard {
+    width: 250px;
+  }
+
   .mission {
     text-align: center;
+    align-items: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .tickerHeader h2 {
+    font-size: 1.65rem;
+  }
+
+  .tickerSummary {
+    grid-template-columns: 1fr;
   }
 }
 
