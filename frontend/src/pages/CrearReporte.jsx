@@ -299,7 +299,7 @@ function CrearReporte() {
             <textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Ejemplo: La banqueta está rota y una silla de ruedas no puede pasar. Si subes foto, Gemini puede sugerirla."
+              placeholder="La banqueta está rota y una silla de ruedas no puede pasar. Si subes foto, Gemini puede sugerirla."
               rows="5"
               disabled={enviando}
             />
@@ -369,12 +369,15 @@ function CrearReporte() {
             </div>
           </div>
 
-          <div className="formGroup">
+          <div className="formGroup locationGroup">
             <label>Ubicación</label>
 
+          <div className="locationActionRow">
             <button type="button" className="locationButton" onClick={obtenerUbicacion} disabled={enviando}>
-              Obtener ubicación actual
+              <span className="locationButtonLoader" aria-hidden="true"></span>
+              <span className="locationButtonText">Obtener ubicación actual</span>
             </button>
+          </div>
 
             {ubicacion && (
               <div className="locationInfo">

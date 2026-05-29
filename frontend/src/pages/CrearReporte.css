@@ -320,6 +320,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 0.8rem;
 }
 
 .fileStatusIcon,
@@ -403,20 +404,48 @@
   display: none;
 }
 
-.locationButton {
+.locationButton,
+.submitButton {
+  width: 52%;
+  max-width: 430px;
+  min-width: 240px;
+  margin: 0 auto;
   border: none;
-  background-color: #0f172a;
-  color: white;
-  padding: 14px 18px;
-  border-radius: 16px;
+  border-radius: 18px;
+  padding: 16px 20px;
   font-weight: 800;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.locationButton:hover {
+.locationButton {
+  background-color: #0f172a;
+  color: white;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.submitButton {
+  background-color: #2563eb;
+  color: white;
+  font-size: 1.1rem;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.locationButton:hover,
+.submitButton:hover {
   transform: translateY(-2px);
+}
+
+.locationButton:hover {
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.2);
+}
+
+.submitButton:hover {
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.32);
 }
 
 .locationInfo {
@@ -439,25 +468,6 @@
   border-radius: 16px;
   font-weight: 700;
   margin-bottom: 20px;
-}
-
-.submitButton {
-  width: 100%;
-  border: none;
-  border-radius: 18px;
-  padding: 16px;
-  background-color: #2563eb;
-  color: white;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.submitButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.32);
 }
 
 .reportTips {
@@ -569,9 +579,22 @@
     grid-template-columns: 1fr;
   }
 
-  .locationButton,
+  .locationActionRow,
   .submitButton {
-    width: 100%;
+    width: 90%;
+    min-width: 0;
+  }
+
+  .locationLoader {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  .locationLoader::after {
+    width: 42px;
+    height: 42px;
+    border-width: 13px;
   }
 
   .photoBox {
@@ -758,3 +781,182 @@
     padding: 24px;
   }
 }
+
+/* Ajuste fino de iconos del uploader */
+
+.photoUploadHeader {
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+}
+
+.photoUploadHeader .photoUploadIcon.material-symbols-outlined {
+  width: 92px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  font-size: 82px !important;
+  line-height: 1;
+  font-variation-settings: "FILL" 0, "wght" 600, "GRAD" 0, "opsz" 48;
+}
+
+.photoUploadCopy {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.photoUploadFooter {
+  align-items: center;
+}
+
+.photoUploadFooter .fileStatusIcon.material-symbols-outlined {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 22px !important;
+  line-height: 1;
+  background: rgba(37, 99, 235, 0.12);
+  color: #2563eb;
+}
+
+.clearPhotoButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearPhotoButton .material-symbols-outlined {
+  font-size: 22px !important;
+  line-height: 1;
+}
+
+.locationButtonLoader {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+}
+
+.locationButtonLoader::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: rgba(255, 255, 255, 0.22);
+  left: 50%;
+  top: 72%;
+  transform: translateX(-50%);
+}
+
+.locationButtonLoader::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 100% 100% 100% 0;
+  box-shadow: 0 0 0 2px white;
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%) rotate(-46deg);
+}
+
+/* Solo se anima al hacer hover */
+.locationButton:hover .locationButtonLoader::before {
+  animation: locationMarkerMove 0.75s ease-in-out infinite;
+}
+
+.locationButton:hover .locationButtonLoader::after {
+  animation: locationMarkerShadow 0.75s ease-in-out infinite;
+}
+
+@keyframes locationMarkerMove {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(-46deg);
+  }
+
+  50% {
+    transform: translate(-50%, calc(-50% - 5px)) rotate(-46deg);
+  }
+}
+
+@keyframes locationMarkerShadow {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.22;
+  }
+
+  50% {
+    transform: translateX(-50%) scale(0.72);
+    opacity: 0.14;
+  }
+}
+
+.locationActionRow,
+.submitButton {
+  width: 52%;
+  max-width: 430px;
+  min-width: 240px;
+  margin: 0 auto;
+}
+
+.locationActionRow {
+  display: flex;
+}
+
+.locationButton,
+.submitButton {
+  border: none;
+  border-radius: 18px;
+  padding: 16px 20px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.locationButton {
+  width: 100%;
+  background-color: #0f172a;
+  color: white;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  white-space: nowrap;
+}
+
+.locationButtonText {
+  white-space: nowrap;
+}
+
+.submitButton {
+  background-color: #2563eb;
+  color: white;
+  font-size: 1.1rem;
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.locationButton:hover,
+.submitButton:hover {
+  transform: translateY(-2px);
+}
+
+.locationButton:hover {
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.2);
+}
+
+.submitButton:hover {
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.32);
+}
+
