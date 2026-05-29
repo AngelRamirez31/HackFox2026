@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  LuAccessibility,
+  LuCamera,
+  LuGlobe,
+  LuMapPinned,
+} from "react-icons/lu";
 import api from "../services/api";
 import "./Home.css";
 
@@ -64,7 +70,9 @@ function Home() {
         if (!active) return;
 
         setSummary(summaryResponse.data);
-        setHotspots(Array.isArray(hotspotsResponse.data) ? hotspotsResponse.data : []);
+        setHotspots(
+          Array.isArray(hotspotsResponse.data) ? hotspotsResponse.data : []
+        );
       } catch {
         if (!active) return;
 
@@ -83,7 +91,11 @@ function Home() {
   }, []);
 
   const totalReports = loadingSummary ? "..." : summary?.totalReports ?? 24;
-  const highPriorityReports = loadingSummary ? "..." : summary?.highPriorityReports ?? 7;
+
+  const highPriorityReports = loadingSummary
+    ? "..."
+    : summary?.highPriorityReports ?? 7;
+
   const hotspotCount = loadingSummary
     ? "..."
     : hotspots.length || summary?.topHotspots?.length || 3;
@@ -104,11 +116,11 @@ function Home() {
 
           <div className="heroButtons">
             <Link to="/mapa" className="primaryButton">
-              Ver Mapa Accesible
+              Ver mapa accesible
             </Link>
 
             <Link to="/crear-reporte" className="secondaryButton">
-              Reportar Una Barrera
+              Reportar una barrera
             </Link>
           </div>
         </div>
@@ -117,12 +129,12 @@ function Home() {
           <div className="tickerTop">
             <span className="tickerLabel">
               <span className="livePulse"></span>
-              Actividad Reciente
+              Actividad reciente
             </span>
           </div>
 
           <div className="tickerHeader">
-            <h2>Últimos Reportes</h2>
+            <h2>Últimos reportes</h2>
           </div>
 
           <p className="tickerDescription">
@@ -133,26 +145,26 @@ function Home() {
           <div className="tickerSummary">
             <div>
               <strong>{totalReports}</strong>
-              <span>Reportes Totales</span>
+              <span>reportes totales</span>
             </div>
 
             <div>
               <strong>{highPriorityReports}</strong>
-              <span>Prioridad Alta</span>
+              <span>prioridad alta</span>
             </div>
 
             <div>
               <strong>{hotspotCount}</strong>
-              <span>Zonas Críticas</span>
+              <span>zonas críticas</span>
             </div>
           </div>
 
           {summary && (
             <div className="homeLiveSummary">
-              <span>{summary.activeReports} Activos</span>
-              <span>{summary.reportsWithImages} Con foto</span>
+              <span>{summary.activeReports ?? 0} activos</span>
+              <span>{summary.reportsWithImages ?? 0} con foto</span>
               <span>
-                {summary.mostCommonBarrierLabel || "Sin Barrera Dominante"}
+                {summary.mostCommonBarrierLabel || "Sin barrera dominante"}
               </span>
             </div>
           )}
@@ -164,8 +176,12 @@ function Home() {
 
         <div className="featureGrid">
           <article className="featureCard">
-            <div className="icon">📍</div>
-            <h3>Planear Trayectos</h3>
+            <div className="icon">
+              <LuMapPinned />
+            </div>
+
+            <h3>Planear trayectos</h3>
+
             <p>
               Consulta el mapa para identificar rutas con menos obstáculos y
               evitar zonas reportadas como peligrosas o inaccesibles.
@@ -173,8 +189,12 @@ function Home() {
           </article>
 
           <article className="featureCard">
-            <div className="icon">📷</div>
-            <h3>Reportar Barreras</h3>
+            <div className="icon">
+              <LuCamera />
+            </div>
+
+            <h3>Reportar barreras</h3>
+
             <p>
               Toma una fotografía, confirma la ubicación y registra el tipo de
               barrera física para que otros usuarios puedan verla.
@@ -182,8 +202,12 @@ function Home() {
           </article>
 
           <article className="featureCard">
-            <div className="icon">🌎</div>
-            <h3>Ver Reportes Globales</h3>
+            <div className="icon">
+              <LuGlobe />
+            </div>
+
+            <h3>Ver reportes globales</h3>
+
             <p>
               Explora los reportes realizados por la comunidad y ayuda a
               mantener actualizado el mapa de accesibilidad de la ciudad.
@@ -191,8 +215,12 @@ function Home() {
           </article>
 
           <article className="featureCard">
-            <div className="icon">♿</div>
-            <h3>Diseño Accesible</h3>
+            <div className="icon">
+              <LuAccessibility />
+            </div>
+
+            <h3>Diseño accesible</h3>
+
             <p>
               Pensado para adultos mayores, personas con discapacidad motriz y
               familias que necesitan trayectos más seguros.
@@ -204,11 +232,11 @@ function Home() {
       <section className="reviewsSection" aria-labelledby="reviews-title">
         <div className="reviewsHeader">
           <div>
-            <span>Comunidad Activa</span>
-            <h2 id="reviews-title">Reviews Relevantes</h2>
+            <span>Comunidad activa</span>
+            <h2 id="reviews-title">Reviews más relevantes</h2>
           </div>
 
-          <Link to="/mapa">Ver Mapa</Link>
+          <Link to="/mapa">Ver mapa</Link>
         </div>
 
         <div className="reviewsCarouselWrapper">
@@ -234,6 +262,7 @@ function Home() {
                   <div className="reviewAvatar">
                     {item.user.charAt(1).toUpperCase()}
                   </div>
+
                   <span>Por {item.user}</span>
                 </div>
               </article>
@@ -245,6 +274,7 @@ function Home() {
       <section className="mission">
         <div>
           <h2>Una ciudad más accesible empieza con datos reales</h2>
+
           <p>
             Cada reporte ayuda a visibilizar problemas que muchas veces pasan
             desapercibidos. Streets-H convierte la participación ciudadana en
@@ -253,7 +283,7 @@ function Home() {
         </div>
 
         <Link to="/crear-reporte" className="missionButton">
-          Crear Primer Reporte
+          Crear primer reporte
         </Link>
       </section>
     </main>
