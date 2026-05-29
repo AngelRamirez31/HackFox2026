@@ -42,6 +42,7 @@ else
 
 builder.Services.AddScoped<LocalFileStorageService>();
 builder.Services.AddScoped<AccessibilityScoringService>();
+builder.Services.AddScoped<ReportAnalyticsService>();
 builder.Services.AddScoped<DemoReportSeeder>();
 builder.Services.AddHttpClient<GeminiVisionService>();
 

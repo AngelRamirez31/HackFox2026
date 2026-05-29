@@ -285,3 +285,19 @@ Firestore guarda solamente la referencia `imageUrl`, por ejemplo:
 ```
 
 Esta decisión evita requerir Firebase Storage/Blaze para la demo. No subas las imágenes generadas al repositorio.
+
+
+## Endpoints backend útiles para la demo
+
+```text
+GET  /api/health?deep=true
+GET  /api/app/config
+GET  /api/dashboard/summary
+GET  /api/reports/hotspots
+GET  /api/reports/map
+POST /api/reports/analyze-and-create
+POST /api/routes/score
+POST /api/demo/reset-reports?seed=true
+```
+
+El backend mantiene Firestore para datos, Gemini para análisis de imágenes y almacenamiento local para fotos de reportes durante la demo local.
