@@ -335,6 +335,7 @@ function MapView() {
   const [loadingHotspots, setLoadingHotspots] = useState(false);
   const [validatingReportId, setValidatingReportId] = useState(null);
   const [validationMessage, setValidationMessage] = useState("");
+  const [routeCopyMessage, setRouteCopyMessage] = useState("");
   const [loadingScore, setLoadingScore] = useState(false);
   const [loadingRoute, setLoadingRoute] = useState(false);
   const [error, setError] = useState("");
@@ -652,6 +653,7 @@ function MapView() {
     setRouteSummary(null);
     setRouteScore(null);
     setRouteError("");
+    setRouteCopyMessage("");
   }, []);
 
   const handleMapClick = useCallback(
@@ -819,6 +821,7 @@ function MapView() {
     setRouteSummary(null);
     setRouteScore(null);
     setRouteError("");
+    setRouteCopyMessage("");
     setRouteMode("origin");
   }
 
@@ -839,6 +842,109 @@ function MapView() {
     setError("");
     setHotspotsError("");
     setRouteError("");
+  }
+
+  function buildRouteSummaryText() {
+    if (!routeScore) {
+      return "";
+    }
+
+    const lines = [
+      "Resumen de ruta accesible",
+      "",
+      `Accesibilidad: ${routeAccessibilityPercent}%`,
+    ];
+
+    if (routeScore.levelLabel) {
+      lines.push(`Nivel: ${routeScore.levelLabel}`);
+    }
+
+    if (routeScore.mobilityProfileLabel) {
+      lines.push(`Perfil evaluado: ${routeScore.mobilityProfileLabel}`);
+    }
+
+    if (routeSummary?.distance || routeSummary?.duration) {
+      lines.push(
+        `Distancia y tiempo: ${routeSummary?.distance || "No disponible"} · ${
+          routeSummary?.duration || "No disponible"
+        }`
+      );
+    }
+
+    lines.push(`Punto A: ${formatPoint(routePoints.origin)}`);
+    lines.push(`Punto B: ${formatPoint(routePoints.destination)}`);
+    lines.push("");
+
+    lines.push(
+      getRouteExplanation(routeScore, routeAccessibilityPercent)
+    );
+
+    if (routeScore.beforeLeavingRecommendation) {
+      lines.push("");
+      lines.push("Antes de salir:");
+      lines.push(routeScore.beforeLeavingRecommendation);
+    }
+
+    if (issueItems.length > 0) {
+      lines.push("");
+      lines.push("Problemas detectados:");
+      issueItems.forEach((item) => {
+        lines.push(`- ${item.label}: ${item.count}`);
+      });
+    }
+
+    if (Array.isArray(routeScore.impactReports) && routeScore.impactReports.length > 0) {
+      lines.push("");
+      lines.push("Reportes que afectan la ruta:");
+      routeScore.impactReports.forEach((report, index) => {
+        const title = report.title || report.typeLabel || `Reporte ${index + 1}`;
+        const details = [
+          report.severityLabel,
+          report.priorityLabel,
+          report.trustLabel,
+          report.requiresVerification
+            ? report.verificationLabel || "Requiere verificación"
+            : null,
+        ].filter(Boolean);
+
+        lines.push(`- ${title}${details.length > 0 ? ` (${details.join(" · ")})` : ""}`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function copyTextToClipboard(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+  }
+
+  async function handleCopyRouteSummary() {
+    const summaryText = buildRouteSummaryText();
+
+    if (!summaryText) {
+      setRouteCopyMessage("Calcula una ruta antes de copiar el resumen.");
+      return;
+    }
+
+    try {
+      await copyTextToClipboard(summaryText);
+      setRouteCopyMessage("Resumen de ruta copiado.");
+    } catch {
+      setRouteCopyMessage("No se pudo copiar el resumen automáticamente.");
+    }
   }
 
   if (!geoapifyApiKey) {
@@ -864,6 +970,61 @@ function MapView() {
             Selecciona un punto A y un punto B en el mapa para trazar una ruta
             peatonal con Geoapify y calcular su accesibilidad.
           </p>
+
+          <div className="mapOverviewBottomCards">
+            <div className="mapExecutiveSummary">
+              <strong>Resumen urbano</strong>
+
+              {hasReports ? (
+                <p>
+                  Actualmente hay {activeReports.length} reportes activos,{" "}
+                  {highPriorityReports.length} de alta prioridad
+                  {criticalReports.length > 0
+                    ? `, ${criticalReports.length} críticos`
+                    : ""}{" "}
+                  y {verificationReports.length} que requieren verificación
+                  comunitaria.
+                  {hotspotCount > 0
+                    ? ` También se detectaron ${hotspotCount} zonas críticas.`
+                    : " No se detectaron zonas críticas por ahora."}
+                </p>
+              ) : (
+                <p>
+                  Aún no hay suficientes reportes para generar un resumen urbano.
+                </p>
+              )}
+            </div>
+
+            <section
+              className="mapFilterPanel"
+              aria-label="Filtros de reportes en mapa"
+            >
+              <div>
+                <strong>Filtrar marcadores</strong>
+                <p>
+                  Mostrando {visibleReportCount} de {reports.length} reportes
+                  en el mapa.
+                </p>
+              </div>
+
+              <div className="mapFilterButtons">
+                {reportMapFilters.map((filter) => (
+                  <button
+                    type="button"
+                    className={
+                      reportFilter === filter.value
+                        ? "mapFilterButton active"
+                        : "mapFilterButton"
+                    }
+                    onClick={() => setReportFilter(filter.value)}
+                    key={filter.value}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </section>
+          </div>
         </div>
 
         <div className="mapOverviewAside">
@@ -903,55 +1064,6 @@ function MapView() {
               <strong>{hotspotCount}</strong>
             </article>
           </div>
-
-          <div className="mapExecutiveSummary">
-            <strong>Resumen urbano</strong>
-
-            {hasReports ? (
-              <p>
-                Actualmente hay {activeReports.length} reportes activos,{" "}
-                {highPriorityReports.length} de alta prioridad
-                {criticalReports.length > 0
-                  ? `, ${criticalReports.length} críticos`
-                  : ""}{" "}
-                y {verificationReports.length} que requieren verificación
-                comunitaria.
-                {hotspotCount > 0
-                  ? ` También se detectaron ${hotspotCount} zonas críticas.`
-                  : " No se detectaron zonas críticas por ahora."}
-              </p>
-            ) : (
-              <p>
-                Aún no hay suficientes reportes para generar un resumen urbano.
-              </p>
-            )}
-          </div>
-
-          <section className="mapFilterPanel" aria-label="Filtros de reportes en mapa">
-            <div>
-              <strong>Filtrar marcadores</strong>
-              <p>
-                Mostrando {visibleReportCount} de {reports.length} reportes en el mapa.
-              </p>
-            </div>
-
-            <div className="mapFilterButtons">
-              {reportMapFilters.map((filter) => (
-                <button
-                  type="button"
-                  className={
-                    reportFilter === filter.value
-                      ? "mapFilterButton active"
-                      : "mapFilterButton"
-                  }
-                  onClick={() => setReportFilter(filter.value)}
-                  key={filter.value}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-          </section>
         </div>
       </section>
 
@@ -1880,6 +1992,25 @@ function MapView() {
                 <p>{routeScore.beforeLeavingRecommendation}</p>
               </section>
             )}
+
+            <section className="routeShareCard">
+              <div>
+                <strong>Resumen de ruta</strong>
+                <p>
+                  Copia un resumen con accesibilidad, perfil evaluado,
+                  recomendación, problemas detectados y reportes que impactan la
+                  ruta.
+                </p>
+              </div>
+
+              <button type="button" onClick={handleCopyRouteSummary}>
+                Copiar resumen
+              </button>
+
+              {routeCopyMessage && (
+                <span className="routeCopyMessage">{routeCopyMessage}</span>
+              )}
+            </section>
 
             {issueItems.length > 0 && (
               <section className="issueBreakdownCard">

@@ -1509,6 +1509,66 @@
   box-shadow: none;
 }
 
+
+.routeShareCard {
+  margin-top: 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.08);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.routeShareCard strong {
+  display: block;
+  color: #1d4ed8;
+  font-size: 1rem;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+
+.routeShareCard p {
+  margin: 0;
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.routeShareCard button {
+  border: none;
+  border-radius: 16px;
+  padding: 12px 16px;
+  background: #0f172a;
+  color: white;
+  font-size: 0.86rem;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.routeShareCard button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.22);
+}
+
+.routeCopyMessage {
+  grid-column: 1 / -1;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
 @media (max-width: 900px) {
   .mapPageShell {
     padding: 22px;
@@ -1660,6 +1720,14 @@
   .routeButtonGrid,
   .routeModeToggle {
     grid-template-columns: 1fr;
+  }
+
+  .routeShareCard {
+    grid-template-columns: 1fr;
+  }
+
+  .routeShareCard button {
+    width: 100%;
   }
 
   .mapQuickActionsHeader,
@@ -1827,4 +1895,142 @@
 .reportFocusButton:focus-visible {
   outline: 3px solid rgba(37, 99, 235, 0.2);
   outline-offset: 2px;
+}
+
+
+/* Ajuste superior: resumen y filtros debajo del título */
+.mapOverviewPanel {
+  align-items: start;
+}
+
+.mapOverviewContent {
+  width: 100%;
+}
+
+.mapOverviewAside {
+  align-self: start;
+  width: min(360px, 100%);
+}
+
+.mapOverviewBottomCards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 26px;
+  text-align: left;
+  align-items: stretch;
+}
+
+.mapOverviewBottomCards .mapExecutiveSummary,
+.mapOverviewBottomCards .mapFilterPanel {
+  height: 100%;
+  margin-top: 0;
+}
+
+.mapOverviewBottomCards .mapExecutiveSummary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.mapOverviewBottomCards .mapFilterPanel {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.mapOverviewBottomCards .mapExecutiveSummary strong,
+.mapOverviewBottomCards .mapExecutiveSummary p,
+.mapOverviewBottomCards .mapFilterPanel strong,
+.mapOverviewBottomCards .mapFilterPanel p {
+  text-align: left;
+}
+
+/* Ajuste de leyenda: 2 filas x 4 columnas en desktop */
+.mapLegendGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mapLegendItem {
+  min-height: 122px;
+}
+
+/* Segunda fila: texto arriba, icono/badge abajo */
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) > :first-child {
+  order: 2;
+  margin-top: 10px;
+}
+
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) > :last-child {
+  order: 1;
+}
+
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) strong,
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) p {
+  text-align: center;
+}
+
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) .priorityBadge,
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) .trustBadge,
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) .verificationBadge,
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) .legendHotspot,
+.mapLegendGrid .mapLegendItem:nth-child(n + 5) .legendLine {
+  margin-inline: auto;
+}
+
+@media (max-width: 900px) {
+  .mapOverviewPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .mapOverviewAside {
+    justify-self: center;
+    width: min(500px, 100%);
+  }
+
+  .mapOverviewBottomCards {
+    grid-template-columns: 1fr;
+  }
+
+  .mapLegendGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .mapOverviewBottomCards {
+    grid-template-columns: 1fr;
+  }
+
+  .mapLegendGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mapLegendItem,
+  .mapLegendGrid .mapLegendItem:nth-child(n + 5) {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .mapLegendItem > :first-child,
+  .mapLegendGrid .mapLegendItem:nth-child(n + 5) > :first-child {
+    order: 1;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .mapLegendItem > :last-child,
+  .mapLegendGrid .mapLegendItem:nth-child(n + 5) > :last-child {
+    order: 2;
+  }
 }
