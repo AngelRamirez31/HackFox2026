@@ -92,9 +92,24 @@ Sirven para validación comunitaria.
 ## Rutas
 
 ```http
+GET /api/routes/options
+```
+
+Devuelve el contrato recomendado para calcular accesibilidad de rutas, incluyendo límites, campos opcionales y niveles de score.
+
+```http
 POST /api/routes/score
 Content-Type: application/json
 ```
+
+Alias equivalente:
+
+```http
+POST /api/routes/accessibility
+Content-Type: application/json
+```
+
+Request mínimo:
 
 ```json
 {
@@ -102,25 +117,78 @@ Content-Type: application/json
     { "lat": 32.514947, "lng": -117.038247 },
     { "lat": 32.515980, "lng": -117.034608 }
   ],
-  "radiusMeters": 80
+  "radiusMeters": 50
 }
 ```
 
-El frontend puede mandar los puntos de una ruta generada con Google Maps Routes, Directions o un polyline decodificado. El backend cruza esos puntos con reportes activos cercanos y devuelve un score de accesibilidad.
+Request recomendado cuando el frontend ya tenga la ruta real de Google Directions/Routes:
+
+```json
+{
+  "points": [
+    { "lat": 32.514947, "lng": -117.038247 },
+    { "lat": 32.515980, "lng": -117.034608 },
+    { "lat": 32.510182, "lng": -117.036537 }
+  ],
+  "radiusMeters": 50,
+  "distanceMeters": 1200,
+  "durationSeconds": 900,
+  "travelMode": "walking",
+  "source": "google-directions",
+  "includeReports": true
+}
+```
+
+El frontend debe mandar los puntos del polyline real de Google Maps. El backend no calcula la ruta A → B; solo analiza accesibilidad sobre la ruta ya generada.
+
+La mejora importante de esta iteración es que el backend calcula distancia de cada reporte a los segmentos de la ruta, no únicamente a puntos individuales. Así se detectan barreras ubicadas entre dos puntos del polyline.
 
 Respuesta esperada:
 
 ```json
 {
   "score": 72,
+  "accessibilityPercent": 72,
   "level": "medium",
+  "levelLabel": "Ruta con precaución",
   "color": "yellow",
-  "radiusMeters": 80,
+  "message": "La ruta tiene barreras cercanas. Se recomienda avanzar con precaución.",
+  "summary": "Ruta con precaución: se detectaron 2 reportes cercanos.",
+  "radiusMeters": 50,
   "nearbyReports": 2,
+  "nearbyReportIds": [2, 7],
   "warnings": ["1 banqueta dañada", "1 rampa bloqueada"],
-  "reports": []
+  "routeStyle": {
+    "strokeColor": "#f59e0b",
+    "strokeOpacity": 0.9,
+    "strokeWeight": 6,
+    "badgeLabel": "Amarillo",
+    "description": "Ruta con precaución"
+  },
+  "impactReports": [
+    {
+      "id": 7,
+      "type": "blocked_ramp",
+      "typeLabel": "Rampa bloqueada",
+      "distanceMeters": 18.4,
+      "distanceLabel": "18 m",
+      "penalty": 18,
+      "impactLevel": "high",
+      "impactLabel": "Impacto alto"
+    }
+  ],
+  "routeLengthMeters": 1190.5,
+  "routeLengthLabel": "1.19 km",
+  "googleDistanceMeters": 1200,
+  "googleDistanceLabel": "1.2 km",
+  "durationSeconds": 900,
+  "durationLabel": "15 min",
+  "travelMode": "walking",
+  "source": "google-directions"
 }
 ```
+
+`routeStyle` se puede usar directamente para pintar la ruta en el frontend según accesibilidad.
 
 ## Estadísticas
 
